@@ -1,0 +1,836 @@
+#!/usr/bin/env python3
+"""
+Cercocasa Umbria - video automatici per Instagram e TikTok.
+
+Ogni esecuzione:
+  1. sceglie un annuncio dal sito (ruotando tra le agenzie, mai due volte lo stesso)
+  2. scarica le foto e crea un video verticale 1080x1920
+  3. scrive il testo del post con hashtag
+  4. pubblica su Instagram (Reel) e TikTok, se le chiavi sono configurate
+
+Uso:
+  python cercocasa_social.py                 # sceglie, crea e pubblica
+  python cercocasa_social.py --prova         # crea solo il video, non pubblica
+  python cercocasa_social.py --id 4586       # usa un annuncio preciso
+  python cercocasa_social.py --foto cartella --prova   # video da foto locali (test)
+"""
+import argparse, glob, json, os, random, re, shutil, subprocess, sys, tempfile, time, html
+from datetime import datetime
+from pathlib import Path
+
+import requests
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
+
+# ---------------------------------------------------------------- impostazioni
+SITO = os.environ.get("SITO", "https://www.cercocasaumbria.it").rstrip("/")
+QUI = Path(__file__).resolve().parent
+FONT = QUI / "font" / "Montserrat.ttf"
+MUSICA = QUI / "musica"
+LOGO = QUI / "logo.png"
+VOCE = os.environ.get("VOCE", "it-IT-DiegoNeural")   # voce maschile italiana
+VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-4%")
+VOCE_TONO = os.environ.get("VOCE_TONO", "-8Hz")      # più basso = voce più profonda
+STATO = QUI / "pubblicati.json"
+USCITA = QUI / "video"
+
+W, H, FPS = 1080, 1920, 30
+BLU = (8, 127, 174)          # colore del sito #087fae
+SECONDI_FOTO = 2.6
+DISSOLVENZA = 0.4
+MAX_FOTO = 10
+
+# pagine da cui raccogliere gli annunci (i più recenti per primi)
+PAGINE_ELENCO = [
+    "/mappa-ricerca.php?operation=vendita&sort=recenti",
+    "/",
+    "/case-vendita/perugia/", "/case-vendita/terni/", "/case-vendita/todi/",
+    "/case-vendita/corciano/", "/case-vendita/magione/", "/case-vendita/assisi/",
+    "/case-vendita/marsciano/", "/case-vendita/foligno/", "/case-vendita/spoleto/",
+    "/case-vendita/passignano-sul-trasimeno/", "/prestigio.php",
+]
+
+HTTP = requests.Session()
+HTTP.headers["User-Agent"] = "CercocasaUmbria-Social/1.0 (+https://www.cercocasaumbria.it)"
+
+
+def log(*a):
+    print(datetime.now().strftime("%H:%M:%S"), *a, flush=True)
+
+
+# ---------------------------------------------------------------- lettura sito
+def scarica_testo(url):
+    r = HTTP.get(url, timeout=30)
+    r.raise_for_status()
+    return r.text
+
+
+def raccogli_id():
+    ids = []
+    for p in PAGINE_ELENCO:
+        try:
+            t = scarica_testo(SITO + p)
+        except Exception as e:
+            log("  pagina saltata", p, e)
+            continue
+        for m in re.findall(r"immobile\.php\?id=(\d+)", t):
+            if int(m) not in ids:
+                ids.append(int(m))
+    return ids
+
+
+def pulisci(s):
+    s = re.sub(r"<[^>]+>", " ", s or "")
+    return re.sub(r"\s+", " ", html.unescape(s)).strip()
+
+
+def leggi_annuncio(id_):
+    url = f"{SITO}/immobile.php?id={id_}"
+    t = scarica_testo(url)
+    t = re.sub(r"<(style|script|noscript)[^>]*>.*?</\1>", " ", t, flags=re.S | re.I)
+    testo = pulisci(t)
+
+    def meta(prop):
+        m = re.search(rf'<meta[^>]+(?:property|name)=["\']{prop}["\'][^>]+content=["\']([^"\']*)', t, re.I) \
+            or re.search(rf'<meta[^>]+content=["\']([^"\']*)["\'][^>]+(?:property|name)=["\']{prop}["\']', t, re.I)
+        return html.unescape(m.group(1)).strip() if m else ""
+
+    h1 = re.search(r"<h1[^>]*>(.*?)</h1>", t, re.S | re.I)
+    titolo = pulisci(h1.group(1)) if h1 else meta("og:title").split("|")[0].strip()
+
+    prezzo = ""
+    m = re.search(r"(da\s*)?€\s?\d{1,3}(?:\.\d{3})+", testo)
+    if m:
+        prezzo = m.group(0).replace("€ ", "€ ").strip()
+        if not re.search(r"€ ", prezzo):
+            prezzo = prezzo.replace("€", "€ ")
+
+    comune = ""
+    m = re.search(r"⌖\s*([^⌖()]{2,60}?)\s*\((PG|TR)\)", testo)
+    if m:
+        comune = m.group(1).strip()
+    tt = re.search(r"<title[^>]*>(.*?)</title>", t, re.S | re.I)
+    m = re.search(r"(?:vendita|affitto|asta)\s+a\s+([A-ZÀ-Ýa-zà-ý' ]{2,40}?)\s*(?:[–|,\-(]|$)", pulisci(tt.group(1)) if tt else "")
+    if not m:
+        m = re.search(r"(?:Vendita|Affitto|Asta)\s+a\s+([A-ZÀ-Ý][A-Za-zà-ý' ]{1,40}?)\s*/", testo)
+    if not m:
+        m = re.search(r"\b([A-ZÀ-Ý][A-Za-zà-ý' ]{2,40}?)\s*\((?:PG|TR)\)", testo)
+    if m and not comune:
+        comune = m.group(1).strip()
+    citta = comune.split("·")[0].strip() if comune else ""
+    provincia = "PG" if "(PG)" in testo else ("TR" if "(TR)" in testo else "")
+
+    agenzia = ""
+    for m in re.finditer(r'agenzia\.php\?id=\d+[^>]*>([^<]{3,120})</a>', t, re.I):
+        agenzia = pulisci(m.group(1))
+        break
+
+    def numero(rx):
+        m = re.search(rx, testo, re.I)
+        return m.group(1) if m else ""
+
+    locali = numero(r"(\d+)\s*local[ei]")
+    bagni = numero(r"(\d+)\s*bagn[io]")
+    mq = numero(r"(\d{2,5})\s*m²") or numero(r"(\d{2,5})\s*mq")
+
+    operazione = "IN AFFITTO" if re.search(r"/mese|affitto", prezzo + " " + titolo, re.I) else "IN VENDITA"
+    if "ASTA" in titolo.upper() or prezzo.lower().startswith("da"):
+        operazione = "ALL'ASTA"
+
+    foto = []
+    for f in re.findall(rf'(?:https?://[^"\'\s]+)?/?uploads/properties/{id_}/[^"\'\s)>]+?\.(?:jpe?g|png|webp)', t, re.I):
+        f = f if f.startswith("http") else SITO + "/" + f.lstrip("/")
+        if f not in foto and not re.search(r"thumb|small|mini", f, re.I):
+            foto.append(f)
+    if not foto and meta("og:image"):
+        foto.append(meta("og:image"))
+
+    descrizione, punti = "", []
+    m = re.search(r">\s*Descrizione\s*</h\d>(.*?)<h\d[^>]*>\s*(?:Caratteristiche|Altre caratteristiche|Informazioni)", t, re.S | re.I)
+    if m:
+        blocco = m.group(1)
+        punti = [pulisci(x) for x in re.findall(r"<li[^>]*>(.*?)</li>", blocco, re.S | re.I)]
+        blocco = re.sub(r"<li[^>]*>.*?</li>", " ", blocco, flags=re.S | re.I)
+        blocco = re.sub(r"(?i)<br\s*/?>|</p>|</div>", ". ", blocco)
+        descrizione = pulisci(blocco)
+        descrizione = descrizione.split(" Contatta")[0]
+    if not descrizione:
+        m = re.search(r"\bDescrizione\b(.{40,3000}?)\b(?:Caratteristiche|Altre caratteristiche)\b", testo, re.S)
+        if m:
+            descrizione = m.group(1).strip()
+    camere = numero(r"Camere da letto\s*(\d+)")
+    piano = numero(r"\bPiano\s+(terra|rialzato|ultimo|\d+)\b")
+
+    return dict(id=id_, url=url, titolo=titolo, prezzo=prezzo, comune=comune, citta=citta,
+                descrizione=descrizione, punti=punti, camere=camere, piano=piano,
+                agenzia=agenzia, provincia=provincia, locali=locali, bagni=bagni, mq=mq, operazione=operazione, foto=foto)
+
+
+# ---------------------------------------------------------------- scelta annuncio
+def carica_stato():
+    if STATO.exists():
+        return json.loads(STATO.read_text())
+    return {"pubblicati": []}
+
+
+AGENZIE = QUI / "agenzie_rivista.json"
+
+
+def scegli_da_rivista(stato):
+    """un'agenzia delle riviste al giorno, alternando Perugia e Terni"""
+    elenco = [a for a in json.loads(AGENZIE.read_text(encoding="utf-8"))["agenzie"] if a.get("attiva", True)]
+    if not elenco:
+        return None
+    gia = {p["id"] for p in stato["pubblicati"]}
+    ultima = {}
+    for i, p in enumerate(stato["pubblicati"]):
+        if p.get("agenzia_id"):
+            ultima[p["agenzia_id"]] = i
+    ultima_rivista = next((p.get("rivista") for p in reversed(stato["pubblicati"]) if p.get("rivista")), None)
+    # prima le agenzie dell'altra rivista rispetto a ieri, poi quelle ferme da più tempo
+    elenco.sort(key=lambda a: (a.get("rivista") == ultima_rivista, ultima.get(a["id"], -1)))
+    for ag in elenco:
+        try:
+            pagina = scarica_testo(f"{SITO}/agenzia.php?id={ag['id']}")
+        except Exception as e:
+            log("  agenzia saltata", ag["nome"], e)
+            continue
+        ids = list(dict.fromkeys(int(i) for i in re.findall(r"immobile\.php\?id=(\d+)", pagina)))
+        for id_ in sorted((i for i in ids if i not in gia), reverse=True)[:8]:
+            try:
+                a = leggi_annuncio(id_)
+            except Exception as e:
+                log("  annuncio saltato", id_, e)
+                continue
+            if len(a["foto"]) >= 3 and a["prezzo"]:
+                a["agenzia"] = ag["nome"]
+                a["agenzia_id"], a["rivista"] = ag["id"], ag.get("rivista", "")
+                return a
+        log(f"  {ag['nome']}: nessun annuncio nuovo adatto")
+    return None
+
+
+def scegli_annuncio(stato):
+    if AGENZIE.exists():
+        return scegli_da_rivista(stato)
+    gia = {p["id"] for p in stato["pubblicati"]}
+    ultima_volta = {}
+    for i, p in enumerate(stato["pubblicati"]):
+        ultima_volta[p.get("agenzia", "")] = i
+    candidati = [i for i in raccogli_id() if i not in gia]
+    log(f"annunci trovati non ancora pubblicati: {len(candidati)}")
+    letti = []
+    for id_ in candidati[:25]:
+        try:
+            a = leggi_annuncio(id_)
+        except Exception as e:
+            log("  annuncio saltato", id_, e)
+            continue
+        if len(a["foto"]) >= 3 and a["prezzo"]:
+            letti.append(a)
+    if not letti:
+        return None
+    # agenzia pubblicata da più tempo (o mai) per prima, poi annuncio più nuovo
+    letti.sort(key=lambda a: (ultima_volta.get(a["agenzia"], -1), -a["id"]))
+    return letti[0]
+
+
+# ---------------------------------------------------------------- sottotitoli
+SCARTA = re.compile(r"€|\biva\b|buona fede|propriet[aà] |dati |telefon|contatt|www|@|\brif\b|codice|"
+                    r"agenzia|mediazione|provvigion|appuntamento|chiama|whatsapp|informazion|disponibil", re.I)
+APERTURE = re.compile(r"^(proponiamo|vendesi|si vende|in vendita|vendiamo|offriamo|presentiamo|disponiamo di)\s+(in vendita\s+)?", re.I)
+ARTICOLO = re.compile(r"^(un|una|uno|il|lo|la|l')\s*(?=\w)", re.I)
+
+
+def accorcia(frase, massimo=58):
+    frase = frase.strip(" .,;:-–")
+    if len(frase) <= massimo:
+        return [frase]
+    pezzi, out = re.split(r",\s+|\s+e\s+(?=[a-zà-ù]+\s)|\s+con\s+", frase), []
+    for p in pezzi:
+        p = p.strip(" .,;:-–")
+        if 10 <= len(p) <= massimo:
+            out.append(p)
+    return out
+
+
+def sottotitoli(a, quanti):
+    desc, punti = [], []
+    testo = a.get("descrizione", "")
+    for f in re.split(r"(?<=[.!?;])\s+|\s*[\n•]\s*", testo):
+        f = APERTURE.sub("", f.strip())
+        if len(f) < 12 or SCARTA.search(f) or sum(ch.isdigit() for ch in f) > 8:
+            continue
+        desc += accorcia(f)
+    for p in a.get("punti", []):
+        if not SCARTA.search(p):
+            punti += accorcia(p)
+    desc = [ARTICOLO.sub("", f) for f in desc]
+    # prime 3 frasi della descrizione, poi alternate con i punti di forza
+    frasi = desc[:3]
+    resto_d, resto_p = desc[3:], punti
+    while resto_d or resto_p:
+        if resto_p:
+            frasi.append(resto_p.pop(0))
+        if resto_d:
+            frasi.append(resto_d.pop(0))
+    extra = []
+    if a.get("camere"):
+        extra.append(f"{a['camere']} camer{'a' if a['camere'] == '1' else 'e'} da letto" +
+                     (f" e {a['bagni']} bagn{'o' if a['bagni'] == '1' else 'i'}" if a.get("bagni") else ""))
+    if a.get("mq"):
+        extra.append(f"{a['mq']} metri quadrati")
+    if a.get("piano"):
+        extra.append("Al piano terra" if a["piano"].lower() in ("0", "terra") else f"Al piano {a['piano']}")
+    t = (a.get("titolo", "") + " " + testo).lower()
+    for parola, frase in (("piscina", "Con piscina"), ("giardino", "Con giardino"), ("garage", "Con garage"),
+                          ("terrazz", "Con terrazzo"), ("camino", "Con camino"), ("vista", "Bella vista"),
+                          ("ristruttur", "Ristrutturata")):
+        if parola in t:
+            extra.append(frase)
+    visti, out = set(), []
+    for f in frasi + extra:
+        f = f[0].upper() + f[1:] if f else f
+        chiave = f.lower()[:25]
+        if f and chiave not in visti:
+            visti.add(chiave)
+            out.append(f)
+    return out[:quanti]
+
+
+# ---------------------------------------------------------------- voce narrante
+TIPI = ("trilocale", "bilocale", "quadrilocale", "monolocale", "appartamento", "attico", "villa", "villetta",
+        "casale", "rustico", "casa", "terreno", "negozio", "ufficio", "capannone", "magazzino", "loft", "garage")
+
+
+def testo_voce(a, frasi):
+    t = a["titolo"].lower()
+    tipo = next((x for x in TIPI if x in t), "immobile").capitalize()
+    dove = a["citta"] or "Umbria"
+    op = {"IN VENDITA": "in vendita", "IN AFFITTO": "in affitto", "ALL'ASTA": "all'asta"}[a["operazione"]]
+    parti = [f"{tipo} {op} a {dove}."]
+    parti += [f.rstrip(".") + "." for f in frasi[:6]]
+    car = []
+    if a.get("locali"):
+        car.append(f"{a['locali']} locali")
+    if a.get("bagni"):
+        car.append(f"{a['bagni']} bagn{'o' if a['bagni'] == '1' else 'i'}")
+    if a.get("mq"):
+        car.append(f"{a['mq']} metri quadrati")
+    if car:
+        parti.append(", ".join(car) + ".")
+    prezzo = a["prezzo"].replace("€", "").replace("da", "").strip()
+    parti.append(("Base d'asta: " if a["operazione"] == "ALL'ASTA" else "Prezzo: ") + f"{prezzo} euro.")
+    if a.get("agenzia"):
+        parti.append(f"Annuncio di {a['agenzia'].title()}.")
+    parti.append("Tutte le foto su cercocasa umbria punto it.")
+    return " ".join(parti)
+
+
+def crea_voce(testo, destinazione):
+    """voce neurale gratuita (edge-tts); se non funziona il video esce senza voce"""
+    try:
+        subprocess.run([sys.executable, "-m", "edge_tts", "--voice", VOCE, f"--rate={VOCE_VELOCITA}",
+                        f"--pitch={VOCE_TONO}", "--text", testo, "--write-media", str(destinazione)],
+                       check=True, timeout=120, capture_output=True)
+        out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                              str(destinazione)], capture_output=True, text=True, check=True)
+        return float(out.stdout.strip())
+    except Exception as e:
+        log("  voce non disponibile:", e)
+        return None
+
+
+# ---------------------------------------------------------------- grafica
+def font(dim, peso="ExtraBold"):
+    f = ImageFont.truetype(str(FONT), dim)
+    try:
+        f.set_variation_by_name(peso)
+    except Exception:
+        pass
+    return f
+
+
+def a_capo(draw, testo, f, larghezza, max_righe):
+    parole, righe, riga = testo.split(), [], ""
+    for p in parole:
+        prova = (riga + " " + p).strip()
+        if draw.textlength(prova, font=f) <= larghezza:
+            riga = prova
+        else:
+            righe.append(riga)
+            riga = p
+    righe.append(riga)
+    if len(righe) > max_righe:
+        righe = righe[:max_righe]
+        while draw.textlength(righe[-1] + "…", font=f) > larghezza and " " in righe[-1]:
+            righe[-1] = righe[-1].rsplit(" ", 1)[0]
+        righe[-1] += "…"
+    return righe
+
+
+def sfumatura(alto, basso):
+    """livello trasparente con ombra in alto e in basso per leggere le scritte"""
+    lv = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    px = ImageDraw.Draw(lv)
+    for y in range(alto):
+        px.line([(0, y), (W, y)], fill=(0, 0, 0, int(170 * (1 - y / alto) ** 1.6)))
+    for y in range(basso):
+        px.line([(0, H - 1 - y), (W, H - 1 - y)], fill=(0, 0, 0, int(200 * (1 - y / basso) ** 1.4)))
+    return lv
+
+
+def pillola(d, xy, testo, f, fondo, colore=(255, 255, 255), pad=(28, 14), centro=False):
+    x, y = xy
+    tw = d.textlength(testo, font=f)
+    asc, disc = f.getmetrics()
+    w, h = tw + 2 * pad[0], asc + disc + 2 * pad[1]
+    if centro:
+        x = (W - w) / 2
+    d.rounded_rectangle([x, y, x + w, y + h], radius=h / 2, fill=fondo)
+    d.text((x + pad[0], y + pad[1]), testo, font=f, fill=colore)
+    return h
+
+
+def caratteristiche(a):
+    c = []
+    if a["locali"]:
+        c.append(f'{a["locali"]} locali')
+    if a["bagni"]:
+        c.append(f'{a["bagni"]} bagn{"o" if a["bagni"] == "1" else "i"}')
+    if a["mq"]:
+        c.append(f'{a["mq"]} m²')
+    return "  ·  ".join(c)
+
+
+def livello_apertura(a):
+    lv = sfumatura(760, 1000)
+    d = ImageDraw.Draw(lv)
+    y = 160
+    y += pillola(d, (70, y), a["operazione"] + (f" · {a['citta'].upper()}" if a["citta"] else ""),
+                 font(40, "Bold"), BLU) + 36
+    fp = font(150, "Black")
+    d.text((66, y), a["prezzo"], font=fp, fill="white", stroke_width=2, stroke_fill=(0, 0, 0, 80))
+    y += 175
+    for r in a_capo(d, a["titolo"], font(54, "Bold"), W - 140, 3):
+        d.text((70, y), r, font=font(54, "Bold"), fill="white")
+        y += 68
+    car = caratteristiche(a)
+    if car:
+        pillola(d, (0, H - 600), car, font(46, "Bold"), (255, 255, 255, 235), (20, 20, 20), centro=True)
+    marchio(d, lv)
+    return lv
+
+
+def livello_foto(a, frase=""):
+    lv = sfumatura(330, 420)
+    d = ImageDraw.Draw(lv)
+    if frase:
+        f = font(56, "ExtraBold")
+        righe = a_capo(d, frase, f, W - 180, 2)
+        alt = 74
+        y0 = H - 560 - alt * len(righe)
+        for i, r in enumerate(righe):
+            tw = d.textlength(r, font=f)
+            x = (W - tw) / 2
+            y = y0 + i * alt
+            d.rounded_rectangle([x - 26, y - 10, x + tw + 26, y + alt - 4], radius=16, fill=(0, 0, 0, 165))
+            d.text((x, y), r, font=f, fill="white")
+    marchio(d, lv)
+    d = ImageDraw.Draw(lv)
+    pillola(d, (60, 140), a["prezzo"], font(52, "Black"), BLU)
+    if a["comune"]:
+        d.text((64, 235), a["comune"], font=font(42, "Bold"), fill="white")
+    return lv
+
+
+_logo_cache = {}
+
+
+def logo(lato):
+    if lato not in _logo_cache:
+        if not LOGO.exists():
+            _logo_cache[lato] = None
+        else:
+            im = Image.open(LOGO).convert("RGBA")
+            r = lato / max(im.size)
+            _logo_cache[lato] = im.resize((round(im.width * r), round(im.height * r)), Image.LANCZOS)
+    return _logo_cache[lato]
+
+
+def marchio(d, lv=None):
+    lg = logo(190) if lv is not None else None
+    if lg is not None:
+        lv.alpha_composite(lg, (W - lg.width - 36, 34))
+        return
+    f = font(36, "Bold")
+    t = "CERCOCASA UMBRIA"
+    d.text(((W - d.textlength(t, font=f)) / 2, 58), t, font=f, fill=(255, 255, 255, 230))
+
+
+def immagine_finale(a, sfondo):
+    img = ImageOps.fit(sfondo, (W, H)).filter(ImageFilter.GaussianBlur(28))
+    img = Image.alpha_composite(img.convert("RGBA"), Image.new("RGBA", (W, H), (*BLU, 205)))
+    d = ImageDraw.Draw(img)
+
+    def centra(testo, y, f, colore="white"):
+        d.text(((W - d.textlength(testo, font=f)) / 2, y), testo, font=f, fill=colore)
+
+    lg = logo(430)
+    if lg is not None:
+        img.alpha_composite(lg, ((W - lg.width) // 2, 270))
+        d = ImageDraw.Draw(img)
+    else:
+        centra("CERCOCASA", 470, font(110, "Black"))
+        centra("UMBRIA", 590, font(110, "Black"))
+    centra("Il portale delle case in Umbria", 735, font(44, "SemiBold"))
+    if a["agenzia"]:
+        centra("Annuncio di", 920, font(40, "Medium"))
+        for i, r in enumerate(a_capo(d, a["agenzia"], font(52, "Bold"), W - 140, 2)):
+            centra(r, 975 + i * 64, font(52, "Bold"))
+    pillola(d, (0, 1230), "👉 LINK IN BIO".replace("👉 ", ""), font(56, "Black"), "white", BLU, (44, 22), centro=True)
+    centra("cercocasaumbria.it", 1385, font(50, "Bold"))
+    centra(f"Codice annuncio {a['id']}", 1460, font(40, "Medium"), (255, 255, 255, 220))
+    return img.convert("RGB")
+
+
+def copri(img, verticale_ok=True):
+    """ridimensiona perché copra 1080x1920 lasciando margine per il movimento"""
+    img = ImageOps.exif_transpose(img).convert("RGB")
+    r = max(W / img.width, H / img.height)
+    if img.width / img.height <= W / H:      # foto verticale: un po' di zoom per poter scorrere in verticale
+        r *= 1.12
+    return img.resize((round(img.width * r), round(img.height * r)), Image.LANCZOS)
+
+
+# ---------------------------------------------------------------- video
+def ff(*args):
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", *map(str, args)]
+    subprocess.run(cmd, check=True)
+
+
+def crea_video(a, foto_locali, destinazione):
+    tmp = Path(tempfile.mkdtemp())
+    clip = []
+    foto_locali = foto_locali[:MAX_FOTO]
+    frasi = sottotitoli(a, len(foto_locali) - 1)
+    voce_p = tmp / "voce.mp3"
+    durata_voce = crea_voce(testo_voce(a, frasi), voce_p)
+    sec_foto = SECONDI_FOTO
+    n = len(foto_locali)
+    if durata_voce:
+        log(f"  voce: {durata_voce:.1f} s")
+        # la voce deve finire durante la schermata finale
+        voluto = durata_voce + 1.2
+        sec_foto = min(3.4, max(SECONDI_FOTO, (voluto - (SECONDI_FOTO + 0.8) - 2.6 + DISSOLVENZA * n) / max(1, n - 1)))
+    for i, fp in enumerate(foto_locali):
+        base = copri(Image.open(fp))
+        base_p = tmp / f"b{i}.jpg"
+        base.save(base_p, quality=92)
+        lv = livello_apertura(a) if i == 0 else livello_foto(a, frasi[i - 1] if i - 1 < len(frasi) else "")
+        lv_p = tmp / f"l{i}.png"
+        lv.save(lv_p)
+        dur = (SECONDI_FOTO + 0.8) if i == 0 else sec_foto
+        verso = 1 if i % 2 == 0 else -1
+        # scorrimento lento della foto (effetto "tour")
+        if verso == 1:
+            x, y = f"(iw-{W})*t/{dur}", f"(ih-{H})*t/{dur}"
+        else:
+            x, y = f"(iw-{W})*(1-t/{dur})", f"(ih-{H})*(1-t/{dur})"
+        out = tmp / f"c{i}.mp4"
+        ff("-loop", "1", "-t", dur, "-i", base_p, "-i", lv_p,
+           "-filter_complex", f"[0:v]crop={W}:{H}:x='{x}':y='{y}',fps={FPS},format=yuv420p[b];[b][1:v]overlay=0:0,format=yuv420p",
+           "-t", dur, "-r", FPS, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", out)
+        clip.append((out, dur))
+    # schermata finale
+    fin = immagine_finale(a, Image.open(foto_locali[0]))
+    fin_p = tmp / "fine.jpg"
+    fin.save(fin_p, quality=92)
+    out = tmp / "cfine.mp4"
+    ff("-loop", "1", "-t", 2.6, "-i", fin_p, "-vf", f"fps={FPS},format=yuv420p", "-t", 2.6,
+       "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", out)
+    clip.append((out, 2.6))
+
+    # unione con dissolvenze
+    ingressi, filtri, prec, t = [], [], "0:v", 0.0
+    for c, _ in clip:
+        ingressi += ["-i", c]
+    for k in range(1, len(clip)):
+        t += clip[k - 1][1] - DISSOLVENZA
+        nome = f"v{k}"
+        filtri.append(f"[{prec}][{k}:v]xfade=transition=fade:duration={DISSOLVENZA}:offset={t:.2f}[{nome}]")
+        prec = nome
+    durata = sum(d for _, d in clip) - DISSOLVENZA * (len(clip) - 1)
+
+    brani = sorted(glob.glob(str(MUSICA / "*.mp3")) + glob.glob(str(MUSICA / "*.m4a")))
+    k = len(clip)
+    if brani:
+        audio = ["-stream_loop", "-1", "-i", random.choice(brani)]
+        vol = 0.18 if durata_voce else 0.8      # musica bassa sotto la voce
+        afiltro = f";[{k}:a]atrim=0:{durata:.2f},afade=t=in:d=0.5,afade=t=out:st={durata - 1.2:.2f}:d=1.2,volume={vol}[m]"
+    else:
+        audio = ["-f", "lavfi", "-t", f"{durata:.2f}", "-i", "anullsrc=r=44100:cl=stereo"]
+        afiltro = f";[{k}:a]anull[m]"
+    if durata_voce:
+        audio += ["-i", voce_p]
+        afiltro += (f";[{k + 1}:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=400|400,"
+                    f"volume=1.6,apad,atrim=0:{durata:.2f}[v1];[m][v1]amix=inputs=2:duration=first:normalize=0[a]")
+    else:
+        afiltro += ";[m]anull[a]"
+    ff(*ingressi, *audio, "-filter_complex", ";".join(filtri) + f";[{prec}]format=yuv420p[v]" + afiltro,
+       "-map", "[v]", "-map", "[a]", "-t", f"{durata:.2f}",
+       "-c:v", "libx264", "-preset", "medium", "-crf", "21", "-profile:v", "high", "-pix_fmt", "yuv420p",
+       "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", destinazione)
+    shutil.rmtree(tmp, ignore_errors=True)
+    return durata
+
+
+# ---------------------------------------------------------------- testo del post
+def hashtag(s):
+    s = re.sub(r"[^\w]", "", s.lower().replace("à", "a").replace("è", "e").replace("é", "e")
+               .replace("ì", "i").replace("ò", "o").replace("ù", "u"))
+    return "#" + s if s else ""
+
+
+def prezzo_numero(a):
+    m = re.search(r"\d{1,3}(?:\.\d{3})+", a.get("prezzo", ""))
+    return int(m.group(0).replace(".", "")) if m else 0
+
+
+def gancio(a):
+    """prima riga del post: quella che fa fermare chi scorre"""
+    t, c, p = a["titolo"].lower(), a["citta"] or "Umbria", prezzo_numero(a)
+    if a["operazione"] == "ALL'ASTA":
+        return f"⚖️ All'asta a {c}: si parte {a['prezzo'].replace('da ', 'da ')}!"
+    if a["operazione"] == "IN AFFITTO":
+        return f"🔑 In affitto a {c}: {a['prezzo']}"
+    if any(k in t for k in ("casale", "rustico", "colonica", "tenuta")):
+        return f"🌿 Il sogno di un casale in Umbria: {c}, {a['prezzo']}"
+    if "villa" in t:
+        return f"🏡 Villa a {c} a {a['prezzo']}"
+    if "terreno" in t:
+        return f"🌾 Terreno a {c}: {a['prezzo']}"
+    if 0 < p < 100000:
+        return f"👀 Casa a {c} sotto i 100.000 €: {a['prezzo']}"
+    return f"🏠 Nuova in vendita a {c}: {a['prezzo']}"
+
+
+def hashtags(a, quanti):
+    op = {"IN VENDITA": "#casainvendita", "IN AFFITTO": "#casainaffitto", "ALL'ASTA": "#asteimmobiliari"}[a["operazione"]]
+    prov = "#perugia" if a.get("provincia") == "PG" or a.get("rivista") == "Perugia" else (
+        "#terni" if a.get("provincia") == "TR" or a.get("rivista") == "Terni" else "")
+    tag = [hashtag(a["citta"]), "#umbria", op, prov, "#case", "#immobiliare", "#cercocasaumbria",
+           "#casa", "#casedavendere", "#immobili", "#umbriahouse", "#italianhome", "#realestateitaly"]
+    return " ".join(list(dict.fromkeys(t for t in tag if t))[:quanti])
+
+
+def testo_post(a, social="instagram"):
+    car = caratteristiche(a).replace("  ·  ", " · ")
+    scheda = [x for x in (f"📍 {a['comune']}" if a["comune"] else "", f"💶 {a['prezzo']}",
+                          f"📐 {car}" if car else "") if x]
+    agenzia = f"Annuncio di {a['agenzia']}" if a["agenzia"] else ""
+    domanda = "Che ne pensi del prezzo? Scrivilo nei commenti 👇"
+
+    if social == "facebook":
+        righe = [gancio(a), "", a["titolo"], "", *scheda, ""]
+        righe += [agenzia, "", f"👉 Tutte le foto e i contatti: {a['url']}", "", domanda, "", hashtags(a, 4)]
+    elif social == "tiktok":
+        righe = [gancio(a), f"{a['titolo']}", f"{car}" if car else "", agenzia,
+                 f"Foto e contatti su cercocasaumbria.it (codice {a['id']})", hashtags(a, 5)]
+    else:  # instagram
+        righe = [gancio(a), "", a["titolo"], "", *scheda, "", agenzia, "",
+                 f"👉 Tutte le foto e i contatti su cercocasaumbria.it (link in bio) – codice {a['id']}",
+                 "", domanda, "", "📌 Salva il post e condividilo con chi cerca casa in Umbria", "", hashtags(a, 12)]
+    out = "\n".join(righe)
+    return re.sub(r"\n{3,}", "\n\n", out).strip()
+
+
+# ---------------------------------------------------------------- pubblicazione Instagram
+GRAPH = "https://graph.facebook.com/v21.0"
+
+
+def pubblica_instagram(video, testo):
+    ig, token = os.environ.get("IG_USER_ID"), os.environ.get("IG_TOKEN")
+    if not (ig and token):
+        log("Instagram: chiavi non configurate, salto")
+        return None
+    r = HTTP.post(f"{GRAPH}/{ig}/media", data={
+        "media_type": "REELS", "upload_type": "resumable", "caption": testo,
+        "share_to_feed": "true", "access_token": token}, timeout=60)
+    r.raise_for_status()
+    cont = r.json()["id"]
+    dati = Path(video).read_bytes()
+    r = HTTP.post(f"https://rupload.facebook.com/ig-api-upload/v21.0/{cont}", data=dati, timeout=300,
+                  headers={"Authorization": f"OAuth {token}", "offset": "0", "file_size": str(len(dati))})
+    r.raise_for_status()
+    for _ in range(60):
+        time.sleep(10)
+        s = HTTP.get(f"{GRAPH}/{cont}", params={"fields": "status_code,status", "access_token": token}, timeout=30).json()
+        if s.get("status_code") == "FINISHED":
+            break
+        if s.get("status_code") == "ERROR":
+            raise RuntimeError(f"Instagram ha rifiutato il video: {s}")
+    r = HTTP.post(f"{GRAPH}/{ig}/media_publish", data={"creation_id": cont, "access_token": token}, timeout=60)
+    r.raise_for_status()
+    log("Instagram: pubblicato", r.json())
+    return r.json().get("id")
+
+
+# ---------------------------------------------------------------- pubblicazione Facebook
+def pubblica_facebook(video, testo):
+    pagina, token = os.environ.get("FB_PAGE_ID"), os.environ.get("FB_PAGE_TOKEN") or os.environ.get("IG_TOKEN")
+    if not (pagina and token):
+        log("Facebook: chiavi non configurate, salto")
+        return None
+    # il token della Pagina si ricava dal token di sistema
+    r = HTTP.get(f"{GRAPH}/{pagina}", params={"fields": "access_token", "access_token": token}, timeout=30)
+    if r.ok and r.json().get("access_token"):
+        token = r.json()["access_token"]
+    r = HTTP.post(f"{GRAPH}/{pagina}/video_reels", data={"upload_phase": "start", "access_token": token}, timeout=60)
+    r.raise_for_status()
+    vid = r.json()["video_id"]
+    dati = Path(video).read_bytes()
+    r = HTTP.post(f"https://rupload.facebook.com/video-upload/v21.0/{vid}", data=dati, timeout=300,
+                  headers={"Authorization": f"OAuth {token}", "offset": "0", "file_size": str(len(dati))})
+    r.raise_for_status()
+    r = HTTP.post(f"{GRAPH}/{pagina}/video_reels", data={
+        "upload_phase": "finish", "video_id": vid, "video_state": "PUBLISHED",
+        "description": testo, "access_token": token}, timeout=60)
+    r.raise_for_status()
+    log("Facebook: pubblicato", vid)
+    return vid
+
+
+# ---------------------------------------------------------------- pubblicazione TikTok
+def token_tiktok():
+    rt = os.environ.get("TIKTOK_REFRESH_TOKEN")
+    if not rt:
+        return os.environ.get("TIKTOK_TOKEN")
+    r = HTTP.post("https://open.tiktokapis.com/v2/oauth/token/", data={
+        "client_key": os.environ["TIKTOK_CLIENT_KEY"], "client_secret": os.environ["TIKTOK_CLIENT_SECRET"],
+        "grant_type": "refresh_token", "refresh_token": rt}, timeout=30)
+    r.raise_for_status()
+    return r.json()["access_token"]
+
+
+def pubblica_tiktok(video, testo):
+    token = token_tiktok()
+    if not token:
+        log("TikTok: chiavi non configurate, salto")
+        return None
+    dim = Path(video).stat().st_size
+    modo = os.environ.get("TIKTOK_MODO", "bozza")  # bozza = arriva nelle notifiche TikTok da confermare
+    sorgente = {"source": "FILE_UPLOAD", "video_size": dim, "chunk_size": dim, "total_chunk_count": 1}
+    if modo == "diretto":
+        url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
+        corpo = {"post_info": {"title": testo[:2200], "privacy_level": os.environ.get("TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE"),
+                               "disable_comment": False}, "source_info": sorgente}
+    else:
+        url = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/"
+        corpo = {"source_info": sorgente}
+    r = HTTP.post(url, json=corpo, timeout=60,
+                  headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json; charset=UTF-8"})
+    r.raise_for_status()
+    d = r.json()["data"]
+    r = HTTP.put(d["upload_url"], data=Path(video).read_bytes(), timeout=300, headers={
+        "Content-Type": "video/mp4", "Content-Range": f"bytes 0-{dim - 1}/{dim}"})
+    r.raise_for_status()
+    log(f"TikTok: inviato ({modo})", d.get("publish_id"))
+    return d.get("publish_id")
+
+
+# ---------------------------------------------------------------- avvio
+def scarica_foto(a, cartella):
+    file = []
+    for i, u in enumerate(a["foto"][:MAX_FOTO]):
+        try:
+            r = HTTP.get(u, timeout=60)
+            r.raise_for_status()
+            p = cartella / f"{i:02d}{Path(u).suffix or '.jpg'}"
+            p.write_bytes(r.content)
+            Image.open(p).verify()
+            file.append(p)
+        except Exception as e:
+            log("  foto saltata", u, e)
+    return file
+
+
+PUBBLICA = {"facebook": lambda v, t: pubblica_facebook(v, t),
+            "instagram": lambda v, t: pubblica_instagram(v, t),
+            "tiktok": lambda v, t: pubblica_tiktok(v, t)}
+
+
+def prepara(a, args):
+    """scarica le foto e crea video + testo; restituisce (video, testo) o None"""
+    log(f"Annuncio: {a['id']} – {a['titolo']} – {a['prezzo']} – {a['agenzia']} ({a.get('rivista', '')})")
+    if args.foto:
+        foto = sorted(p for p in Path(args.foto).iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp"))
+    else:
+        foto = scarica_foto(a, Path(tempfile.mkdtemp()))
+    if len(foto) < 3:
+        log("Troppe poche foto, salto.")
+        return None
+    video = USCITA / f"annuncio-{a['id']}.mp4"
+    durata = crea_video(a, foto, video)
+    log(f"Video pronto: {video.name} ({durata:.1f} s)")
+    return video
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--prova", action="store_true", help="crea i video senza pubblicare")
+    ap.add_argument("--id", type=int, help="annuncio preciso")
+    ap.add_argument("--foto", help="cartella di foto locali (per test)")
+    ap.add_argument("--dati", help="file json con i dati dell'annuncio (per test)")
+    args = ap.parse_args()
+
+    stato = carica_stato()
+    USCITA.mkdir(exist_ok=True)
+    social = [x.strip() for x in os.environ.get("SOCIAL", "facebook,instagram,tiktok").split(",") if x.strip()]
+    # diversi = un annuncio (e un'agenzia) diverso per ogni social; uguale = stesso video ovunque
+    modo = os.environ.get("MODO_POST", "diversi")
+
+    if args.dati or args.id:
+        a = json.loads(Path(args.dati).read_text()) if args.dati else leggi_annuncio(args.id)
+        turni = [(a, social)]
+    else:
+        turni = []
+        gruppi = [[s] for s in social] if modo == "diversi" else [social]
+        for gruppo in gruppi:
+            a = scegli_annuncio(stato)
+            if not a:
+                log("Nessun annuncio nuovo per", ",".join(gruppo))
+                continue
+            turni.append((a, gruppo))
+            # segna subito, così il social successivo prende un'altra agenzia
+            stato["pubblicati"].append({"id": a["id"], "agenzia": a["agenzia"], "agenzia_id": a.get("agenzia_id"),
+                                        "rivista": a.get("rivista"), "social": gruppo,
+                                        "data": datetime.now().isoformat(timespec="minutes")})
+
+    errori = totale = 0
+    for a, gruppo in turni:
+        pronto = prepara(a, args)
+        if not pronto:
+            continue
+        video = pronto
+        for nome in gruppo:
+            testo = testo_post(a, nome)
+            (USCITA / f"annuncio-{a['id']}-{nome}.txt").write_text(testo, encoding="utf-8")
+            if args.prova:
+                print(f"\n===== {nome.upper()} =====\n{testo}\n")
+                continue
+            totale += 1
+            try:
+                PUBBLICA[nome](video, testo)
+            except Exception as e:
+                dettagli = getattr(getattr(e, "response", None), "text", "")
+                log(f"{nome}: ERRORE", e, (dettagli or "")[:500])
+                errori += 1
+
+    if not args.prova and not (args.dati or args.id):
+        STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
+    if totale and errori == totale:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
