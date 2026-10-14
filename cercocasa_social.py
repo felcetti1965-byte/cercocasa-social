@@ -82,6 +82,7 @@ def pulisci(s):
 def leggi_annuncio(id_):
     url = f"{SITO}/immobile.php?id={id_}"
     t = scarica_testo(url)
+    t = re.sub(r"<(style|script|noscript)[^>]*>.*?</\1>", " ", t, flags=re.S | re.I)
     testo = pulisci(t)
 
     def meta(prop):
@@ -103,12 +104,21 @@ def leggi_annuncio(id_):
     m = re.search(r"⌖\s*([^⌖()]{2,60}?)\s*\((PG|TR)\)", testo)
     if m:
         comune = m.group(1).strip()
+    tt = re.search(r"<title[^>]*>(.*?)</title>", t, re.S | re.I)
+    m = re.search(r"(?:vendita|affitto|asta)\s+a\s+([A-ZÀ-Ýa-zà-ý' ]{2,40}?)\s*(?:[–|,\-(]|$)", pulisci(tt.group(1)) if tt else "")
+    if not m:
+        m = re.search(r"(?:Vendita|Affitto|Asta)\s+a\s+([A-ZÀ-Ý][A-Za-zà-ý' ]{1,40}?)\s*/", testo)
+    if not m:
+        m = re.search(r"\b([A-ZÀ-Ý][A-Za-zà-ý' ]{2,40}?)\s*\((?:PG|TR)\)", testo)
+    if m and not comune:
+        comune = m.group(1).strip()
     citta = comune.split("·")[0].strip() if comune else ""
+    provincia = "PG" if "(PG)" in testo else ("TR" if "(TR)" in testo else "")
 
     agenzia = ""
-    m = re.search(r'agenzia\.php\?id=\d+[^>]*>(.*?)</a>', t, re.S | re.I)
-    if m:
+    for m in re.finditer(r'agenzia\.php\?id=\d+[^>]*>([^<]{3,120})</a>', t, re.I):
         agenzia = pulisci(m.group(1))
+        break
 
     def numero(rx):
         m = re.search(rx, testo, re.I)
@@ -131,7 +141,7 @@ def leggi_annuncio(id_):
         foto.append(meta("og:image"))
 
     return dict(id=id_, url=url, titolo=titolo, prezzo=prezzo, comune=comune, citta=citta,
-                agenzia=agenzia, locali=locali, bagni=bagni, mq=mq, operazione=operazione, foto=foto)
+                agenzia=agenzia, provincia=provincia, locali=locali, bagni=bagni, mq=mq, operazione=operazione, foto=foto)
 
 
 # ---------------------------------------------------------------- scelta annuncio
@@ -171,7 +181,7 @@ def scegli_da_rivista(stato):
                 log("  annuncio saltato", id_, e)
                 continue
             if len(a["foto"]) >= 3 and a["prezzo"]:
-                a["agenzia"] = a["agenzia"] or ag["nome"]
+                a["agenzia"] = ag["nome"]
                 a["agenzia_id"], a["rivista"] = ag["id"], ag.get("rivista", "")
                 return a
         log(f"  {ag['nome']}: nessun annuncio nuovo adatto")
@@ -426,7 +436,8 @@ def gancio(a):
 
 def hashtags(a, quanti):
     op = {"IN VENDITA": "#casainvendita", "IN AFFITTO": "#casainaffitto", "ALL'ASTA": "#asteimmobiliari"}[a["operazione"]]
-    prov = "#perugia" if a.get("rivista") == "Perugia" else ("#terni" if a.get("rivista") == "Terni" else "")
+    prov = "#perugia" if a.get("provincia") == "PG" or a.get("rivista") == "Perugia" else (
+        "#terni" if a.get("provincia") == "TR" or a.get("rivista") == "Terni" else "")
     tag = [hashtag(a["citta"]), "#umbria", op, prov, "#case", "#immobiliare", "#cercocasaumbria",
            "#casa", "#casedavendere", "#immobili", "#umbriahouse", "#italianhome", "#realestateitaly"]
     return " ".join(list(dict.fromkeys(t for t in tag if t))[:quanti])
