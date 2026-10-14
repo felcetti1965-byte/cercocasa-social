@@ -1,0 +1,63 @@
+name: Video giornaliero Cercocasa
+
+on:
+  schedule:
+    - cron: "22 6 * * *"
+  workflow_dispatch:
+    inputs:
+      prova:
+        description: "Solo prova (crea i 3 video ma non pubblica)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installa programmi
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q -r requirements.txt
+          mkdir -p font
+          [ -f font/Montserrat.ttf ] || curl -sSL -o font/Montserrat.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf"
+
+      - name: Crea e pubblica il video
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+          TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
+          MODO_POST: ${{ vars.MODO_POST || 'diversi' }}
+          SOCIAL: ${{ vars.SOCIAL || 'facebook,instagram,tiktok' }}
+        run: |
+          if [ "${{ inputs.prova }}" = "true" ]; then
+            python cercocasa_social.py --prova
+          else
+            python cercocasa_social.py
+          fi
+
+      - name: Salva il video
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ github.run_number }}
+          path: video/
+          retention-days: 14
+
+      - name: Ricorda gli annunci gia pubblicati
+        if: ${{ inputs.prova != true }}
+        run: |
+          git config user.name "cercocasa-bot"
+          git config user.email "bot@cercocasaumbria.it"
+          git add pubblicati.json
+          git diff --cached --quiet || git commit -m "Pubblicato video del $(date +%F)"
+          git push
