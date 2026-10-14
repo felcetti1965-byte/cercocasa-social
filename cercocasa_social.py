@@ -26,7 +26,8 @@ SITO = os.environ.get("SITO", "https://www.cercocasaumbria.it").rstrip("/")
 QUI = Path(__file__).resolve().parent
 FONT = QUI / "font" / "Montserrat.ttf"
 MUSICA = QUI / "musica"
-LOGO = QUI / "logo.png"
+# usa il primo file .png il cui nome inizia con "logo" (es. logo.png, logo-v191.png)
+LOGO = next(iter(sorted(QUI.glob("logo*.png")) + sorted(QUI.glob("Logo*.png"))), QUI / "logo.png")
 VOCE = os.environ.get("VOCE", "it-IT-DiegoNeural")   # voce maschile italiana
 VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-4%")
 VOCE_TONO = os.environ.get("VOCE_TONO", "-8Hz")      # più basso = voce più profonda
@@ -35,6 +36,8 @@ USCITA = QUI / "video"
 
 W, H, FPS = 1080, 1920, 30
 BLU = (8, 127, 174)          # colore del sito #087fae
+ORO = (190, 145, 40)         # colori del logo
+SCURO = (24, 24, 26)
 SECONDI_FOTO = 2.6
 DISSOLVENZA = 0.4
 MAX_FOTO = 10
@@ -402,65 +405,117 @@ def caratteristiche(a):
     return "  ·  ".join(c)
 
 
+def ombra_testo(d, xy, testo, f, colore="white"):
+    d.text((xy[0] + 2, xy[1] + 3), testo, font=f, fill=(0, 0, 0, 160))
+    d.text(xy, testo, font=f, fill=colore)
+
+
+def tipo_immobile(a):
+    t = a["titolo"].lower()
+    return next((x for x in TIPI if x in t), "immobile").upper()
+
+
 def livello_apertura(a):
-    lv = sfumatura(760, 1000)
+    """stile Moderno: scheda bianca con prezzo, etichetta oro e caratteristiche"""
+    lv = sfumatura(300, 0)
     d = ImageDraw.Draw(lv)
-    y = 160
-    y += pillola(d, (70, y), a["operazione"] + (f" · {a['citta'].upper()}" if a["citta"] else ""),
-                 font(40, "Bold"), BLU) + 36
-    fp = font(150, "Black")
-    d.text((66, y), a["prezzo"], font=fp, fill="white", stroke_width=2, stroke_fill=(0, 0, 0, 80))
-    y += 175
-    for r in a_capo(d, a["titolo"], font(54, "Bold"), W - 140, 3):
-        d.text((70, y), r, font=font(54, "Bold"), fill="white")
-        y += 68
-    car = caratteristiche(a)
-    if car:
-        pillola(d, (0, H - 600), car, font(46, "Bold"), (255, 255, 255, 235), (20, 20, 20), centro=True)
+    x0, x1 = 60, W - 60
+    interno = x1 - x0 - 100
+    f_tag, f_tit, f_zona = font(32, "Bold"), font(44, "SemiBold"), font(36, "Medium")
+    f_prezzo = font(120, "Black")
+    while d.textlength(a["prezzo"], font=f_prezzo) > interno and f_prezzo.size > 70:
+        f_prezzo = font(f_prezzo.size - 6, "Black")
+    tit = a_capo(d, a["titolo"], f_tit, interno, 2)
+    altezza = 50 + 60 + 24 + f_prezzo.size + 22 + len(tit) * 58 + (52 if a["comune"] else 0) + 44
+    y1 = H - 470
+    y0 = y1 - altezza
+    # ombra della scheda
+    om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(om).rounded_rectangle([x0, y0 + 12, x1, y1 + 12], 40, fill=(0, 0, 0, 90))
+    lv.alpha_composite(om.filter(ImageFilter.GaussianBlur(18)))
+    d = ImageDraw.Draw(lv)
+    d.rounded_rectangle([x0, y0, x1, y1], 40, fill=(255, 255, 255, 246))
+    op = {"IN VENDITA": "IN VENDITA", "IN AFFITTO": "IN AFFITTO", "ALL'ASTA": "ALL'ASTA"}[a["operazione"]]
+    tag = f"{tipo_immobile(a)} · {op}"
+    tw = d.textlength(tag, font=f_tag)
+    y = y0 + 50
+    d.rounded_rectangle([x0 + 50, y, x0 + 50 + tw + 48, y + 60], 30, fill=ORO)
+    d.text((x0 + 74, y + 10), tag, font=f_tag, fill="white")
+    y += 60 + 24
+    d.text((x0 + 46, y - 8), a["prezzo"], font=f_prezzo, fill=SCURO)
+    y += f_prezzo.size + 22
+    for r in tit:
+        d.text((x0 + 52, y), r, font=f_tit, fill=(60, 60, 60))
+        y += 58
+    if a["comune"]:
+        d.text((x0 + 52, y + 4), a["comune"], font=f_zona, fill=ORO)
+    # caratteristiche in pillole nere
+    x, y = x0, y1 + 30
+    for c in [c for c in caratteristiche(a).split("  ·  ") if c]:
+        f = font(38, "Bold")
+        w = d.textlength(c, font=f) + 56
+        d.rounded_rectangle([x, y, x + w, y + 70], 35, fill=(*SCURO, 230))
+        d.text((x + 28, y + 12), c, font=f, fill="white")
+        x += w + 16
     marchio(d, lv)
     return lv
 
 
 def livello_foto(a, frase=""):
-    lv = sfumatura(330, 420)
+    """stile Moderno: prezzo in pillola bianca e sottotitolo in riquadro bianco con barra oro"""
+    lv = sfumatura(300, 0)
     d = ImageDraw.Draw(lv)
-    if frase:
-        f = font(56, "ExtraBold")
-        righe = a_capo(d, frase, f, W - 180, 2)
-        alt = 74
-        y0 = H - 560 - alt * len(righe)
-        for i, r in enumerate(righe):
-            tw = d.textlength(r, font=f)
-            x = (W - tw) / 2
-            y = y0 + i * alt
-            d.rounded_rectangle([x - 26, y - 10, x + tw + 26, y + alt - 4], radius=16, fill=(0, 0, 0, 165))
-            d.text((x, y), r, font=f, fill="white")
-    marchio(d, lv)
-    d = ImageDraw.Draw(lv)
-    pillola(d, (60, 140), a["prezzo"], font(52, "Black"), BLU)
+    fp = font(54, "Black")
+    pw = d.textlength(a["prezzo"], font=fp)
+    d.rounded_rectangle([60, 130, 60 + pw + 60, 215], 42, fill=(255, 255, 255, 240))
+    d.text((90, 138), a["prezzo"], font=fp, fill=SCURO)
     if a["comune"]:
-        d.text((64, 235), a["comune"], font=font(42, "Bold"), fill="white")
+        ombra_testo(d, (66, 232), a["comune"], font(38, "Bold"))
+    if frase:
+        f = font(54, "ExtraBold")
+        righe = a_capo(d, frase, f, W - 260, 2)
+        tw = max(d.textlength(r, font=f) for r in righe)
+        x, y = (W - tw) / 2, H - 760
+        h = len(righe) * 72 + 44
+        om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ImageDraw.Draw(om).rounded_rectangle([x - 44, y - 22 + 10, x + tw + 44, y + h - 22 + 10], 22, fill=(0, 0, 0, 80))
+        lv.alpha_composite(om.filter(ImageFilter.GaussianBlur(14)))
+        d = ImageDraw.Draw(lv)
+        d.rounded_rectangle([x - 44, y - 22, x + tw + 44, y + h - 22], 22, fill=(255, 255, 255, 246))
+        d.rounded_rectangle([x - 44, y - 22, x - 30, y + h - 22], 7, fill=ORO)
+        for i, r in enumerate(righe):
+            d.text((x, y + i * 72), r, font=f, fill=SCURO)
+    marchio(d, lv)
     return lv
 
 
 _logo_cache = {}
 
 
-def logo(lato):
-    if lato not in _logo_cache:
+def logo(larghezza, altezza):
+    """logo ridimensionato per stare dentro larghezza x altezza"""
+    chiave = (larghezza, altezza)
+    if chiave not in _logo_cache:
         if not LOGO.exists():
-            _logo_cache[lato] = None
+            _logo_cache[chiave] = None
         else:
             im = Image.open(LOGO).convert("RGBA")
-            r = lato / max(im.size)
-            _logo_cache[lato] = im.resize((round(im.width * r), round(im.height * r)), Image.LANCZOS)
-    return _logo_cache[lato]
+            im = im.crop(im.getchannel("A").getbbox() or (0, 0, im.width, im.height))
+            r = min(larghezza / im.width, altezza / im.height)
+            _logo_cache[chiave] = im.resize((round(im.width * r), round(im.height * r)), Image.LANCZOS)
+    return _logo_cache[chiave]
 
 
 def marchio(d, lv=None):
-    lg = logo(190) if lv is not None else None
+    lg = logo(400, 190) if lv is not None else None
     if lg is not None:
-        lv.alpha_composite(lg, (W - lg.width - 36, 34))
+        # ombra leggera per staccarlo dalle foto chiare
+        ombra = Image.new("RGBA", lg.size, (0, 0, 0, 0))
+        ombra.putalpha(lg.getchannel("A").point(lambda v: v * 0.55))
+        ombra = ombra.filter(ImageFilter.GaussianBlur(6))
+        x, y = W - lg.width - 32, 36
+        lv.alpha_composite(ombra, (x + 3, y + 4))
+        lv.alpha_composite(lg, (x, y))
         return
     f = font(36, "Bold")
     t = "CERCOCASA UMBRIA"
@@ -469,15 +524,15 @@ def marchio(d, lv=None):
 
 def immagine_finale(a, sfondo):
     img = ImageOps.fit(sfondo, (W, H)).filter(ImageFilter.GaussianBlur(28))
-    img = Image.alpha_composite(img.convert("RGBA"), Image.new("RGBA", (W, H), (*BLU, 205)))
+    img = Image.alpha_composite(img.convert("RGBA"), Image.new("RGBA", (W, H), (*SCURO, 215)))
     d = ImageDraw.Draw(img)
 
     def centra(testo, y, f, colore="white"):
         d.text(((W - d.textlength(testo, font=f)) / 2, y), testo, font=f, fill=colore)
 
-    lg = logo(430)
+    lg = logo(940, 430)
     if lg is not None:
-        img.alpha_composite(lg, ((W - lg.width) // 2, 270))
+        img.alpha_composite(lg, ((W - lg.width) // 2, 700 - lg.height - 20))
         d = ImageDraw.Draw(img)
     else:
         centra("CERCOCASA", 470, font(110, "Black"))
@@ -487,7 +542,7 @@ def immagine_finale(a, sfondo):
         centra("Annuncio di", 920, font(40, "Medium"))
         for i, r in enumerate(a_capo(d, a["agenzia"], font(52, "Bold"), W - 140, 2)):
             centra(r, 975 + i * 64, font(52, "Bold"))
-    pillola(d, (0, 1230), "👉 LINK IN BIO".replace("👉 ", ""), font(56, "Black"), "white", BLU, (44, 22), centro=True)
+    pillola(d, (0, 1230), "LINK IN BIO", font(56, "Black"), ORO, "white", (44, 22), centro=True)
     centra("cercocasaumbria.it", 1385, font(50, "Bold"))
     centra(f"Codice annuncio {a['id']}", 1460, font(40, "Medium"), (255, 255, 255, 220))
     return img.convert("RGB")
@@ -522,6 +577,17 @@ def crea_video(a, foto_locali, destinazione):
         # la voce deve finire durante la schermata finale
         voluto = durata_voce + 1.2
         sec_foto = min(3.4, max(SECONDI_FOTO, (voluto - (SECONDI_FOTO + 0.8) - 2.6 + DISSOLVENZA * n) / max(1, n - 1)))
+
+        def totale(k):
+            return (SECONDI_FOTO + 0.8) + (k - 1) * sec_foto + 2.6 - DISSOLVENZA * k
+        # poche foto: riusa le foto (dalla seconda in poi) finché il video copre tutta la voce
+        base = list(foto_locali)
+        j = 1
+        while totale(len(foto_locali)) < voluto and len(foto_locali) < 14 and len(base) > 1:
+            foto_locali.append(base[j])
+            j = j + 1 if j + 1 < len(base) else 1
+        n = len(foto_locali)
+        frasi = sottotitoli(a, n - 1)
     for i, fp in enumerate(foto_locali):
         base = copri(Image.open(fp))
         base_p = tmp / f"b{i}.jpg"
