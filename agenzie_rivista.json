@@ -1,0 +1,10 @@
+{
+  "nota": "Agenzie presenti nelle riviste. 'id' e' il numero nell'indirizzo della pagina agenzia (agenzia.php?id=NUMERO). Metti \"attiva\": false per sospenderne una.",
+  "agenzie": [
+    {"id": 144, "nome": "SINERGIE IMMOBILIARE", "rivista": "Perugia", "attiva": true},
+    {"id": 95,  "nome": "IMPERO IMMOBILIARE", "rivista": "Perugia", "attiva": true},
+    {"id": 8,   "nome": "AFFILIATO TECNOCASA: STUDIO COSPEA SAN GIOVANNI", "rivista": "Terni", "attiva": true},
+    {"id": 136, "nome": "RM L'AGENZIA IMMOBILIARE", "rivista": "Terni", "attiva": true},
+    {"id": 41,  "nome": "CLASSE A IMMOBILIARE DI FUSAROLI ELEONORA", "rivista": "Terni", "attiva": true}
+  ]
+}
