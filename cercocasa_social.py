@@ -845,16 +845,17 @@ GIORNI_IT = ["lunedi", "martedi", "mercoledi", "giovedi", "venerdi", "sabato", "
 MESI_IT = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"]
 
 
-def settimana(stato, args, giorni):
+def settimana(stato, args, giorni, inizio=1):
     """prepara i post di N giorni, da programmare a mano su Meta Business Suite e TikTok Studio:
     ogni giorno 1 video per Facebook+Instagram e 1 video (altra agenzia) per TikTok"""
     from datetime import timedelta
     oggi = datetime.now()
     calendario = ["CALENDARIO POST CERCOCASA UMBRIA", "=" * 34, ""]
     fatti = 0
-    for g in range(1, giorni + 1):
+    for k in range(giorni):
+        g = inizio + k
         giorno = oggi + timedelta(days=g)
-        etichetta = f"{g:02d}-{GIORNI_IT[giorno.weekday()]}-{giorno.day:02d}-{MESI_IT[giorno.month - 1]}"
+        etichetta = f"{k + 1:02d}-{GIORNI_IT[giorno.weekday()]}-{giorno.day:02d}-{MESI_IT[giorno.month - 1]}"
         cartella = USCITA / etichetta
         cartella.mkdir(parents=True, exist_ok=True)
         calendario.append(f"{GIORNI_IT[giorno.weekday()].upper()} {giorno.day} {MESI_IT[giorno.month - 1]}  (cartella {etichetta})")
@@ -899,8 +900,18 @@ def main():
     social = [x.strip() for x in os.environ.get("SOCIAL", "facebook,instagram,tiktok").split(",") if x.strip()]
     # diversi = un annuncio (e un'agenzia) diverso per ogni social; uguale = stesso video ovunque
     modo = os.environ.get("MODO_POST", "diversi")
-    if args.giorni and not (args.dati or args.id):
-        settimana(stato, args, args.giorni)
+    if not (args.dati or args.id):
+        # una volta a settimana prepara i 7 giorni successivi; negli altri giorni non fa niente
+        from datetime import date, timedelta
+        oggi = date.today()
+        future = [date.fromisoformat(p["data"]) for p in stato["pubblicati"]
+                  if isinstance(p.get("data"), str) and len(p["data"]) == 10]
+        ultimo = max(future) if future else None
+        if ultimo and ultimo >= oggi + timedelta(days=1):
+            log(f"I post sono già pronti fino al {ultimo.strftime('%d/%m')}: oggi non serve fare niente.")
+            return
+        inizio = 1 if not ultimo or ultimo < oggi else (ultimo - oggi).days + 1
+        settimana(stato, args, args.giorni or 7, inizio)
         return
 
     if args.dati or args.id:
