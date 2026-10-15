@@ -890,6 +890,40 @@ def attendi_e_pubblica_ig(ig, cont, token):
     return r.json().get("id")
 
 
+def url_pubblico_github(video):
+    """mette il video in un ramo pubblico 'ig-video' del repository e restituisce l'indirizzo diretto"""
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        return None
+    try:
+        auth = subprocess.run(["git", "-C", str(QUI), "config", "--get", "http.https://github.com/.extraheader"],
+                              capture_output=True, text=True).stdout.strip()
+        tmp = Path(tempfile.mkdtemp())
+        nome = f"reel-{datetime.now().strftime('%Y%m%d-%H%M%S')}.mp4"
+        shutil.copy(video, tmp / nome)
+        def g(*a):
+            pre = ["git", "-C", str(tmp)] + (["-c", f"http.https://github.com/.extraheader={auth}"] if auth else [])
+            subprocess.run(pre + list(a), check=True, capture_output=True, text=True)
+        g("init", "-q")
+        g("checkout", "-q", "-b", "ig-video")
+        g("config", "user.name", "cercocasa-bot")
+        g("config", "user.email", "bot@cercocasaumbria.it")
+        g("add", nome)
+        g("commit", "-q", "-m", "video per Instagram")
+        g("push", "-q", "-f", f"https://github.com/{repo}.git", "ig-video")
+        url = f"https://raw.githubusercontent.com/{repo}/ig-video/{nome}"
+        for _ in range(12):
+            time.sleep(5)
+            if HTTP.head(url, timeout=30, allow_redirects=True).status_code == 200:
+                return url
+        log("  Instagram: il video non è raggiungibile da fuori (il repository deve essere pubblico)")
+    except subprocess.CalledProcessError as e:
+        log("  Instagram: non riesco a pubblicare il video su GitHub:", (e.stderr or "")[-300:])
+    except Exception as e:
+        log("  Instagram: errore indirizzo pubblico:", e)
+    return None
+
+
 def versione_instagram(video):
     """copia del video con le specifiche consigliate da Instagram per i Reels"""
     dest = Path(video).with_name(Path(video).stem + "-ig.mp4")
@@ -910,7 +944,18 @@ def pubblica_instagram(video, testo):
     if not (ig and token):
         log("Instagram: chiavi non configurate, salto")
         return None
-    # metodo 1: Instagram scarica il video già pubblicato su Facebook (il più affidabile)
+    # metodo 0: Instagram scarica il video da un indirizzo pubblico su GitHub (non di Meta)
+    url_pub = url_pubblico_github(versione_instagram(video))
+    if url_pub:
+        try:
+            r = HTTP.post(f"{GRAPH}/{ig}/media", data={"media_type": "REELS", "video_url": url_pub, "caption": testo,
+                                                     "share_to_feed": "true", "access_token": token}, timeout=60)
+            r.raise_for_status()
+            log("  Instagram: video consegnato da GitHub, attendo l'elaborazione")
+            return attendi_e_pubblica_ig(ig, r.json()["id"], token)
+        except Exception as e:
+            log("  Instagram (da GitHub) non riuscito:", (getattr(getattr(e, "response", None), "text", "") or str(e))[:300])
+    # metodo 1: Instagram scarica il video già pubblicato su Facebook
     if not ULTIMO_VIDEO_FB.get("id") and os.environ.get("FB_PAGE_ID"):
         try:
             pagina = os.environ["FB_PAGE_ID"]
