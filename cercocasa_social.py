@@ -936,10 +936,17 @@ def pubblica_instagram(video, testo):
                 return attendi_e_pubblica_ig(ig, r.json()["id"], token)
             except Exception as e:
                 log("  Instagram (da Facebook) non riuscito:", e, (getattr(getattr(e, "response", None), "text", "") or "")[:300])
-    # metodo 2: caricamento diretto di una copia nel formato standard di Instagram (fino a 3 tentativi)
+    # metodo 2: caricamento a Instagram, provando i 3 modi documentati da Meta
     video = versione_instagram(video)
+    dati = Path(video).read_bytes()
+    url_fb = None
+    if ULTIMO_VIDEO_FB.get("id"):
+        url_fb = url_video_facebook(ULTIMO_VIDEO_FB["id"], ULTIMO_VIDEO_FB["token"], attesa=30)
+    modi = [("chiave nell'indirizzo", "query"), ("chiave nell'intestazione", "header")]
+    if url_fb:
+        modi.append(("file da indirizzo", "file_url"))
     ultimo = None
-    for tentativo in range(3):
+    for nome_modo, modo in modi:
         try:
             r = HTTP.post(f"{GRAPH}/{ig}/media", data={
                 "media_type": "REELS", "upload_type": "resumable", "caption": testo,
@@ -947,17 +954,22 @@ def pubblica_instagram(video, testo):
             r.raise_for_status()
             cont = r.json()["id"]
             uri = r.json().get("uri") or f"https://rupload.facebook.com/ig-api-upload/v21.0/{cont}"
-            dati = Path(video).read_bytes()
-            r = HTTP.post(uri, data=dati, timeout=300, headers={
-                "Authorization": f"OAuth {token}", "offset": "0", "file_size": str(len(dati)),
-                "Content-Type": "application/octet-stream"})
+            if modo == "query":
+                r = HTTP.post(uri, params={"access_token": token}, data=dati, timeout=300,
+                              headers={"offset": "0", "file_size": str(len(dati))})
+            elif modo == "header":
+                r = HTTP.post(uri, data=dati, timeout=300, headers={
+                    "Authorization": f"OAuth {token}", "offset": "0", "file_size": str(len(dati))})
+            else:
+                r = HTTP.post(uri, timeout=120, headers={"Authorization": f"OAuth {token}", "file_url": url_fb})
             r.raise_for_status()
+            log(f"  Instagram: caricamento riuscito ({nome_modo})")
             return attendi_e_pubblica_ig(ig, cont, token)
         except Exception as e:
             ultimo = e
-            log(f"  Instagram tentativo {tentativo + 1} non riuscito:",
-                (getattr(getattr(e, "response", None), "text", "") or str(e))[:200])
-            time.sleep(20)
+            log(f"  Instagram ({nome_modo}) non riuscito:",
+                (getattr(getattr(e, "response", None), "text", "") or str(e))[:300])
+            time.sleep(5)
     raise ultimo
 
 
