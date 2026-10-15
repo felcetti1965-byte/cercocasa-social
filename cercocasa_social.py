@@ -58,6 +58,7 @@ PAGINE_ELENCO = [
     "/case-vendita/passignano-sul-trasimeno/", "/prestigio.php",
 ]
 
+INIZIO = time.time()
 HTTP = requests.Session()
 HTTP.headers["User-Agent"] = "CercocasaUmbria-Social/1.0 (+https://www.cercocasaumbria.it)"
 
@@ -1002,7 +1003,7 @@ def settimana(stato, args, giorni, inizio=1):
     fatti = 0
     partenza = time.time()
     for k in range(giorni):
-        if time.time() - partenza > 23 * 60:
+        if time.time() - INIZIO > 22 * 60:
             log("Tempo quasi finito: salvo i giorni già pronti, gli altri li preparo la prossima volta.")
             break
         g = inizio + k
@@ -1037,6 +1038,41 @@ def settimana(stato, args, giorni, inizio=1):
     log(f"Pronti {fatti} video per {giorni} giorni")
 
 
+def pubblica_oggi(stato, args):
+    """ogni mattina: un annuncio nuovo pubblicato da solo su Facebook (e Instagram se configurato)"""
+    oggi = datetime.now().strftime("%Y-%m-%d")
+    if any(p.get("auto") == oggi for p in stato["pubblicati"]):
+        log("Il post automatico di oggi è già stato pubblicato.")
+        return
+    social = []
+    if os.environ.get("FB_PAGE_ID") and (os.environ.get("FB_PAGE_TOKEN") or os.environ.get("IG_TOKEN")):
+        social.append("facebook")
+    if os.environ.get("IG_USER_ID") and os.environ.get("IG_TOKEN") and os.environ.get("AUTO_INSTAGRAM", "si") == "si":
+        social.append("instagram")
+    if not social:
+        return
+    a = scegli_annuncio(stato)
+    if not a:
+        log("Nessun annuncio nuovo da pubblicare oggi.")
+        return
+    video = prepara(a, args)
+    if not video:
+        return
+    fatti = []
+    for nome in social:
+        try:
+            PUBBLICA[nome](video, testo_post(a, nome))
+            fatti.append(nome)
+        except Exception as e:
+            dettagli = getattr(getattr(e, "response", None), "text", "")
+            log(f"{nome}: ERRORE", e, (dettagli or "")[:800])
+    stato["pubblicati"].append({"id": a["id"], "agenzia": a["agenzia"], "agenzia_id": a.get("agenzia_id"),
+                                "rivista": a.get("rivista"), "social": fatti, "auto": oggi,
+                                "data": datetime.now().isoformat(timespec="minutes")})
+    STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
+    log("Pubblicato in automatico su:", ", ".join(fatti) or "nessuno")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prova", action="store_true", help="crea i video senza pubblicare")
@@ -1052,6 +1088,8 @@ def main():
     social = [x.strip() for x in os.environ.get("SOCIAL", "facebook,instagram,tiktok").split(",") if x.strip()]
     # diversi = un annuncio (e un'agenzia) diverso per ogni social; uguale = stesso video ovunque
     modo = os.environ.get("MODO_POST", "diversi")
+    if not (args.dati or args.id) and not args.prova:
+        pubblica_oggi(stato, args)
     if not (args.dati or args.id):
         # una volta a settimana prepara i 7 giorni successivi; negli altri giorni non fa niente
         from datetime import date, timedelta
