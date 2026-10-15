@@ -718,6 +718,9 @@ def clip_foto(fp, lv, dur, i, tmp):
     return out
 
 
+MUSICA_CONTATORE = [0]
+
+
 def crea_video(a, foto_locali, destinazione):
     tmp = Path(tempfile.mkdtemp())
     foto_locali = foto_locali[:MAX_FOTO]
@@ -769,9 +772,16 @@ def crea_video(a, foto_locali, destinazione):
     durata = sum(d for _, d in clip) - DISSOLVENZA * (len(clip) - 1)
 
     n = len(clip)
-    brani = sorted(glob.glob(str(MUSICA / "*.mp3")) + glob.glob(str(MUSICA / "*.m4a")))
+    brani = sorted(set(glob.glob(str(MUSICA / "*.mp3")) + glob.glob(str(MUSICA / "*.m4a")) +
+                       glob.glob(str(QUI / "*.mp3")) + glob.glob(str(QUI / "*.m4a"))))
     if brani:
-        audio = ["-stream_loop", "-1", "-i", random.choice(brani)]
+        # ogni giorno un brano diverso, a rotazione (e video diversi dello stesso giorno ne usano altri)
+        indice = (datetime.now().timetuple().tm_yday + MUSICA_CONTATORE[0]) % len(brani)
+        MUSICA_CONTATORE[0] += 1
+        brani = [brani[indice]]
+    if brani:
+        audio = ["-stream_loop", "-1", "-i", brani[0]]
+        log("  musica:", Path(brani[0]).name)
         vol = 0.15 if con_voce else 0.8
         afiltro = f";[{n}:a]atrim=0:{durata:.2f},afade=t=in:d=0.5,afade=t=out:st={durata - 1.2:.2f}:d=1.2,volume={vol}[m]"
     else:
@@ -852,7 +862,7 @@ def testo_post(a, social="instagram"):
                  f"Foto e contatti su cercocasaumbria.it (codice {a['id']})", hashtags(a, 5)]
     else:  # instagram
         righe = [gancio(a), "", a["titolo"], "", *scheda, "", agenzia, "",
-                 f"👉 Tutte le foto e i contatti su cercocasaumbria.it (link in bio) – codice {a['id']}",
+                 f"👉 Tutte le foto e i contatti: link in bio oppure {a['url'].replace('https://', '')}",
                  "", domanda, "", "📌 Salva il post e condividilo con chi cerca casa in Umbria", "", hashtags(a, 12)]
     out = "\n".join(righe)
     return re.sub(r"\n{3,}", "\n\n", out).strip()
@@ -1041,6 +1051,15 @@ def pubblica_facebook(video, testo):
     r.raise_for_status()
     log("Facebook: pubblicato", vid)
     ULTIMO_VIDEO_FB.update(id=vid, token=token)
+    link = re.search(r"https://\S+", testo)
+    if link:
+        try:
+            time.sleep(20)
+            rc = HTTP.post(f"{GRAPH}/{vid}/comments", data={
+                "message": f"👉 Foto, dettagli e contatti dell'annuncio: {link.group(0)}", "access_token": token}, timeout=60)
+            log("Facebook: commento con link", "aggiunto" if rc.ok else f"non riuscito: {rc.text[:200]}")
+        except Exception as e:
+            log("Facebook: commento con link non riuscito:", e)
     return vid
 
 
