@@ -142,7 +142,12 @@ def leggi_annuncio(id_):
     bagni = numero(r"(\d+)\s*bagn[io]")
     mq = numero(r"(\d{2,5})\s*m²") or numero(r"(\d{2,5})\s*mq")
 
-    operazione = "IN AFFITTO" if re.search(r"/mese|affitto", prezzo + " " + titolo, re.I) else "IN VENDITA"
+    operazione = "IN AFFITTO" if re.search(r"/mese|al mese|affitto|locazione", prezzo + " " + titolo, re.I) else "IN VENDITA"
+    m_p = re.search(r"\d{1,3}(?:\.\d{3})+|\d+", prezzo)
+    if operazione == "IN VENDITA" and m_p and 0 < int(m_p.group(0).replace(".", "")) < 8000:
+        operazione = "IN AFFITTO"   # es. € 1.100: è un canone mensile
+    if operazione == "IN AFFITTO" and prezzo and "mese" not in prezzo:
+        prezzo += "/mese"
     if "ASTA" in titolo.upper() or prezzo.lower().startswith("da"):
         operazione = "ALL'ASTA"
 
@@ -401,7 +406,7 @@ def voce_apertura(a):
     if a["operazione"] == "ALL'ASTA":
         return f"{tipo} all'asta a {dove}. Base d'asta {p}." if p else f"{tipo} all'asta a {dove}."
     if a["operazione"] == "IN AFFITTO":
-        return f"{tipo} in affitto a {dove}, {p} al mese." if p else f"{tipo} in affitto a {dove}."
+        return f"{tipo} in affitto a {dove}, {p} al mese." if p else f"{tipo} in affitto a {dove}."  # canone
     return f"{tipo} in vendita a {dove}, a {p}." if p else f"{tipo} in vendita a {dove}."
 
 
@@ -788,7 +793,7 @@ def crea_video(a, foto_locali, destinazione):
     ff(*ingressi, *audio, "-filter_complex", ";".join(filtri) + f";[{prec}]format=yuv420p[v]" + afiltro,
        "-map", "[v]", "-map", "[a]", "-t", f"{durata:.2f}",
        "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-profile:v", "high", "-pix_fmt", "yuv420p",
-       "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", destinazione)
+       "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-movflags", "+faststart", destinazione)
     shutil.rmtree(tmp, ignore_errors=True)
     return durata
 
@@ -857,20 +862,21 @@ def testo_post(a, social="instagram"):
 GRAPH = "https://graph.facebook.com/v21.0"
 
 
-def pubblica_instagram(video, testo):
-    ig, token = os.environ.get("IG_USER_ID"), os.environ.get("IG_TOKEN")
-    if not (ig and token):
-        log("Instagram: chiavi non configurate, salto")
-        return None
-    r = HTTP.post(f"{GRAPH}/{ig}/media", data={
-        "media_type": "REELS", "upload_type": "resumable", "caption": testo,
-        "share_to_feed": "true", "access_token": token}, timeout=60)
-    r.raise_for_status()
-    cont = r.json()["id"]
-    dati = Path(video).read_bytes()
-    r = HTTP.post(f"https://rupload.facebook.com/ig-api-upload/v21.0/{cont}", data=dati, timeout=300,
-                  headers={"Authorization": f"OAuth {token}", "offset": "0", "file_size": str(len(dati))})
-    r.raise_for_status()
+ULTIMO_VIDEO_FB = {}
+
+
+def url_video_facebook(vid, token, attesa=240):
+    """indirizzo pubblico del video appena pubblicato su Facebook (serve a Instagram)"""
+    fine = time.time() + attesa
+    while time.time() < fine:
+        r = HTTP.get(f"{GRAPH}/{vid}", params={"fields": "source", "access_token": token}, timeout=30)
+        if r.ok and r.json().get("source"):
+            return r.json()["source"]
+        time.sleep(15)
+    return None
+
+
+def attendi_e_pubblica_ig(ig, cont, token):
     for _ in range(60):
         time.sleep(10)
         s = HTTP.get(f"{GRAPH}/{cont}", params={"fields": "status_code,status", "access_token": token}, timeout=30).json()
@@ -882,6 +888,45 @@ def pubblica_instagram(video, testo):
     r.raise_for_status()
     log("Instagram: pubblicato", r.json())
     return r.json().get("id")
+
+
+def pubblica_instagram(video, testo):
+    ig, token = os.environ.get("IG_USER_ID"), os.environ.get("IG_TOKEN")
+    if not (ig and token):
+        log("Instagram: chiavi non configurate, salto")
+        return None
+    # metodo 1: Instagram scarica il video già pubblicato su Facebook (il più affidabile)
+    if ULTIMO_VIDEO_FB.get("id"):
+        url = url_video_facebook(ULTIMO_VIDEO_FB["id"], ULTIMO_VIDEO_FB["token"])
+        if url:
+            try:
+                r = HTTP.post(f"{GRAPH}/{ig}/media", data={"media_type": "REELS", "video_url": url, "caption": testo,
+                                                         "share_to_feed": "true", "access_token": token}, timeout=60)
+                r.raise_for_status()
+                return attendi_e_pubblica_ig(ig, r.json()["id"], token)
+            except Exception as e:
+                log("  Instagram (da Facebook) non riuscito:", e, (getattr(getattr(e, "response", None), "text", "") or "")[:300])
+    # metodo 2: caricamento diretto del file (fino a 3 tentativi)
+    ultimo = None
+    for tentativo in range(3):
+        try:
+            r = HTTP.post(f"{GRAPH}/{ig}/media", data={
+                "media_type": "REELS", "upload_type": "resumable", "caption": testo,
+                "share_to_feed": "true", "access_token": token}, timeout=60)
+            r.raise_for_status()
+            cont = r.json()["id"]
+            uri = r.json().get("uri") or f"https://rupload.facebook.com/ig-api-upload/v21.0/{cont}"
+            dati = Path(video).read_bytes()
+            r = HTTP.post(uri, data=dati, timeout=300, headers={
+                "Authorization": f"OAuth {token}", "offset": "0", "file_size": str(len(dati)),
+                "Content-Type": "application/octet-stream"})
+            r.raise_for_status()
+            return attendi_e_pubblica_ig(ig, cont, token)
+        except Exception as e:
+            ultimo = e
+            log(f"  Instagram tentativo {tentativo + 1} non riuscito, riprovo")
+            time.sleep(20)
+    raise ultimo
 
 
 # ---------------------------------------------------------------- pubblicazione Facebook
@@ -906,6 +951,7 @@ def pubblica_facebook(video, testo):
         "description": testo, "access_token": token}, timeout=60)
     r.raise_for_status()
     log("Facebook: pubblicato", vid)
+    ULTIMO_VIDEO_FB.update(id=vid, token=token)
     return vid
 
 
@@ -1041,9 +1087,6 @@ def settimana(stato, args, giorni, inizio=1):
 def pubblica_oggi(stato, args):
     """ogni mattina: un annuncio nuovo pubblicato da solo su Facebook (e Instagram se configurato)"""
     oggi = datetime.now().strftime("%Y-%m-%d")
-    if any(p.get("auto") == oggi for p in stato["pubblicati"]):
-        log("Il post automatico di oggi è già stato pubblicato.")
-        return
     social = []
     if os.environ.get("FB_PAGE_ID") and (os.environ.get("FB_PAGE_TOKEN") or os.environ.get("IG_TOKEN")):
         social.append("facebook")
@@ -1051,26 +1094,47 @@ def pubblica_oggi(stato, args):
         social.append("instagram")
     if not social:
         return
-    a = scegli_annuncio(stato)
-    if not a:
-        log("Nessun annuncio nuovo da pubblicare oggi.")
-        return
+    gia = next((p for p in stato["pubblicati"] if p.get("auto") == oggi), None)
+    if gia:
+        mancano = [x for x in social if x not in gia.get("social", [])]
+        if not mancano:
+            log("Il post automatico di oggi è già stato pubblicato.")
+            return
+        log("Completo il post di oggi su:", ", ".join(mancano))
+        try:
+            a = leggi_annuncio(gia["id"])
+        except Exception as e:
+            log("  annuncio di oggi non leggibile:", e)
+            return
+        a["agenzia"] = gia.get("agenzia") or a["agenzia"]
+        a["agenzia_id"], a["rivista"] = gia.get("agenzia_id"), gia.get("rivista")
+        if gia.get("fb_video"):
+            ULTIMO_VIDEO_FB.update(id=gia["fb_video"], token=os.environ.get("FB_PAGE_TOKEN") or os.environ.get("IG_TOKEN"))
+        voce = gia
+        social = mancano
+    else:
+        a = scegli_annuncio(stato)
+        if not a:
+            log("Nessun annuncio nuovo da pubblicare oggi.")
+            return
+        voce = {"id": a["id"], "agenzia": a["agenzia"], "agenzia_id": a.get("agenzia_id"),
+                "rivista": a.get("rivista"), "social": [], "auto": oggi,
+                "data": datetime.now().isoformat(timespec="minutes")}
+        stato["pubblicati"].append(voce)
     video = prepara(a, args)
     if not video:
         return
-    fatti = []
     for nome in social:
         try:
-            PUBBLICA[nome](video, testo_post(a, nome))
-            fatti.append(nome)
+            ris = PUBBLICA[nome](video, testo_post(a, nome))
+            voce["social"].append(nome)
+            if nome == "facebook" and ris:
+                voce["fb_video"] = ris
         except Exception as e:
             dettagli = getattr(getattr(e, "response", None), "text", "")
             log(f"{nome}: ERRORE", e, (dettagli or "")[:800])
-    stato["pubblicati"].append({"id": a["id"], "agenzia": a["agenzia"], "agenzia_id": a.get("agenzia_id"),
-                                "rivista": a.get("rivista"), "social": fatti, "auto": oggi,
-                                "data": datetime.now().isoformat(timespec="minutes")})
     STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
-    log("Pubblicato in automatico su:", ", ".join(fatti) or "nessuno")
+    log("Pubblicato in automatico su:", ", ".join(voce["social"]) or "nessuno")
 
 
 def main():
