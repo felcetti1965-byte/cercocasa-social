@@ -1,1 +1,34 @@
-{"pubblicati": []}
+{
+ "pubblicati": [
+  {
+   "id": 4972,
+   "agenzia": "SINERGIE IMMOBILIARE",
+   "agenzia_id": 144,
+   "rivista": "Perugia",
+   "social": [
+    "facebook"
+   ],
+   "data": "2026-10-15T07:02"
+  },
+  {
+   "id": 4979,
+   "agenzia": "AFFILIATO TECNOCASA: STUDIO COSPEA SAN GIOVANNI",
+   "agenzia_id": 8,
+   "rivista": "Terni",
+   "social": [
+    "instagram"
+   ],
+   "data": "2026-10-15T07:02"
+  },
+  {
+   "id": 3336,
+   "agenzia": "IMPERO IMMOBILIARE",
+   "agenzia_id": 95,
+   "rivista": "Perugia",
+   "social": [
+    "tiktok"
+   ],
+   "data": "2026-10-15T07:02"
+  }
+ ]
+}
