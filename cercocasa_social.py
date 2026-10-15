@@ -896,8 +896,23 @@ def pubblica_instagram(video, testo):
         log("Instagram: chiavi non configurate, salto")
         return None
     # metodo 1: Instagram scarica il video già pubblicato su Facebook (il più affidabile)
+    if not ULTIMO_VIDEO_FB.get("id") and os.environ.get("FB_PAGE_ID"):
+        try:
+            pagina = os.environ["FB_PAGE_ID"]
+            r = HTTP.get(f"{GRAPH}/{pagina}/videos", params={"fields": "id,created_time", "limit": 1,
+                                                            "access_token": token}, timeout=30)
+            dati_v = r.json().get("data") or []
+            if dati_v:
+                ULTIMO_VIDEO_FB.update(id=dati_v[0]["id"], token=token)
+                log("  Instagram: uso l'ultimo video della Pagina", dati_v[0]["id"])
+            else:
+                log("  Instagram: nessun video trovato sulla Pagina", r.text[:200])
+        except Exception as e:
+            log("  Instagram: non trovo il video della Pagina:", e)
     if ULTIMO_VIDEO_FB.get("id"):
         url = url_video_facebook(ULTIMO_VIDEO_FB["id"], ULTIMO_VIDEO_FB["token"])
+        if not url:
+            log("  Instagram: Facebook non ha dato l'indirizzo del video")
         if url:
             try:
                 r = HTTP.post(f"{GRAPH}/{ig}/media", data={"media_type": "REELS", "video_url": url, "caption": testo,
@@ -924,7 +939,8 @@ def pubblica_instagram(video, testo):
             return attendi_e_pubblica_ig(ig, cont, token)
         except Exception as e:
             ultimo = e
-            log(f"  Instagram tentativo {tentativo + 1} non riuscito, riprovo")
+            log(f"  Instagram tentativo {tentativo + 1} non riuscito:",
+                (getattr(getattr(e, "response", None), "text", "") or str(e))[:200])
             time.sleep(20)
     raise ultimo
 
