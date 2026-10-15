@@ -27,10 +27,11 @@ QUI = Path(__file__).resolve().parent
 FONT = QUI / "font" / "Montserrat.ttf"
 MUSICA = QUI / "musica"
 # usa il primo file .png il cui nome inizia con "logo" (es. logo.png, logo-v191.png)
+CORNICE = QUI / "cornice.png"   # grafica con barre in alto e in basso (centro trasparente)
 LOGO = next(iter(sorted(QUI.glob("logo*.png")) + sorted(QUI.glob("Logo*.png"))), QUI / "logo.png")
 VOCE = os.environ.get("VOCE", "it-IT-DiegoNeural")   # voce maschile italiana
-VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-4%")
-VOCE_TONO = os.environ.get("VOCE_TONO", "-8Hz")      # più basso = voce più profonda
+VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "+0%")
+VOCE_TONO = os.environ.get("VOCE_TONO", "+0Hz")      # tono naturale (abbassarlo rende la voce metallica)
 STATO = QUI / "pubblicati.json"
 USCITA = QUI / "video"
 
@@ -305,28 +306,87 @@ TIPI = ("trilocale", "bilocale", "quadrilocale", "monolocale", "appartamento", "
         "casale", "rustico", "casa", "terreno", "negozio", "ufficio", "capannone", "magazzino", "loft", "garage")
 
 
-def testo_voce(a, frasi):
+ORDINALI = {"1": "primo", "2": "secondo", "3": "terzo", "4": "quarto", "5": "quinto", "6": "sesto"}
+CARATTERISTICHE = [  # (cosa cercare nel testo, frase da mostrare e dire)
+    (r"da ristrutturare", "Da ristrutturare"),
+    (r"nuova costruzione", "Di nuova costruzione"),
+    (r"ristrutturat", "Ristrutturat{o}"),
+    (r"piscina", "Con piscina"),
+    (r"vista panoramica|panoramic", "Con vista panoramica"),
+    (r"giardino", "Con giardino"),
+    (r"terrazz", "Con terrazzo"),
+    (r"balcon", "Con balcone"),
+    (r"camino", "Con camino"),
+    (r"cucina abitabile", "Cucina abitabile"),
+    (r"garage|box auto|autorimessa", "Con garage"),
+    (r"posto auto", "Con posto auto"),
+    (r"cantina", "Con cantina"),
+    (r"ascensore", "Con ascensore"),
+    (r"riscaldamento autonomo|termoautonom", "Riscaldamento autonomo"),
+    (r"aria condizionata|climatizz", "Con aria condizionata"),
+    (r"fotovoltaic", "Con impianto fotovoltaico"),
+    (r"classe energetica a\d?\b|classe a\d?\b", "In classe energetica A"),
+    (r"ingresso indipendente", "Ingresso indipendente"),
+]
+
+
+def tipo_parola(a):
     t = a["titolo"].lower()
-    tipo = next((x for x in TIPI if x in t), "immobile").capitalize()
-    dove = a["citta"] or "Umbria"
-    op = {"IN VENDITA": "in vendita", "IN AFFITTO": "in affitto", "ALL'ASTA": "all'asta"}[a["operazione"]]
-    parti = [f"{tipo} {op} a {dove}."]
-    parti += [f.rstrip(".") + "." for f in frasi[:6]]
-    car = []
-    if a.get("locali"):
-        car.append(f"{a['locali']} locali")
-    if a.get("bagni"):
-        car.append(f"{a['bagni']} bagn{'o' if a['bagni'] == '1' else 'i'}")
+    return next((x for x in TIPI if x in t), "immobile")
+
+
+def frasi_video(a):
+    """frasi brevi e sicure: dati dell'annuncio + caratteristiche trovate nel testo"""
+    femminile = tipo_parola(a) in ("villa", "villetta", "casa")
+    frasi = []
     if a.get("mq"):
-        car.append(f"{a['mq']} metri quadrati")
-    if car:
-        parti.append(", ".join(car) + ".")
-    prezzo = a["prezzo"].replace("€", "").replace("da", "").strip()
-    parti.append(("Base d'asta: " if a["operazione"] == "ALL'ASTA" else "Prezzo: ") + f"{prezzo} euro.")
-    if a.get("agenzia"):
-        parti.append(f"Annuncio di {a['agenzia'].title()}.")
-    parti.append("Tutte le foto su cercocasa umbria punto it.")
-    return " ".join(parti)
+        frasi.append(f"{a['mq']} metri quadrati")
+    if a.get("camere"):
+        frasi.append("Una camera da letto" if a["camere"] == "1" else f"{a['camere']} camere da letto")
+    if a.get("bagni"):
+        frasi.append("Un bagno" if a["bagni"] == "1" else f"{a['bagni']} bagni")
+    piano = (a.get("piano") or "").lower()
+    if piano in ("0", "terra"):
+        frasi.append("Al piano terra")
+    elif piano in ORDINALI:
+        frasi.append(f"Al {ORDINALI[piano]} piano")
+    elif piano == "ultimo":
+        frasi.append("All'ultimo piano")
+    testo = " ".join([a.get("titolo", ""), a.get("descrizione", ""), " ".join(a.get("punti", []))]).lower()
+    for rx, frase in CARATTERISTICHE:
+        m = re.search(rx, testo)
+        if not m:
+            continue
+        prima = testo[max(0, m.start() - 20):m.start()]
+        if re.search(r"\b(senza|no|privo di|priva di|non)\s+(\w+\s+)?$", prima):
+            continue  # "senza ascensore" ecc.
+        if frase.startswith("Ristrutturat") and any(f.startswith("Da ristrutturare") for f in frasi):
+            continue
+        frasi.append(frase.format(o="a" if femminile else "o"))
+    return list(dict.fromkeys(frasi))
+
+
+def prezzo_voce(a):
+    m = re.search(r"\d{1,3}(?:\.\d{3})+", a.get("prezzo", ""))
+    return f"{m.group(0)} euro" if m else ""
+
+
+def voce_apertura(a):
+    tipo = tipo_parola(a).capitalize()
+    dove = a["citta"] or "Umbria"
+    p = prezzo_voce(a)
+    if a["operazione"] == "ALL'ASTA":
+        return f"{tipo} all'asta a {dove}. Base d'asta {p}." if p else f"{tipo} all'asta a {dove}."
+    if a["operazione"] == "IN AFFITTO":
+        return f"{tipo} in affitto a {dove}, {p} al mese." if p else f"{tipo} in affitto a {dove}."
+    return f"{tipo} in vendita a {dove}, a {p}." if p else f"{tipo} in vendita a {dove}."
+
+
+def voce_finale(a):
+    ag = re.sub(r"\s*[:|]\s*", ", ", a.get("agenzia") or "").strip(", ").title()
+    ag = re.sub(r"\b(Srl|Sas|Snc|Spa)\b", "", ag, flags=re.I).strip(" ,")
+    parti = [f"Annuncio di {ag}." if ag else "", "Tutte le foto su Cerco Casa Umbria. Link in bio."]
+    return " ".join(x for x in parti if x)
 
 
 def crea_voce(testo, destinazione):
@@ -457,7 +517,8 @@ def livello_apertura(a):
         d.rounded_rectangle([x, y, x + w, y + 70], 35, fill=(*SCURO, 230))
         d.text((x + 28, y + 12), c, font=f, fill="white")
         x += w + 16
-    marchio(d, lv)
+    if not applica_cornice(lv):
+        marchio(d, lv)
     return lv
 
 
@@ -467,10 +528,11 @@ def livello_foto(a, frase=""):
     d = ImageDraw.Draw(lv)
     fp = font(54, "Black")
     pw = d.textlength(a["prezzo"], font=fp)
-    d.rounded_rectangle([60, 130, 60 + pw + 60, 215], 42, fill=(255, 255, 255, 240))
-    d.text((90, 138), a["prezzo"], font=fp, fill=SCURO)
+    y0 = 330 if CORNICE.exists() else 130
+    d.rounded_rectangle([60, y0, 60 + pw + 60, y0 + 85], 42, fill=(255, 255, 255, 240))
+    d.text((90, y0 + 8), a["prezzo"], font=fp, fill=SCURO)
     if a["comune"]:
-        ombra_testo(d, (66, 232), a["comune"], font(38, "Bold"))
+        ombra_testo(d, (66, y0 + 102), a["comune"], font(38, "Bold"))
     if frase:
         f = font(54, "ExtraBold")
         righe = a_capo(d, frase, f, W - 260, 2)
@@ -485,8 +547,27 @@ def livello_foto(a, frase=""):
         d.rounded_rectangle([x - 44, y - 22, x - 30, y + h - 22], 7, fill=ORO)
         for i, r in enumerate(righe):
             d.text((x, y + i * 72), r, font=f, fill=SCURO)
-    marchio(d, lv)
+    if not applica_cornice(lv):
+        marchio(d, lv)
     return lv
+
+
+_cornice_cache = []
+
+
+def cornice():
+    if not _cornice_cache:
+        _cornice_cache.append(Image.open(CORNICE).convert("RGBA").resize((W, H), Image.LANCZOS) if CORNICE.exists() else None)
+    return _cornice_cache[0]
+
+
+def applica_cornice(lv):
+    """mette la cornice sopra la scena; restituisce True se c'è (allora il logo piccolo non serve)"""
+    c = cornice()
+    if c is None:
+        return False
+    lv.alpha_composite(c)
+    return True
 
 
 _logo_cache = {}
@@ -563,83 +644,91 @@ def ff(*args):
     subprocess.run(cmd, check=True)
 
 
+def clip_foto(fp, lv, dur, i, tmp):
+    base = copri(Image.open(fp))
+    base_p, lv_p, out = tmp / f"b{i}.jpg", tmp / f"l{i}.png", tmp / f"c{i}.mp4"
+    base.save(base_p, quality=92)
+    lv.save(lv_p)
+    if i % 2 == 0:
+        x, y = f"(iw-{W})*t/{dur}", f"(ih-{H})*t/{dur}"
+    else:
+        x, y = f"(iw-{W})*(1-t/{dur})", f"(ih-{H})*(1-t/{dur})"
+    ff("-loop", "1", "-t", dur, "-i", base_p, "-i", lv_p,
+       "-filter_complex", f"[0:v]crop={W}:{H}:x='{x}':y='{y}',fps={FPS},format=yuv420p[b];[b][1:v]overlay=0:0,format=yuv420p",
+       "-t", dur, "-r", FPS, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", out)
+    return out
+
+
 def crea_video(a, foto_locali, destinazione):
     tmp = Path(tempfile.mkdtemp())
-    clip = []
     foto_locali = foto_locali[:MAX_FOTO]
-    frasi = sottotitoli(a, len(foto_locali) - 1)
-    voce_p = tmp / "voce.mp3"
-    durata_voce = crea_voce(testo_voce(a, frasi), voce_p)
-    sec_foto = SECONDI_FOTO
-    n = len(foto_locali)
-    if durata_voce:
-        log(f"  voce: {durata_voce:.1f} s")
-        # la voce deve finire durante la schermata finale
-        voluto = durata_voce + 1.2
-        sec_foto = min(3.4, max(SECONDI_FOTO, (voluto - (SECONDI_FOTO + 0.8) - 2.6 + DISSOLVENZA * n) / max(1, n - 1)))
+    frasi = frasi_video(a)[:max(0, min(6, len(foto_locali) - 1))]
+    extra = max(0, min(3, len(foto_locali) - 1) - len(frasi))      # almeno 4 foto in tutto
+    # scene: (foto, frase sullo schermo, testo detto dalla voce)
+    scene = [(foto_locali[0], None, voce_apertura(a))]
+    for i, f in enumerate(frasi):
+        scene.append((foto_locali[i + 1], f, f + "."))
+    for j in range(extra):
+        scene.append((foto_locali[len(frasi) + 1 + j], "", ""))
+    scene.append((None, None, voce_finale(a)))
 
-        def totale(k):
-            return (SECONDI_FOTO + 0.8) + (k - 1) * sec_foto + 2.6 - DISSOLVENZA * k
-        # poche foto: riusa le foto (dalla seconda in poi) finché il video copre tutta la voce
-        base = list(foto_locali)
-        j = 1
-        while totale(len(foto_locali)) < voluto and len(foto_locali) < 14 and len(base) > 1:
-            foto_locali.append(base[j])
-            j = j + 1 if j + 1 < len(base) else 1
-        n = len(foto_locali)
-        frasi = sottotitoli(a, n - 1)
-    for i, fp in enumerate(foto_locali):
-        base = copri(Image.open(fp))
-        base_p = tmp / f"b{i}.jpg"
-        base.save(base_p, quality=92)
-        lv = livello_apertura(a) if i == 0 else livello_foto(a, frasi[i - 1] if i - 1 < len(frasi) else "")
-        lv_p = tmp / f"l{i}.png"
-        lv.save(lv_p)
-        dur = (SECONDI_FOTO + 0.8) if i == 0 else sec_foto
-        verso = 1 if i % 2 == 0 else -1
-        # scorrimento lento della foto (effetto "tour")
-        if verso == 1:
-            x, y = f"(iw-{W})*t/{dur}", f"(ih-{H})*t/{dur}"
+    # voce: un pezzo per scena, così è sempre sincronizzata con le scritte
+    voci, con_voce = [], True
+    for k, (_, _, detto) in enumerate(scene):
+        d = crea_voce(detto, tmp / f"v{k}.mp3") if (detto and con_voce) else None
+        if detto and d is None:
+            con_voce = False
+        voci.append(d)
+    if not con_voce:
+        voci = [None] * len(scene)
+    else:
+        log(f"  voce: {sum(v or 0 for v in voci):.1f} s in {len(scene)} scene")
+
+    clip = []
+    for k, (fp, frase, _) in enumerate(scene):
+        minimo = 3.2 if k == 0 or fp is None else 2.4
+        dur = max(minimo, (voci[k] or 0) + 0.35 + DISSOLVENZA + (0.2 if k else 0))
+        if fp is None:      # schermata finale
+            fin_p, out = tmp / "fine.jpg", tmp / "cfine.mp4"
+            immagine_finale(a, Image.open(foto_locali[0])).save(fin_p, quality=92)
+            ff("-loop", "1", "-t", dur, "-i", fin_p, "-vf", f"fps={FPS},format=yuv420p", "-t", dur,
+               "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", out)
         else:
-            x, y = f"(iw-{W})*(1-t/{dur})", f"(ih-{H})*(1-t/{dur})"
-        out = tmp / f"c{i}.mp4"
-        ff("-loop", "1", "-t", dur, "-i", base_p, "-i", lv_p,
-           "-filter_complex", f"[0:v]crop={W}:{H}:x='{x}':y='{y}',fps={FPS},format=yuv420p[b];[b][1:v]overlay=0:0,format=yuv420p",
-           "-t", dur, "-r", FPS, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", out)
+            lv = livello_apertura(a) if k == 0 else livello_foto(a, frase)
+            out = clip_foto(fp, lv, dur, k, tmp)
         clip.append((out, dur))
-    # schermata finale
-    fin = immagine_finale(a, Image.open(foto_locali[0]))
-    fin_p = tmp / "fine.jpg"
-    fin.save(fin_p, quality=92)
-    out = tmp / "cfine.mp4"
-    ff("-loop", "1", "-t", 2.6, "-i", fin_p, "-vf", f"fps={FPS},format=yuv420p", "-t", 2.6,
-       "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", out)
-    clip.append((out, 2.6))
 
     # unione con dissolvenze
-    ingressi, filtri, prec, t = [], [], "0:v", 0.0
+    ingressi, filtri, prec, t, inizi = [], [], "0:v", 0.0, [0.0]
     for c, _ in clip:
         ingressi += ["-i", c]
     for k in range(1, len(clip)):
         t += clip[k - 1][1] - DISSOLVENZA
-        nome = f"v{k}"
-        filtri.append(f"[{prec}][{k}:v]xfade=transition=fade:duration={DISSOLVENZA}:offset={t:.2f}[{nome}]")
-        prec = nome
+        inizi.append(t)
+        filtri.append(f"[{prec}][{k}:v]xfade=transition=fade:duration={DISSOLVENZA}:offset={t:.2f}[v{k}]")
+        prec = f"v{k}"
     durata = sum(d for _, d in clip) - DISSOLVENZA * (len(clip) - 1)
 
+    n = len(clip)
     brani = sorted(glob.glob(str(MUSICA / "*.mp3")) + glob.glob(str(MUSICA / "*.m4a")))
-    k = len(clip)
     if brani:
         audio = ["-stream_loop", "-1", "-i", random.choice(brani)]
-        vol = 0.18 if durata_voce else 0.8      # musica bassa sotto la voce
-        afiltro = f";[{k}:a]atrim=0:{durata:.2f},afade=t=in:d=0.5,afade=t=out:st={durata - 1.2:.2f}:d=1.2,volume={vol}[m]"
+        vol = 0.15 if con_voce else 0.8
+        afiltro = f";[{n}:a]atrim=0:{durata:.2f},afade=t=in:d=0.5,afade=t=out:st={durata - 1.2:.2f}:d=1.2,volume={vol}[m]"
     else:
         audio = ["-f", "lavfi", "-t", f"{durata:.2f}", "-i", "anullsrc=r=44100:cl=stereo"]
-        afiltro = f";[{k}:a]anull[m]"
-    if durata_voce:
-        audio += ["-i", voce_p]
-        afiltro += (f";[{k + 1}:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay=400|400,"
-                    f"volume=1.6,apad,atrim=0:{durata:.2f}[v1];[m][v1]amix=inputs=2:duration=first:normalize=0[a]")
+        afiltro = f";[{n}:a]anull[m]"
+    pezzi, idx = [], n + 1
+    for k, d in enumerate(voci):
+        if not d:
+            continue
+        audio += ["-i", tmp / f"v{k}.mp3"]
+        ms = int((inizi[k] + (0.25 if k == 0 else DISSOLVENZA * 0.6)) * 1000)
+        afiltro += f";[{idx}:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay={ms}|{ms},volume=1.5[p{k}]"
+        pezzi.append(f"[p{k}]")
+        idx += 1
+    if pezzi:
+        afiltro += f";[m]{''.join(pezzi)}amix=inputs={len(pezzi) + 1}:duration=first:normalize=0[a]"
     else:
         afiltro += ";[m]anull[a]"
     ff(*ingressi, *audio, "-filter_complex", ";".join(filtri) + f";[{prec}]format=yuv420p[v]" + afiltro,
