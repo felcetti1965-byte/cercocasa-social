@@ -890,6 +890,21 @@ def attendi_e_pubblica_ig(ig, cont, token):
     return r.json().get("id")
 
 
+def versione_instagram(video):
+    """copia del video con le specifiche consigliate da Instagram per i Reels"""
+    dest = Path(video).with_name(Path(video).stem + "-ig.mp4")
+    try:
+        ff("-i", video, "-vf", "scale=1080:1920,setsar=1,fps=30,format=yuv420p",
+           "-c:v", "libx264", "-profile:v", "main", "-level", "4.0", "-preset", "veryfast",
+           "-b:v", "4500k", "-maxrate", "5000k", "-bufsize", "10000k", "-g", "60", "-r", "30",
+           "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2",
+           "-movflags", "+faststart", dest)
+        return dest
+    except Exception as e:
+        log("  copia per Instagram non creata:", e)
+        return video
+
+
 def pubblica_instagram(video, testo):
     ig, token = os.environ.get("IG_USER_ID"), os.environ.get("IG_TOKEN")
     if not (ig and token):
@@ -921,7 +936,8 @@ def pubblica_instagram(video, testo):
                 return attendi_e_pubblica_ig(ig, r.json()["id"], token)
             except Exception as e:
                 log("  Instagram (da Facebook) non riuscito:", e, (getattr(getattr(e, "response", None), "text", "") or "")[:300])
-    # metodo 2: caricamento diretto del file (fino a 3 tentativi)
+    # metodo 2: caricamento diretto di una copia nel formato standard di Instagram (fino a 3 tentativi)
+    video = versione_instagram(video)
     ultimo = None
     for tentativo in range(3):
         try:
