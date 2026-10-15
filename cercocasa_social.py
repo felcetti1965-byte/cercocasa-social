@@ -25,13 +25,16 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 SITO = os.environ.get("SITO", "https://www.cercocasaumbria.it").rstrip("/")
 QUI = Path(__file__).resolve().parent
 FONT = QUI / "font" / "Montserrat.ttf"
+FONT_TITOLI = QUI / "font" / "Oswald.ttf"
+URL_OSWALD = "https://raw.githubusercontent.com/google/fonts/main/ofl/oswald/Oswald%5Bwght%5D.ttf"
 MUSICA = QUI / "musica"
 # usa il primo file .png il cui nome inizia con "logo" (es. logo.png, logo-v191.png)
 CORNICE = QUI / "cornice.png"   # grafica con barre in alto e in basso (centro trasparente)
 LOGO = next(iter(sorted(QUI.glob("logo*.png")) + sorted(QUI.glob("Logo*.png"))), QUI / "logo.png")
-VOCE = os.environ.get("VOCE", "it-IT-GiuseppeMultilingualNeural")   # voce maschile italiana più naturale
-VOCI_PROVA = ["it-IT-GiuseppeMultilingualNeural", "it-IT-DiegoNeural", "it-IT-IsabellaNeural", "it-IT-ElsaNeural"]
-VERSIONE = 4   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
+# voci SOLO italiane (quelle "Multilingual" a volte leggono le frasi corte in inglese)
+VOCE = os.environ.get("VOCE", "it-IT-IsabellaNeural")
+VOCI_PROVA = ["it-IT-IsabellaNeural", "it-IT-ElsaNeural", "it-IT-DiegoNeural"]
+VERSIONE = 5   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
 VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-6%")
 VOCE_TONO = os.environ.get("VOCE_TONO", "+0Hz")      # tono naturale (abbassarlo rende la voce metallica)
 STATO = QUI / "pubblicati.json"
@@ -432,6 +435,21 @@ def font(dim, peso="ExtraBold"):
     return f
 
 
+def titolo_font(dim, peso="Bold"):
+    if not FONT_TITOLI.exists():
+        try:
+            FONT_TITOLI.parent.mkdir(exist_ok=True)
+            FONT_TITOLI.write_bytes(HTTP.get(URL_OSWALD, timeout=60).content)
+        except Exception:
+            return font(dim, "Black")
+    f = ImageFont.truetype(str(FONT_TITOLI), dim)
+    try:
+        f.set_variation_by_name(peso)
+    except Exception:
+        pass
+    return f
+
+
 def a_capo(draw, testo, f, larghezza, max_righe):
     parole, righe, riga = testo.split(), [], ""
     for p in parole:
@@ -623,28 +641,44 @@ def marchio(d, lv=None):
 
 
 def immagine_finale(a, sfondo):
-    img = ImageOps.fit(sfondo, (W, H)).filter(ImageFilter.GaussianBlur(28))
-    img = Image.alpha_composite(img.convert("RGBA"), Image.new("RGBA", (W, H), (*SCURO, 215)))
+    """chiusura: logo tondo, marchio, agenzia e invito al link"""
+    oro2 = (236, 190, 72)
+    img = ImageOps.fit(sfondo, (W, H)).filter(ImageFilter.GaussianBlur(30)).convert("RGBA")
+    img = Image.alpha_composite(img, Image.new("RGBA", (W, H), (14, 14, 15, 222)))
     d = ImageDraw.Draw(img)
 
     def centra(testo, y, f, colore="white"):
         d.text(((W - d.textlength(testo, font=f)) / 2, y), testo, font=f, fill=colore)
 
-    lg = logo(940, 430)
+    lg = logo(460, 460)
     if lg is not None:
-        img.alpha_composite(lg, ((W - lg.width) // 2, 700 - lg.height - 20))
+        om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        x, y = (W - lg.width) // 2, 230
+        om.paste((0, 0, 0, 180), (x + 8, y + 14), lg.getchannel("A"))
+        img.alpha_composite(om.filter(ImageFilter.GaussianBlur(14)))
+        img.alpha_composite(lg, (x, y))
         d = ImageDraw.Draw(img)
-    else:
-        centra("CERCOCASA", 470, font(110, "Black"))
-        centra("UMBRIA", 590, font(110, "Black"))
-    centra("Il portale delle case in Umbria", 735, font(44, "SemiBold"))
+    ft = titolo_font(112)
+    a1, a2 = "CERCOCASA", "UMBRIA"
+    tot = d.textlength(a1, font=ft) + 16 + d.textlength(a2, font=ft)
+    x = (W - tot) / 2
+    d.text((x, 735), a1, font=ft, fill=oro2)
+    d.text((x + d.textlength(a1, font=ft) + 16, 735), a2, font=ft, fill=(242, 242, 242))
+    centra("IL PORTALE IMMOBILIARE DELL'UMBRIA", 895, font(32, "SemiBold"), (205, 205, 205))
+    d.rectangle([W / 2 - 90, 975, W / 2 + 90, 980], fill=ORO)
     if a["agenzia"]:
-        centra("Annuncio di", 920, font(40, "Medium"))
-        for i, r in enumerate(a_capo(d, a["agenzia"], font(52, "Bold"), W - 140, 2)):
-            centra(r, 975 + i * 64, font(52, "Bold"))
-    pillola(d, (0, 1230), "LINK IN BIO", font(56, "Black"), ORO, "white", (44, 22), centro=True)
-    centra("cercocasaumbria.it", 1385, font(50, "Bold"))
-    centra(f"Codice annuncio {a['id']}", 1460, font(40, "Medium"), (255, 255, 255, 220))
+        centra("Annuncio di", 1030, font(40, "Medium"), (215, 215, 215))
+        for i, r in enumerate(a_capo(d, a["agenzia"], font(52, "Bold"), W - 160, 2)):
+            centra(r, 1085 + i * 66, font(52, "Bold"))
+    pillola(d, (0, 1300), "LINK IN BIO", font(58, "Black"), ORO, "white", (50, 24), centro=True)
+    fu = titolo_font(70)
+    p1, p2, p3 = "www.", "cercocasa", "umbria.it"
+    tot = sum(d.textlength(t, font=fu) for t in (p1, p2, p3))
+    x = (W - tot) / 2
+    for t, col in ((p1, (240, 240, 240)), (p2, oro2), (p3, (240, 240, 240))):
+        d.text((x, 1455), t, font=fu, fill=col)
+        x += d.textlength(t, font=fu)
+    centra(f"Codice annuncio {a['id']}", 1570, font(36, "Medium"), (190, 190, 190))
     return img.convert("RGB")
 
 
