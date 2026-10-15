@@ -841,12 +841,57 @@ def prepara(a, args):
     return video
 
 
+GIORNI_IT = ["lunedi", "martedi", "mercoledi", "giovedi", "venerdi", "sabato", "domenica"]
+MESI_IT = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"]
+
+
+def settimana(stato, args, giorni):
+    """prepara i post di N giorni, da programmare a mano su Meta Business Suite e TikTok Studio:
+    ogni giorno 1 video per Facebook+Instagram e 1 video (altra agenzia) per TikTok"""
+    from datetime import timedelta
+    oggi = datetime.now()
+    calendario = ["CALENDARIO POST CERCOCASA UMBRIA", "=" * 34, ""]
+    fatti = 0
+    for g in range(1, giorni + 1):
+        giorno = oggi + timedelta(days=g)
+        etichetta = f"{g:02d}-{GIORNI_IT[giorno.weekday()]}-{giorno.day:02d}-{MESI_IT[giorno.month - 1]}"
+        cartella = USCITA / etichetta
+        cartella.mkdir(parents=True, exist_ok=True)
+        calendario.append(f"{GIORNI_IT[giorno.weekday()].upper()} {giorno.day} {MESI_IT[giorno.month - 1]}  (cartella {etichetta})")
+        for nome_file, gruppo in (("FACEBOOK-INSTAGRAM", ["facebook", "instagram"]), ("TIKTOK", ["tiktok"])):
+            a = scegli_annuncio(stato)
+            if not a:
+                log("Nessun annuncio nuovo disponibile per", etichetta, nome_file)
+                continue
+            stato["pubblicati"].append({"id": a["id"], "agenzia": a["agenzia"], "agenzia_id": a.get("agenzia_id"),
+                                        "rivista": a.get("rivista"), "social": gruppo,
+                                        "data": giorno.strftime("%Y-%m-%d")})
+            video = prepara(a, args)
+            if not video:
+                continue
+            shutil.move(str(video), cartella / f"{nome_file}.mp4")
+            for nome in gruppo:
+                (cartella / f"testo-{nome}.txt").write_text(testo_post(a, nome), encoding="utf-8")
+            calendario.append(f"   {nome_file:<20} {a['prezzo']:<12} {a['citta'] or ''} – {a['agenzia']}")
+            fatti += 1
+        calendario.append("")
+    calendario += ["COME PROGRAMMARE:",
+                   "- Meta Business Suite: Crea Reel -> carica FACEBOOK-INSTAGRAM.mp4 -> spunta Facebook e Instagram",
+                   "  -> incolla testo-instagram.txt (e personalizza Facebook con testo-facebook.txt) -> Programma: giorno indicato, ore 8:30",
+                   "- TikTok Studio (computer): Carica -> TIKTOK.mp4 -> incolla testo-tiktok.txt -> Programma: giorno indicato, ore 8:30"]
+    (USCITA / "00-CALENDARIO.txt").write_text("\n".join(calendario), encoding="utf-8")
+    STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
+    log(f"Pronti {fatti} video per {giorni} giorni")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prova", action="store_true", help="crea i video senza pubblicare")
     ap.add_argument("--id", type=int, help="annuncio preciso")
     ap.add_argument("--foto", help="cartella di foto locali (per test)")
     ap.add_argument("--dati", help="file json con i dati dell'annuncio (per test)")
+    ap.add_argument("--giorni", type=int, default=int(os.environ.get("GIORNI", "0") or 0),
+                    help="prepara i post di N giorni da programmare a mano")
     args = ap.parse_args()
 
     stato = carica_stato()
@@ -854,6 +899,9 @@ def main():
     social = [x.strip() for x in os.environ.get("SOCIAL", "facebook,instagram,tiktok").split(",") if x.strip()]
     # diversi = un annuncio (e un'agenzia) diverso per ogni social; uguale = stesso video ovunque
     modo = os.environ.get("MODO_POST", "diversi")
+    if args.giorni and not (args.dati or args.id):
+        settimana(stato, args, args.giorni)
+        return
 
     if args.dati or args.id:
         a = json.loads(Path(args.dati).read_text()) if args.dati else leggi_annuncio(args.id)
