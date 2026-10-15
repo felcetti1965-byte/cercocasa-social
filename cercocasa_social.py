@@ -29,8 +29,10 @@ MUSICA = QUI / "musica"
 # usa il primo file .png il cui nome inizia con "logo" (es. logo.png, logo-v191.png)
 CORNICE = QUI / "cornice.png"   # grafica con barre in alto e in basso (centro trasparente)
 LOGO = next(iter(sorted(QUI.glob("logo*.png")) + sorted(QUI.glob("Logo*.png"))), QUI / "logo.png")
-VOCE = os.environ.get("VOCE", "it-IT-DiegoNeural")   # voce maschile italiana
-VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "+0%")
+VOCE = os.environ.get("VOCE", "it-IT-GiuseppeMultilingualNeural")   # voce maschile italiana più naturale
+VOCI_PROVA = ["it-IT-GiuseppeMultilingualNeural", "it-IT-DiegoNeural", "it-IT-IsabellaNeural", "it-IT-ElsaNeural"]
+VERSIONE = 4   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
+VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-6%")
 VOCE_TONO = os.environ.get("VOCE_TONO", "+0Hz")      # tono naturale (abbassarlo rende la voce metallica)
 STATO = QUI / "pubblicati.json"
 USCITA = QUI / "video"
@@ -41,7 +43,7 @@ ORO = (190, 145, 40)         # colori del logo
 SCURO = (24, 24, 26)
 SECONDI_FOTO = 2.6
 DISSOLVENZA = 0.4
-MAX_FOTO = 10
+MAX_FOTO = 12
 
 # pagine da cui raccogliere gli annunci (i più recenti per primi)
 PAGINE_ELENCO = [
@@ -327,6 +329,19 @@ CARATTERISTICHE = [  # (cosa cercare nel testo, frase da mostrare e dire)
     (r"fotovoltaic", "Con impianto fotovoltaico"),
     (r"classe energetica a\d?\b|classe a\d?\b", "In classe energetica A"),
     (r"ingresso indipendente", "Ingresso indipendente"),
+    (r"doppi servizi", "Doppi servizi"),
+    (r"taverna", "Con taverna"),
+    (r"mansard", "Con mansarda"),
+    (r"soffitta", "Con soffitta"),
+    (r"travi a vista|travi in legno", "Con travi a vista"),
+    (r"parquet", "Pavimenti in parquet"),
+    (r"arredat", "Arredat{o}"),
+    (r"porta blindata", "Porta blindata"),
+    (r"doppi vetri|infissi nuovi|infissi in", "Infissi di qualità"),
+    (r"terreno (di|circostante|agricolo|privato|pertinenziale)|ettari|uliveto|oliveto", "Con terreno"),
+    (r"(casa|casale|rustico|villa|edificio|costruzione|colonica)\s+in pietra|pietra a vista", "Costruzione in pietra"),
+    (r"centro storico", "Vicino al centro storico"),
+    (r"vicin\w*\s+(a|ai)\s+(tutti i\s+)?servizi|servizi a pochi passi|vicino a negozi", "Vicino a tutti i servizi"),
 ]
 
 
@@ -339,6 +354,8 @@ def frasi_video(a):
     """frasi brevi e sicure: dati dell'annuncio + caratteristiche trovate nel testo"""
     femminile = tipo_parola(a) in ("villa", "villetta", "casa")
     frasi = []
+    if "·" in (a.get("comune") or ""):
+        frasi.append("Zona " + a["comune"].split("·")[-1].strip())
     if a.get("mq"):
         frasi.append(f"{a['mq']} metri quadrati")
     if a.get("camere"):
@@ -361,6 +378,8 @@ def frasi_video(a):
         if re.search(r"\b(senza|no|privo di|priva di|non)\s+(\w+\s+)?$", prima):
             continue  # "senza ascensore" ecc.
         if frase.startswith("Ristrutturat") and any(f.startswith("Da ristrutturare") for f in frasi):
+            continue
+        if frase == "Con terreno" and tipo_parola(a) == "terreno":
             continue
         frasi.append(frase.format(o="a" if femminile else "o"))
     return list(dict.fromkeys(frasi))
@@ -389,10 +408,10 @@ def voce_finale(a):
     return " ".join(x for x in parti if x)
 
 
-def crea_voce(testo, destinazione):
+def crea_voce(testo, destinazione, voce=None):
     """voce neurale gratuita (edge-tts); se non funziona il video esce senza voce"""
     try:
-        subprocess.run([sys.executable, "-m", "edge_tts", "--voice", VOCE, f"--rate={VOCE_VELOCITA}",
+        subprocess.run([sys.executable, "-m", "edge_tts", "--voice", voce or VOCE, f"--rate={VOCE_VELOCITA}",
                         f"--pitch={VOCE_TONO}", "--text", testo, "--write-media", str(destinazione)],
                        check=True, timeout=120, capture_output=True)
         out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
@@ -655,15 +674,15 @@ def clip_foto(fp, lv, dur, i, tmp):
         x, y = f"(iw-{W})*(1-t/{dur})", f"(ih-{H})*(1-t/{dur})"
     ff("-loop", "1", "-t", dur, "-i", base_p, "-i", lv_p,
        "-filter_complex", f"[0:v]crop={W}:{H}:x='{x}':y='{y}',fps={FPS},format=yuv420p[b];[b][1:v]overlay=0:0,format=yuv420p",
-       "-t", dur, "-r", FPS, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", out)
+       "-t", dur, "-r", FPS, "-c:v", "libx264", "-preset", "ultrafast", "-crf", "17", out)
     return out
 
 
 def crea_video(a, foto_locali, destinazione):
     tmp = Path(tempfile.mkdtemp())
     foto_locali = foto_locali[:MAX_FOTO]
-    frasi = frasi_video(a)[:max(0, min(6, len(foto_locali) - 1))]
-    extra = max(0, min(3, len(foto_locali) - 1) - len(frasi))      # almeno 4 foto in tutto
+    frasi = frasi_video(a)[:max(0, min(10, len(foto_locali) - 1))]
+    extra = max(0, min(7, len(foto_locali) - 1) - len(frasi))      # almeno 8 foto quando ci sono
     # scene: (foto, frase sullo schermo, testo detto dalla voce)
     scene = [(foto_locali[0], None, voce_apertura(a))]
     for i, f in enumerate(frasi):
@@ -686,8 +705,8 @@ def crea_video(a, foto_locali, destinazione):
 
     clip = []
     for k, (fp, frase, _) in enumerate(scene):
-        minimo = 3.2 if k == 0 or fp is None else 2.4
-        dur = max(minimo, (voci[k] or 0) + 0.35 + DISSOLVENZA + (0.2 if k else 0))
+        minimo = 4.0 if k == 0 or fp is None else 3.2
+        dur = max(minimo, (voci[k] or 0) + 0.8 + DISSOLVENZA + (0.2 if k else 0))
         if fp is None:      # schermata finale
             fin_p, out = tmp / "fine.jpg", tmp / "cfine.mp4"
             immagine_finale(a, Image.open(foto_locali[0])).save(fin_p, quality=92)
@@ -733,7 +752,7 @@ def crea_video(a, foto_locali, destinazione):
         afiltro += ";[m]anull[a]"
     ff(*ingressi, *audio, "-filter_complex", ";".join(filtri) + f";[{prec}]format=yuv420p[v]" + afiltro,
        "-map", "[v]", "-map", "[a]", "-t", f"{durata:.2f}",
-       "-c:v", "libx264", "-preset", "medium", "-crf", "21", "-profile:v", "high", "-pix_fmt", "yuv420p",
+       "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-profile:v", "high", "-pix_fmt", "yuv420p",
        "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", destinazione)
     shutil.rmtree(tmp, ignore_errors=True)
     return durata
@@ -939,9 +958,19 @@ def settimana(stato, args, giorni, inizio=1):
     ogni giorno 1 video per Facebook+Instagram e 1 video (altra agenzia) per TikTok"""
     from datetime import timedelta
     oggi = datetime.now()
+    prova = USCITA / "00-PROVA-VOCI"
+    prova.mkdir(parents=True, exist_ok=True)
+    for i, v in enumerate(VOCI_PROVA, 1):
+        nome = v.replace("it-IT-", "").replace("MultilingualNeural", "").replace("Neural", "")
+        crea_voce("Villa in vendita a Todi, a 330.000 euro. Con giardino e piscina. "
+                  "Tutte le foto su Cerco Casa Umbria. Link in bio.", prova / f"{i}-{nome}.mp3", v)
     calendario = ["CALENDARIO POST CERCOCASA UMBRIA", "=" * 34, ""]
     fatti = 0
+    partenza = time.time()
     for k in range(giorni):
+        if time.time() - partenza > 23 * 60:
+            log("Tempo quasi finito: salvo i giorni già pronti, gli altri li preparo la prossima volta.")
+            break
         g = inizio + k
         giorno = oggi + timedelta(days=g)
         etichetta = f"{k + 1:02d}-{GIORNI_IT[giorno.weekday()]}-{giorno.day:02d}-{MESI_IT[giorno.month - 1]}"
@@ -993,6 +1022,11 @@ def main():
         # una volta a settimana prepara i 7 giorni successivi; negli altri giorni non fa niente
         from datetime import date, timedelta
         oggi = date.today()
+        if stato.get("versione") != VERSIONE:
+            # grafica/voce cambiate: rifà i giorni futuri già preparati
+            stato["pubblicati"] = [p for p in stato["pubblicati"] if not (
+                isinstance(p.get("data"), str) and len(p["data"]) == 10 and date.fromisoformat(p["data"]) > oggi)]
+            stato["versione"] = VERSIONE
         future = [date.fromisoformat(p["data"]) for p in stato["pubblicati"]
                   if isinstance(p.get("data"), str) and len(p["data"]) == 10]
         ultimo = max(future) if future else None
