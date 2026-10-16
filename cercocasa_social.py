@@ -29,12 +29,13 @@ FONT_TITOLI = QUI / "font" / "Oswald.ttf"
 URL_OSWALD = "https://raw.githubusercontent.com/google/fonts/main/ofl/oswald/Oswald%5Bwght%5D.ttf"
 MUSICA = QUI / "musica"
 # usa il primo file .png il cui nome inizia con "logo" (es. logo.png, logo-v191.png)
+SIGLE = QUI / "sigle"           # apertura.mp4 (prima dell'annuncio) e chiusura.mp4 (dopo, con i contatti)
 CORNICE = QUI / "cornice.png"   # grafica con barre in alto e in basso (centro trasparente)
 LOGO = next(iter(sorted(QUI.glob("logo*.png")) + sorted(QUI.glob("Logo*.png"))), QUI / "logo.png")
 # voci SOLO italiane (quelle "Multilingual" a volte leggono le frasi corte in inglese)
 VOCE = os.environ.get("VOCE", "it-IT-IsabellaNeural")
 VOCI_PROVA = ["it-IT-IsabellaNeural", "it-IT-ElsaNeural", "it-IT-DiegoNeural"]
-VERSIONE = 5   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
+VERSIONE = 6   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
 VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-6%")
 VOCE_TONO = os.environ.get("VOCE_TONO", "+0Hz")      # tono naturale (abbassarlo rende la voce metallica)
 STATO = QUI / "pubblicati.json"
@@ -721,6 +722,22 @@ def clip_foto(fp, lv, dur, i, tmp):
 MUSICA_CONTATORE = [0]
 
 
+def sigle():
+    """(apertura, chiusura) come (file, durata); None se il file manca o se la variabile SIGLE vale "no" """
+    if os.environ.get("SIGLE", "si").lower() == "no":
+        return None, None
+    out = []
+    for nome in ("apertura.mp4", "chiusura.mp4"):
+        f = SIGLE / nome
+        try:
+            r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(f)],
+                               capture_output=True, text=True, check=True)
+            out.append((f, float(r.stdout.strip())))
+        except Exception:
+            out.append(None)
+    return out[0], out[1]
+
+
 def crea_video(a, foto_locali, destinazione):
     tmp = Path(tempfile.mkdtemp())
     foto_locali = foto_locali[:MAX_FOTO]
@@ -760,14 +777,26 @@ def crea_video(a, foto_locali, destinazione):
             out = clip_foto(fp, lv, dur, k, tmp)
         clip.append((out, dur))
 
-    # unione con dissolvenze
-    ingressi, filtri, prec, t, inizi = [], [], "0:v", 0.0, [0.0]
-    for c, _ in clip:
+    # sigle: apertura 3D prima dell'annuncio, chiusura con i contatti dopo
+    apertura, chiusura = sigle()
+    off = 0
+    if apertura:
+        clip.insert(0, apertura)
+        off = 1
+    if chiusura:
+        clip.append(chiusura)
+    if apertura or chiusura:
+        log("  sigle:", ", ".join(p.name for p, _ in (apertura, chiusura) if p))
+
+    # unione con dissolvenze (ogni pezzo portato allo stesso formato, così le sigle si uniscono alle foto)
+    ingressi, filtri, prec, t, inizi = [], [], "s0", 0.0, [0.0]
+    for k, (c, _) in enumerate(clip):
         ingressi += ["-i", c]
+        filtri.append(f"[{k}:v]scale={W}:{H},setsar=1,fps={FPS},format=yuv420p,settb=AVTB[s{k}]")
     for k in range(1, len(clip)):
         t += clip[k - 1][1] - DISSOLVENZA
         inizi.append(t)
-        filtri.append(f"[{prec}][{k}:v]xfade=transition=fade:duration={DISSOLVENZA}:offset={t:.2f}[v{k}]")
+        filtri.append(f"[{prec}][s{k}]xfade=transition=fade:duration={DISSOLVENZA}:offset={t:.2f}[v{k}]")
         prec = f"v{k}"
     durata = sum(d for _, d in clip) - DISSOLVENZA * (len(clip) - 1)
 
@@ -792,7 +821,7 @@ def crea_video(a, foto_locali, destinazione):
         if not d:
             continue
         audio += ["-i", tmp / f"v{k}.mp3"]
-        ms = int((inizi[k] + (0.25 if k == 0 else DISSOLVENZA * 0.6)) * 1000)
+        ms = int((inizi[k + off] + (0.25 if k == 0 and not off else DISSOLVENZA * 0.6)) * 1000)
         afiltro += f";[{idx}:a]aformat=sample_rates=44100:channel_layouts=stereo,adelay={ms}|{ms},volume=1.5[p{k}]"
         pezzi.append(f"[p{k}]")
         idx += 1
