@@ -85,7 +85,33 @@
    "data": "2026-10-17"
   },
   {
-   "id": 4970,
+   "id": 2915,
+   "agenzia": "IMPERO IMMOBILIARE",
+   "agenzia_id": 95,
+   "rivista": "Perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "auto": "2026-10-16",
+   "data": "2026-10-16T06:35",
+   "fb_video": "1432645908945236"
+  },
+  {
+   "id": 4963,
+   "agenzia": "AFFILIATO TECNOCASA: STUDIO COSPEA SAN GIOVANNI",
+   "agenzia_id": 8,
+   "rivista": "Terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "auto": "2026-10-17",
+   "data": "2026-10-17T06:56",
+   "fb_video": "1093249216649064"
+  },
+  {
+   "id": 5005,
    "agenzia": "SINERGIE IMMOBILIARE",
    "agenzia_id": 144,
    "rivista": "Perugia",
@@ -96,7 +122,7 @@
    "data": "2026-10-18"
   },
   {
-   "id": 3317,
+   "id": 5004,
    "agenzia": "RM L'AGENZIA IMMOBILIARE",
    "agenzia_id": 136,
    "rivista": "Terni",
@@ -127,7 +153,7 @@
    "data": "2026-10-19"
   },
   {
-   "id": 4940,
+   "id": 4992,
    "agenzia": "SINERGIE IMMOBILIARE",
    "agenzia_id": 144,
    "rivista": "Perugia",
@@ -159,7 +185,7 @@
    "data": "2026-10-21"
   },
   {
-   "id": 3316,
+   "id": 3317,
    "agenzia": "RM L'AGENZIA IMMOBILIARE",
    "agenzia_id": 136,
    "rivista": "Terni",
@@ -169,7 +195,7 @@
    "data": "2026-10-21"
   },
   {
-   "id": 4939,
+   "id": 4975,
    "agenzia": "SINERGIE IMMOBILIARE",
    "agenzia_id": 144,
    "rivista": "Perugia",
@@ -190,18 +216,47 @@
    "data": "2026-10-22"
   },
   {
-   "id": 2915,
-   "agenzia": "IMPERO IMMOBILIARE",
-   "agenzia_id": 95,
+   "id": 4970,
+   "agenzia": "SINERGIE IMMOBILIARE",
+   "agenzia_id": 144,
    "rivista": "Perugia",
    "social": [
     "facebook",
     "instagram"
    ],
-   "auto": "2026-10-16",
-   "data": "2026-10-16T06:35",
-   "fb_video": "1432645908945236"
+   "data": "2026-10-23"
+  },
+  {
+   "id": 4909,
+   "agenzia": "AFFILIATO TECNOCASA: STUDIO COSPEA SAN GIOVANNI",
+   "agenzia_id": 8,
+   "rivista": "Terni",
+   "social": [
+    "tiktok"
+   ],
+   "data": "2026-10-23"
+  },
+  {
+   "id": 4940,
+   "agenzia": "SINERGIE IMMOBILIARE",
+   "agenzia_id": 144,
+   "rivista": "Perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-24"
+  },
+  {
+   "id": 3316,
+   "agenzia": "RM L'AGENZIA IMMOBILIARE",
+   "agenzia_id": 136,
+   "rivista": "Terni",
+   "social": [
+    "tiktok"
+   ],
+   "data": "2026-10-24"
   }
  ],
- "versione": 5
+ "versione": 6
 }
