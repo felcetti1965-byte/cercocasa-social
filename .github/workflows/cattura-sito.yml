@@ -2,24 +2,29 @@ name: Cattura sito (temporaneo)
 on:
   push:
     branches: [claude/cattura-sito]
+permissions:
+  contents: write
+  actions: read
 jobs:
-  cattura:
+  comprimi:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Installa
-        run: |
-          pip install -q playwright==1.48.0
-          python -m playwright install --with-deps chromium
-          sudo apt-get install -y -qq fonts-noto-color-emoji >/dev/null || true
-      - name: Foto
-        run: bash cattura/foto.sh
-      - name: Cattura
-        run: python cattura/cattura.py
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - uses: actions/download-artifact@v4
         with:
           name: cattura
-          path: out/
-          retention-days: 3
+          path: out
+          run-id: 39035104301
+          github-token: ${{ github.token }}
+      - name: Comprimi
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          bash cattura/comprimi.sh
+      - name: Pubblica sul ramo dati
+        run: |
+          cd dati
+          git init -q -b claude/cattura-dati
+          git config user.name "Claude"; git config user.email "noreply@anthropic.com"
+          git add -A && git commit -qm "Dati cattura sito (temporaneo)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" claude/cattura-dati
