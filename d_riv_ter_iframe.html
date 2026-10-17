@@ -1,0 +1,1442 @@
+<!DOCTYPE html><html lang="it"><head><base href="/rivista-demo/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Cercocasa Umbria - Demo Rivista Interattiva</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{
+ margin:0;height:100%;overflow:hidden;
+ font-family:Arial,Helvetica,sans-serif;background:#111
+}
+.top{
+ height:64px;background:#101010;color:#fff;
+ display:flex;align-items:center;gap:9px;
+ padding:8px 12px;border-bottom:1px solid #333
+}
+.brand{font-weight:800;font-size:16px;margin-right:auto;white-space:nowrap}
+.brand small{color:#aaa;font-weight:400;margin-left:6px}
+
+.demo{
+ border:1px solid #555;background:#222;color:#fff;
+ height:40px;padding:0 13px;border-radius:20px;
+ cursor:pointer;font-weight:700
+}
+.demo:hover{background:#fff;color:#111}
+
+.viewer{height:calc(100% - 64px)}
+iframe{width:100%;height:100%;border:0;display:block}
+
+.overlay{
+ display:none;position:absolute;z-index:200;
+ inset:64px 0 0;background:rgba(0,0,0,.76);
+ padding:22px;overflow:auto
+}
+.overlay.show{display:block}
+
+.box{
+ width:min(760px,100%);margin:auto;
+ background:#fff;color:#111;border-radius:16px;
+ overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.6)
+}
+.head{
+ background:#111;color:#fff;padding:18px 22px;
+ display:flex;align-items:center;justify-content:space-between
+}
+.head h2{margin:0;font-size:21px}
+.close{
+ border:0;width:38px;height:38px;border-radius:50%;
+ font-size:21px;cursor:pointer
+}
+.content{padding:23px}
+.price{font-size:32px;font-weight:800;margin:5px 0 12px}
+.place{font-size:20px;font-weight:800}
+.desc{font-size:16px;line-height:1.5;color:#444}
+
+.buttons{
+ display:flex;gap:8px;flex-wrap:wrap;margin-top:18px
+}
+.action{
+ border:0;background:#111;color:#fff;
+ border-radius:21px;padding:11px 16px;
+ cursor:pointer;font-weight:700
+}
+.action.secondary{background:#eee;color:#111}
+
+.photo{
+ width:100%;max-height:390px;object-fit:contain;
+ background:#eee;border-radius:10px
+}
+
+.searchinput{
+ width:100%;height:48px;border:1px solid #aaa;
+ border-radius:8px;padding:0 13px;font-size:17px
+}
+.result{
+ margin-top:15px;border:1px solid #ddd;
+ border-radius:10px;padding:15px
+}
+.result strong{font-size:18px}
+.badge{
+ display:inline-block;background:#eee;border-radius:14px;
+ padding:5px 9px;font-size:12px;font-weight:700;margin-bottom:8px
+}
+
+.stats{
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:10px;margin-top:15px
+}
+.stat{
+ background:#f3f3f3;border-radius:10px;
+ padding:17px;text-align:center
+}
+.stat strong{display:block;font-size:27px}
+.note{
+ margin-top:15px;padding:12px;background:#fff4cc;
+ border-radius:8px;font-size:13px
+}
+
+@media(max-width:850px){
+ .top{height:112px;flex-wrap:wrap}
+ .brand{width:100%}
+ .demo{height:35px;padding:0 9px;font-size:11px}
+ .viewer{height:calc(100% - 112px)}
+ .overlay{inset:112px 0 0;padding:10px}
+ .stats{grid-template-columns:1fr}
+}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#087fae"><link rel="stylesheet" href="/assets/bundle-a5be3588be94.css"><style id="ccu-mobile-menu-colors">@media(max-width:1050px){.mobile-main-menu>div{background:#075f88!important;border-color:#075f88!important}.mobile-main-menu>div a,.mobile-main-menu>div a:link,.mobile-main-menu>div a:visited,.mobile-main-menu>div a:hover,.mobile-main-menu>div a:focus,.mobile-main-menu>div a:active{color:#fff!important}.mobile-main-menu>div a:hover,.mobile-main-menu>div a:focus{background:#0879a7!important}.auction-hero h1,.blog-hero h1{color:#fff!important}.auction-hero .kicker,.blog-hero .kicker{color:#f5bd15!important}.auction-hero>div>p:not(.kicker),.blog-hero>div>p:not(.kicker){color:#f1f1f1!important}}</style><style id="ccu-guide-menu-button">.admin-menu .admin-guide-menu>summary{padding:9px 12px;border-radius:8px;background:#c82333;color:#fff!important;box-shadow:0 3px 10px #8c172544}.admin-menu .admin-guide-menu>summary:after{color:#fff}.admin-menu .admin-guide-menu>div .admin-guide-slide-link{background:#c82333;color:#fff!important;font-weight:950}.admin-menu .admin-guide-menu>div .admin-guide-slide-link:hover{background:#a61927;color:#fff!important}</style><link rel="stylesheet" href="/assets/bundle-c67296c96f4d.css"><style id="ccu-fw-style">.ccu-fw-tool-icon{display:inline-block;vertical-align:middle;width:18px;height:18px;min-width:18px;margin-right:6px;flex:none;fill:none;stroke:currentColor}
+.ccu-fw-dialog{box-sizing:border-box;position:fixed;inset:0;margin:auto;width:calc(100% - 28px);max-width:1140px;height:80vh;height:80dvh;max-height:calc(100vh - 28px);max-height:calc(100dvh - 28px);padding:0;border:1px solid #dfe4e7;border-radius:14px;background:#fff;color:#172b43;box-shadow:0 18px 70px #0005;overflow:hidden;font:inherit}
+.ccu-fw-dialog[open]{display:flex;flex-direction:column}.ccu-fw-dialog::backdrop{background:rgba(0,0,0,.48)}
+.ccu-fw-dialog *{box-sizing:border-box}.ccu-fw-header{display:flex;flex:none;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #dfe4e7;background:#fff}.ccu-fw-header h2{margin:0;font-size:22px;line-height:1.25;color:inherit}.ccu-fw-close{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;border:1px solid #cad1d8;border-radius:8px;background:#fff;color:#172b43;font-size:32px;line-height:1;cursor:pointer}
+.ccu-fw-content{min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:16px;flex:1}.ccu-fw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;align-items:start}.ccu-fw-card{min-width:0;overflow:hidden;border:1px solid #dfe4e7;border-radius:12px;background:#fff;padding:15px}.ccu-fw-card>img,.ccu-fw-card .ccu-fw-photo>img{display:block;width:100%;height:170px;object-fit:cover;border-radius:8px}.ccu-fw-card h3{font-size:18px;line-height:1.3;margin:14px 0 10px;overflow-wrap:anywhere}.ccu-fw-card>strong{display:block;font-size:23px;line-height:1.3;color:#172b43}.ccu-fw-card dl{display:grid;grid-template-columns:1fr 1fr;margin:14px 0}.ccu-fw-card dt,.ccu-fw-card dd{margin:0;padding:8px 0;border-bottom:1px solid #edf0f2;font-size:12px;overflow-wrap:anywhere}.ccu-fw-card dd{text-align:right;font-weight:800}.ccu-fw-card a,.ccu-fw-card button,.ccu-fw-clear{display:block;width:100%;margin-top:10px;padding:12px 10px;min-height:44px;border:0;border-radius:7px;text-align:center;font:inherit;font-weight:800;cursor:pointer;text-decoration:none}.ccu-fw-card a{background:#087ca8;color:#fff}.ccu-fw-card button,.ccu-fw-clear{background:#edf1f3;color:#33434d}.ccu-fw-clear{width:auto;margin-top:20px}.ccu-fw-notice{padding:12px;border-radius:8px;background:#fff4db;line-height:1.4}.ccu-fw-dialog :focus-visible{outline:3px solid #087ca8;outline-offset:2px}
+@media(max-width:600px){.ccu-fw-dialog{width:calc(100% - 20px);height:calc(100vh - 32px);height:calc(100dvh - 32px);max-height:calc(100dvh - 32px);border-radius:12px}.ccu-fw-header{padding:8px 10px}.ccu-fw-header h2{font-size:18px}.ccu-fw-content{padding:10px}.ccu-fw-grid{grid-template-columns:minmax(0,1fr)}.ccu-fw-card{padding:12px}.ccu-fw-card>img,.ccu-fw-card .ccu-fw-photo>img{height:190px}}
+@media print{.ccu-fw-dialog{display:none!important}}
+
+.ccu-fw-card a.ccu-fw-photo{display:block;padding:0;margin:0;min-height:0;background:transparent;border-radius:8px;line-height:0}.ccu-fw-dialog{z-index:2147483001}.ccu-fw-dialog:not([open]){display:none!important}.ccu-fw-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:2147483000}.ccu-fw-backdrop[hidden]{display:none!important}
+
+.comparison-card>a.ccu-comparison-photo{display:block;margin:0;padding:0;background:transparent;border-radius:8px;line-height:0}.comparison-card>a.ccu-comparison-photo>img{display:block;width:100%;height:170px;object-fit:cover;border-radius:8px}
+</style></head>
+
+<body>
+
+<div class="top"><button type="button" class="ccu-mobile-toggle" aria-expanded="false">✦ Ricerca AI</button>
+ <div class="brand">
+ <a href="/" target="_top" aria-label="Cercocasa Umbria - Home">
+  <img class="ccu-nav-logo" src="/assets/logo-v191.png" alt="Cercocasa Umbria">
+ </a>
+ <nav class="ccu-magazine-nav" aria-label="Navigazione riviste">
+  <a href="/" target="_top">Home</a>
+  <a href="/rivista.php?edizione=Perugia" target="_top">Perugia</a>
+  <a href="/rivista.php?edizione=Terni" target="_top">Terni</a>
+ </nav>
+</div>
+
+ <button class="demo" data-demo="search">🔎 CERCA IMMOBILE</button><button id="ccu-ai-desktop" type="button" class="demo ccu-ai-desktop">✦ Ricerca AI</button>
+ <button class="demo" data-demo="property">🏠 APRI ANNUNCIO</button>
+ <button class="demo" data-demo="photo">📷 FOTO</button>
+ <button class="demo" data-demo="contact">☎ CONTATTA</button>
+ <button class="demo" data-demo="live">● IMMOBILE LIVE</button>
+ <button class="demo" data-demo="interest">❤️ SONO INTERESSATO</button>
+ <button class="demo" data-demo="similar">🏘 IMMOBILI SIMILI</button>
+ <button class="demo" data-demo="stats">📊 STATISTICHE</button>
+</div>
+
+<div class="viewer">
+ <iframe id="book" src="/uploads/riviste/terni-20261006-163854-0dfd13/flipbook/mobile/index.html" title="Cercocasa Umbria Terni"></iframe>
+</div>
+
+<div id="overlay" class="overlay">
+ <div class="box">
+  <div class="head">
+   <h2 id="title"></h2>
+   <button id="close" class="close">×</button>
+  </div>
+  <div id="content" class="content"></div>
+ </div>
+</div>
+
+<script>
+const overlay=document.getElementById('overlay');
+const title=document.getElementById('title');
+const content=document.getElementById('content');
+const book=document.getElementById('book');
+
+const property={
+ city:'PERUGIA',
+ zone:'Via della Sapienza',
+ price:'€ 143.000',
+ agency:'TEMPOCASA TRE ARCHI PERUGIA',
+ phone:'075 8429576',
+ mobile:'370 3169268',
+ description:
+ 'In zona residenziale e servita, appartamento dotato di doppio ascensore, composto da soggiorno con angolo cottura, camera, bagno, ripostiglio e terrazzo accessibile sia dal soggiorno che dalla camera matrimoniale. Completano la proprietà un garage e parcheggio condominiale.'
+};
+
+function openBox(t,html){
+ title.textContent=t;
+ content.innerHTML=html;
+ overlay.classList.add('show');
+}
+
+function propertyCard(){
+ return `
+ <div class="badge">ANNUNCIO DELLA RIVISTA • PAGINA 6</div>
+ <div class="place">${property.city} — ${property.zone}</div>
+ <div class="price">${property.price}</div>
+ <div class="desc">${property.description}</div>
+
+ <div class="buttons">
+  <button class="action" id="insidePhoto">📷 Guarda foto</button>
+  <a class="action" style="text-decoration:none"
+     href="tel:+390758429576">☎ Chiama agenzia</a>
+  <a class="action" style="text-decoration:none"
+     href="tel:+393703169268">📱 Chiama cellulare</a>
+ </div>`;
+}
+
+
+function escapeHtml(value){
+ return String(value ?? '')
+  .replace(/&/g,'&amp;')
+  .replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;')
+  .replace(/'/g,'&#039;');
+}
+
+
+let activeProperty = null;
+
+async function setActiveProperty(id){
+ const response = await fetch(
+   '/rivista-demo/search.php?id=' + encodeURIComponent(id) + '&_=' + Date.now(),
+   {cache:'no-store'}
+ );
+
+ if(!response.ok){
+   throw new Error('HTTP '+response.status);
+ }
+
+ const data = await response.json();
+
+ if(!data || data.ok !== true || !data.property){
+   throw new Error('Immobile non disponibile');
+ }
+
+ activeProperty = data.property;
+ return activeProperty;
+}
+
+function needProperty(){
+ if(activeProperty) return true;
+
+ openBox('Scegli un immobile',`
+  <p class="desc">
+   Prima usa <strong>🔎 CERCA IMMOBILE</strong> e premi
+   <strong>VEDI</strong> sull'immobile che ti interessa.
+  </p>
+ `);
+
+ return false;
+}
+
+function demoSearch(){
+ openBox('Ricerca immobili',`
+  <p class="desc">
+   Cerca tra <strong>tutti gli immobili pubblicati su Cercocasa Umbria</strong>.
+  </p>
+
+  <div style="display:flex;gap:8px">
+   <input id="searchField" class="searchinput"
+    placeholder="Zona, comune, tipologia o agenzia..."
+    style="flex:1">
+
+   <button id="runSearch" class="action">
+    CERCA
+   </button>
+  </div>
+
+  <div id="searchResult"></div>
+ `);
+
+ const field=document.getElementById('searchField');
+ const result=document.getElementById('searchResult');
+ const button=document.getElementById('runSearch');
+
+ async function run(){
+   const query=field.value.trim();
+
+   if(query.length<2){
+     result.innerHTML='<div class="result">Scrivi almeno 2 caratteri.</div>';
+     return;
+   }
+
+   result.innerHTML='<div class="result">Ricerca in corso...</div>';
+
+   try{
+     const response=await fetch(
+       '/rivista-demo/search.php?q='+encodeURIComponent(query)+'&_='+Date.now()
+     );
+
+     if(!response.ok){
+       throw new Error('HTTP '+response.status);
+     }
+
+     const data=await response.json();
+
+     if(!data || data.ok!==true){
+       throw new Error('Risposta non valida');
+     }
+
+     const items=Array.isArray(data.results) ? data.results : [];
+
+     if(items.length===0){
+       result.innerHTML=`
+        <div class="result">
+         <strong>Nessun immobile trovato.</strong><br>
+         Prova con un altro comune, zona, tipologia o agenzia.
+        </div>`;
+       return;
+     }
+
+     let html=`
+      <div class="result">
+       <strong>${items.length} immobili trovati</strong>
+       ${data.agency
+        ? `<br><small>Agenzia: ${escapeHtml(data.agency)}</small>`
+        : ''}
+      </div>
+
+      <div style="display:grid;gap:10px;margin-top:12px">
+     `;
+
+     items.forEach(x=>{
+       const price=(x.price!==null && x.price!==undefined)
+        ? '€ '+Math.round(Number(x.price)).toLocaleString('it-IT')
+        : 'Prezzo su richiesta';
+
+       const place=[x.city,x.zone].filter(Boolean).join(' — ');
+
+       let photo='';
+
+       if(Array.isArray(x.photos) && x.photos.length){
+         photo='/'+String(x.photos[0]).replace(/^\/+/,'');
+       }
+
+       html+=`
+        <div style="
+         border:1px solid #ddd;
+         border-radius:12px;
+         padding:12px;
+         display:flex;
+         gap:13px;
+         align-items:center">
+
+         ${photo ? `
+          <img src="${escapeHtml(photo)}"
+           style="width:105px;height:78px;object-fit:cover;border-radius:8px"
+           alt="">` : ''}
+
+         <div style="flex:1;min-width:0">
+
+          <small>${escapeHtml(place)}</small>
+
+          <div style="
+           font-size:16px;
+           font-weight:800;
+           margin:3px 0">
+           ${escapeHtml(x.title || '')}
+          </div>
+
+          <strong>${escapeHtml(price)}</strong>
+
+          ${x.agency ? `
+           <div style="font-size:12px;color:#666;margin-top:3px">
+            ${escapeHtml(x.agency)}
+           </div>` : ''}
+
+         </div>
+
+         <button
+          class="action ccuSelectProperty"
+          data-id="${Number(x.id)}">
+          VEDI →
+         </button>
+
+        </div>`;
+     });
+
+     html+='</div>';
+
+     result.innerHTML=html;
+
+     document.querySelectorAll('.ccuSelectProperty').forEach(el=>{
+       el.addEventListener('click',async()=>{
+         try{
+           await setActiveProperty(el.dataset.id);
+           demoProperty();
+         }catch(err){
+           alert('Non riesco ad aprire questo immobile.');
+         }
+       });
+     });
+
+   }catch(err){
+     console.error('CCU SEARCH ERROR',err);
+
+     result.innerHTML=`
+      <div class="result">
+       <strong>Errore durante la ricerca.</strong><br>
+       Riprova.
+      </div>`;
+   }
+ }
+
+ button.addEventListener('click',run);
+
+ field.addEventListener('keydown',e=>{
+   if(e.key==='Enter'){
+     e.preventDefault();
+     run();
+   }
+ });
+
+ field.focus();
+}
+
+function demoProperty(){
+ if(!needProperty()) return;
+
+ const p=activeProperty;
+ const place=[p.city,p.zone].filter(Boolean).join(' — ');
+ const price=p.price
+   ? '€ '+Math.round(Number(p.price)).toLocaleString('it-IT')
+   : 'Prezzo su richiesta';
+
+ openBox('Annuncio interattivo',`
+  <div class="badge">IMMOBILE SELEZIONATO</div>
+  <div class="place">${escapeHtml(place)}</div>
+  <div class="price">${escapeHtml(price)}</div>
+
+  <div style="font-weight:800;font-size:18px;margin-bottom:10px">
+   ${escapeHtml(p.title)}
+  </div>
+
+  <div class="desc">
+   ${escapeHtml(p.description || '')}
+  </div>
+
+  <div class="buttons">
+   <button id="selectedPhotos" class="action">📷 Guarda foto</button>
+   <button id="selectedOpen" class="action">🏠 Vedi immobile</button>
+   <button id="selectedContact" class="action secondary">☎ Contatta</button>
+  </div>
+ `);
+
+ document.getElementById('selectedPhotos').onclick=demoPhoto;
+
+ document.getElementById('selectedOpen').onclick=()=>{
+   window.open(p.url,'_blank');
+ };
+
+ document.getElementById('selectedContact').onclick=demoContact;
+}
+
+function demoPhoto(){
+ if(!activeProperty){
+   openBox('Scegli un immobile',`
+    <p class="desc">
+     Prima usa <strong>🔎 CERCA IMMOBILE</strong> e premi
+     <strong>VEDI</strong> sull'immobile che vuoi consultare.
+    </p>
+   `);
+   return;
+ }
+
+ const p=activeProperty;
+ const photos=Array.isArray(p.photos) ? p.photos : [];
+
+ const place=[p.city,p.zone].filter(Boolean).join(' — ');
+ const price=(p.price!==null && p.price!==undefined)
+   ? '€ '+Math.round(Number(p.price)).toLocaleString('it-IT')
+   : 'Prezzo su richiesta';
+
+ if(!photos.length){
+   openBox('Foto dell’immobile',`
+    <div class="place">${escapeHtml(place)}</div>
+    <div class="price">${escapeHtml(price)}</div>
+    <div style="font-weight:800;margin:8px 0">
+     ${escapeHtml(p.title || '')}
+    </div>
+    <p class="desc">
+     Questo immobile non ha fotografie disponibili sul portale.
+    </p>
+   `);
+   return;
+ }
+
+ let current=0;
+
+ openBox('Foto dell’immobile',`
+  <div class="badge">${photos.length} FOTO REALI</div>
+
+  <div class="place">${escapeHtml(place)}</div>
+  <div class="price">${escapeHtml(price)}</div>
+
+  <div style="font-weight:800;margin:8px 0 14px">
+   ${escapeHtml(p.title || '')}
+  </div>
+
+  <div style="
+   position:relative;
+   background:#111;
+   border-radius:12px;
+   overflow:hidden">
+
+   <img id="ccuDynamicPhoto"
+    src="/${escapeHtml(String(photos[0]).replace(/^\/+/,''))}"
+    style="
+     width:100%;
+     height:430px;
+     object-fit:contain;
+     display:block"
+    alt="Foto immobile">
+
+   <button id="ccuDynamicPrev"
+    style="
+     position:absolute;
+     left:12px;
+     top:50%;
+     transform:translateY(-50%);
+     width:48px;
+     height:48px;
+     border:0;
+     border-radius:50%;
+     font-size:30px;
+     cursor:pointer">‹</button>
+
+   <button id="ccuDynamicNext"
+    style="
+     position:absolute;
+     right:12px;
+     top:50%;
+     transform:translateY(-50%);
+     width:48px;
+     height:48px;
+     border:0;
+     border-radius:50%;
+     font-size:30px;
+     cursor:pointer">›</button>
+
+   <div id="ccuDynamicCount"
+    style="
+     position:absolute;
+     bottom:10px;
+     left:50%;
+     transform:translateX(-50%);
+     background:rgba(0,0,0,.75);
+     color:#fff;
+     padding:6px 12px;
+     border-radius:15px">
+     1 / ${photos.length}
+   </div>
+  </div>
+ `);
+
+ const img=document.getElementById('ccuDynamicPhoto');
+ const count=document.getElementById('ccuDynamicCount');
+
+ function show(){
+   img.src='/'+String(photos[current]).replace(/^\/+/,'');
+   count.textContent=(current+1)+' / '+photos.length;
+ }
+
+ document.getElementById('ccuDynamicPrev').onclick=()=>{
+   current=(current-1+photos.length)%photos.length;
+   show();
+ };
+
+ document.getElementById('ccuDynamicNext').onclick=()=>{
+   current=(current+1)%photos.length;
+   show();
+ };
+}
+
+function demoContact(){
+ if(!needProperty()) return;
+
+ const p=activeProperty;
+ const place=[p.city,p.zone].filter(Boolean).join(' — ');
+ const price=p.price
+   ? '€ '+Math.round(Number(p.price)).toLocaleString('it-IT')
+   : 'Prezzo su richiesta';
+
+ let actions='';
+
+ if(p.phone){
+   const tel=String(p.phone).replace(/[^0-9+]/g,'');
+   actions+=`
+    <a class="action" style="text-decoration:none"
+       href="tel:${escapeHtml(tel)}">
+       ☎ ${escapeHtml(p.phone)}
+    </a>`;
+ }
+
+ if(p.mobile){
+   const mobile=String(p.mobile).replace(/[^0-9+]/g,'');
+   actions+=`
+    <a class="action" style="text-decoration:none"
+       href="tel:${escapeHtml(mobile)}">
+       📱 ${escapeHtml(p.mobile)}
+    </a>`;
+ }
+
+ if(p.email){
+   actions+=`
+    <a class="action secondary" style="text-decoration:none"
+       href="mailto:${escapeHtml(p.email)}?subject=${encodeURIComponent('Informazioni immobile '+p.title)}">
+       ✉ Email
+    </a>`;
+ }
+
+ openBox('Contatta l’agenzia',`
+  <div class="badge">IMMOBILE SELEZIONATO</div>
+
+  <div class="place">${escapeHtml(place)}</div>
+  <div class="price">${escapeHtml(price)}</div>
+
+  <div style="font-size:18px;font-weight:800;margin:10px 0">
+   ${escapeHtml(p.agency || 'Cercocasa Umbria')}
+  </div>
+
+  <div style="font-size:14px;color:#555;margin-bottom:15px">
+   ${escapeHtml(p.title)}
+  </div>
+
+  <div class="buttons">
+   ${actions || '<span>Contatti non disponibili.</span>'}
+  </div>
+
+  <div class="buttons">
+   <button id="contactInterest" class="action">
+    ❤️ Sono interessato
+   </button>
+  </div>
+ `);
+
+ document.getElementById('contactInterest').onclick=demoInterest;
+}
+
+
+function demoLive(){
+ if(!needProperty()) return;
+
+ const p=activeProperty;
+
+ const place=[p.city,p.zone].filter(Boolean).join(' — ');
+ const price=p.price
+   ? '€ '+Math.round(Number(p.price)).toLocaleString('it-IT')
+   : 'Prezzo su richiesta';
+
+ openBox('Immobile LIVE',`
+  <div class="badge">DATI ATTUALI DEL PORTALE</div>
+
+  <div class="place">${escapeHtml(place)}</div>
+  <div class="price">${escapeHtml(price)}</div>
+
+  <div style="font-weight:800;font-size:17px;margin-bottom:15px">
+   ${escapeHtml(p.title)}
+  </div>
+
+  <div class="result">
+   <strong>Stato attuale</strong><br><br>
+
+   ✓ ${escapeHtml(p.status || 'pubblicato')}<br>
+   ✓ ${Number((p.photos||[]).length)} fotografie disponibili<br>
+   ${p.sqm ? '✓ '+escapeHtml(String(p.sqm))+' mq<br>' : ''}
+   ${p.rooms ? '✓ '+escapeHtml(String(p.rooms))+' locali<br>' : ''}
+   ${p.type ? '✓ '+escapeHtml(p.type)+'<br>' : ''}
+   ✓ Agenzia: ${escapeHtml(p.agency || 'Cercocasa Umbria')}
+  </div>
+
+  <p class="desc" style="margin-top:15px">
+   Questi dati provengono dall'immobile selezionato sul portale.
+   Se prezzo, disponibilità o contenuti vengono aggiornati,
+   la parte digitale può mostrare l'informazione corrente.
+  </p>
+
+  <div class="buttons">
+   <button id="livePhotos" class="action">📷 Foto</button>
+   <button id="liveOpen" class="action secondary">🏠 Annuncio completo</button>
+  </div>
+ `);
+
+ document.getElementById('livePhotos').onclick=demoPhoto;
+ document.getElementById('liveOpen').onclick=()=>{
+   window.open(p.url,'_blank');
+ };
+}
+
+
+function demoInterest(){
+ if(!needProperty()) return;
+
+ const p=activeProperty;
+
+ const place=[p.city,p.zone].filter(Boolean).join(' — ');
+ const price=p.price
+   ? '€ '+Math.round(Number(p.price)).toLocaleString('it-IT')
+   : 'Prezzo su richiesta';
+
+ openBox('Sono interessato a questo immobile',`
+  <div class="badge">RICHIESTA COLLEGATA ALL'IMMOBILE</div>
+
+  <div class="place">${escapeHtml(place)}</div>
+  <div class="price">${escapeHtml(price)}</div>
+
+  <div style="font-weight:800;margin:8px 0">
+   ${escapeHtml(p.title)}
+  </div>
+
+  <div style="font-size:14px;color:#666;margin-bottom:15px">
+   Agenzia: ${escapeHtml(p.agency || 'Cercocasa Umbria')}
+  </div>
+
+  <div style="
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px">
+
+   <input id="leadName"
+    placeholder="Nome e cognome"
+    style="height:45px;padding:0 12px;border:1px solid #bbb;border-radius:8px;font-size:16px">
+
+   <input id="leadPhone"
+    placeholder="Telefono"
+    style="height:45px;padding:0 12px;border:1px solid #bbb;border-radius:8px;font-size:16px">
+
+   <input id="leadEmail"
+    placeholder="Email"
+    style="height:45px;padding:0 12px;border:1px solid #bbb;border-radius:8px;font-size:16px;grid-column:1/3">
+  </div>
+
+  <div style="
+    margin-top:15px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:14px">
+
+   <label style="display:block;margin:8px 0">
+    <input type="radio" name="leadType" value="richiamato" checked>
+    Voglio essere richiamato
+   </label>
+
+   <label style="display:block;margin:8px 0">
+    <input type="radio" name="leadType" value="visita">
+    Voglio visitare l'immobile
+   </label>
+
+   <label style="display:block;margin:8px 0">
+    <input type="radio" name="leadType" value="prezzo">
+    Avvisami se cambia prezzo
+   </label>
+
+  </div>
+
+  <div class="buttons">
+   <button id="sendLead" class="action">
+    ❤️ INVIA INTERESSE
+   </button>
+  </div>
+
+  <div id="leadResult"></div>
+ `);
+
+ document.getElementById('sendLead').onclick=()=>{
+   const name=document.getElementById('leadName').value.trim();
+   const phone=document.getElementById('leadPhone').value.trim();
+   const email=document.getElementById('leadEmail').value.trim();
+
+   if(!name || (!phone && !email)){
+     document.getElementById('leadResult').innerHTML=`
+      <div class="result" style="margin-top:15px">
+       Inserisci il nome e almeno telefono o email.
+      </div>`;
+     return;
+   }
+
+   const selected=document.querySelector(
+     'input[name="leadType"]:checked'
+   );
+
+   let request='Richiesta informazioni';
+
+   if(selected){
+     if(selected.value==='richiamato') request='Richiesta di essere richiamato';
+     if(selected.value==='visita') request='Richiesta visita';
+     if(selected.value==='prezzo') request='Avviso variazione prezzo';
+   }
+
+   document.getElementById('leadResult').innerHTML=`
+    <div class="result" style="margin-top:15px">
+
+     <strong>✓ Richiesta associata correttamente</strong><br><br>
+
+     Immobile:
+     <strong>${escapeHtml(p.title)}</strong><br>
+
+     ${escapeHtml(place)} —
+     ${escapeHtml(price)}<br>
+
+     Agenzia:
+     <strong>${escapeHtml(p.agency || 'Cercocasa Umbria')}</strong><br>
+
+     Cliente:
+     ${escapeHtml(name)}<br>
+
+     Richiesta:
+     ${escapeHtml(request)}
+
+    </div>`;
+ };
+}
+
+
+async function demoSimilar(){
+ if(!needProperty()) return;
+
+ const p=activeProperty;
+
+ openBox('Immobili simili',`
+  <div class="badge">RICERCA AUTOMATICA</div>
+
+  <div class="place">
+   ${escapeHtml([p.city,p.zone].filter(Boolean).join(' — '))}
+  </div>
+
+  <p class="desc">
+   Cerco altri immobili collegati all'agenzia e alla zona
+   dell'immobile selezionato.
+  </p>
+
+  <div id="similarResults" class="result">
+   Ricerca immobili simili...
+  </div>
+ `);
+
+ try{
+   const r=await fetch(
+     'search.php?similar='+encodeURIComponent(p.id),
+     {cache:'no-store'}
+   );
+
+   const d=await r.json();
+   const box=document.getElementById('similarResults');
+
+   if(!d.ok || !d.results || !d.results.length){
+     box.innerHTML='Nessun immobile simile disponibile.';
+     return;
+   }
+
+   let html='';
+
+   d.results.forEach(x=>{
+     const price=x.price
+       ? '€ '+Math.round(Number(x.price)).toLocaleString('it-IT')
+       : 'Prezzo su richiesta';
+
+     const place=[x.city,x.zone].filter(Boolean).join(' — ');
+
+     const photo=(x.photos && x.photos.length)
+       ? '/'+x.photos[0].replace(/^\/+/,'')
+       : '';
+
+     html+=`
+      <div style="
+       display:flex;
+       gap:12px;
+       align-items:center;
+       border-bottom:1px solid #ddd;
+       padding:12px 0">
+
+       ${photo ? `
+        <img src="${escapeHtml(photo)}"
+         style="width:100px;height:75px;object-fit:cover;border-radius:8px"
+         alt="">` : ''}
+
+       <div style="flex:1;min-width:0">
+        <small>${escapeHtml(place)}</small>
+
+        <div style="font-weight:800;margin:3px 0">
+         ${escapeHtml(x.title)}
+        </div>
+
+        <strong>${escapeHtml(price)}</strong>
+
+        <div style="font-size:12px;color:#666;margin-top:3px">
+         ${escapeHtml(x.agency || '')}
+        </div>
+       </div>
+
+       <button
+        class="action selectSimilar"
+        data-id="${x.id}">
+        VEDI →
+       </button>
+
+      </div>`;
+   });
+
+   box.innerHTML=html;
+
+   document.querySelectorAll('.selectSimilar').forEach(btn=>{
+     btn.onclick=async()=>{
+       try{
+         await setActiveProperty(btn.dataset.id);
+         demoProperty();
+       }catch(e){
+         alert('Immobile non disponibile');
+       }
+     };
+   });
+
+ }catch(e){
+   const box=document.getElementById('similarResults');
+   if(box) box.innerHTML='Ricerca momentaneamente non disponibile.';
+ }
+}
+
+
+function demoStats(){
+ openBox('Statistiche della rivista digitale',`
+  <div class="badge">ESEMPIO DATI DEMO</div>
+
+  <p class="desc">
+   Ogni interazione della futura rivista può essere misurata.
+  </p>
+
+  <div class="stats">
+   <div class="stat">
+    <strong>327</strong>
+    visualizzazioni pagina
+   </div>
+
+   <div class="stat">
+    <strong>46</strong>
+    aperture annuncio
+   </div>
+
+   <div class="stat">
+    <strong>12</strong>
+    contatti
+   </div>
+  </div>
+
+  <div class="note">
+   I numeri visualizzati sono volutamente DATI DEMO.
+   La versione definitiva utilizzerà statistiche reali.
+  </div>
+ `);
+}
+
+document.querySelectorAll('[data-demo]').forEach(b=>{
+ b.addEventListener('click',()=>{
+  const d=b.dataset.demo;
+
+  if(d==='search')demoSearch();
+  if(d==='property')demoProperty();
+  if(d==='photo')demoPhoto();
+  if(d==='contact')demoContact();
+  if(d==='live')demoLive();
+  if(d==='interest')demoInterest();
+  if(d==='similar')demoSimilar();
+  if(d==='stats')demoStats();
+ });
+});
+
+document.getElementById('close').onclick=()=>{
+ overlay.classList.remove('show');
+};
+
+overlay.addEventListener('click',e=>{
+ if(e.target===overlay)overlay.classList.remove('show');
+});
+</script>
+
+<script src="/assets/v242-platform.js?v=1788777235" defer=""></script><script src="/assets/site-translation-v254.js?v=1791891121" defer=""></script><script src="/assets/home-account-menu-v248.js?v=1788947757" defer=""></script><script src="/assets/map-button-permanent-v249.js?v=1789925244"></script>
+
+
+<style id="ccu-final-demo-style">
+
+/* Barra superiore più leggibile */
+.top{
+    min-height:68px !important;
+    height:auto !important;
+    padding:10px 16px !important;
+    gap:9px !important;
+    background:rgba(15,15,15,.97) !important;
+    border-bottom:1px solid #444 !important;
+}
+
+.brand{
+    font-size:17px !important;
+    letter-spacing:.2px;
+}
+
+.demo{
+    min-height:42px !important;
+    padding:0 15px !important;
+    border:1px solid #666 !important;
+    background:#272727 !important;
+    color:#fff !important;
+    font-size:12px !important;
+    font-weight:700 !important;
+    border-radius:22px !important;
+    white-space:nowrap !important;
+}
+
+.demo:hover{
+    background:#fff !important;
+    color:#111 !important;
+    border-color:#fff !important;
+}
+
+.viewer{
+    height:calc(100% - 68px) !important;
+}
+
+.overlay{
+    inset:68px 0 0 !important;
+}
+
+/* Mobile */
+@media(max-width:1100px){
+    .top{
+        flex-wrap:wrap !important;
+    }
+
+    .brand{
+        width:100% !important;
+        margin-bottom:2px !important;
+    }
+
+    .demo{
+        min-height:36px !important;
+        height:36px !important;
+        padding:0 10px !important;
+        font-size:11px !important;
+    }
+}
+
+</style>
+
+<style id="ccu-final-demo-style">
+
+/* Barra superiore più leggibile */
+.top{
+    min-height:68px !important;
+    height:auto !important;
+    padding:10px 16px !important;
+    gap:9px !important;
+    background:rgba(15,15,15,.97) !important;
+    border-bottom:1px solid #444 !important;
+}
+
+.brand{
+    font-size:17px !important;
+    letter-spacing:.2px;
+}
+
+.demo{
+    min-height:42px !important;
+    padding:0 15px !important;
+    border:1px solid #666 !important;
+    background:#272727 !important;
+    color:#fff !important;
+    font-size:12px !important;
+    font-weight:700 !important;
+    border-radius:22px !important;
+    white-space:nowrap !important;
+}
+
+.demo:hover{
+    background:#fff !important;
+    color:#111 !important;
+    border-color:#fff !important;
+}
+
+.viewer{
+    height:calc(100% - 68px) !important;
+}
+
+.overlay{
+    inset:68px 0 0 !important;
+}
+
+/* Mobile */
+@media(max-width:1100px){
+    .top{
+        flex-wrap:wrap !important;
+    }
+
+    .brand{
+        width:100% !important;
+        margin-bottom:2px !important;
+    }
+
+    .demo{
+        min-height:36px !important;
+        height:36px !important;
+        padding:0 10px !important;
+        font-size:11px !important;
+    }
+}
+
+</style>
+
+<style id="ccu-demo-buttons-final">
+.buttons{
+ display:flex !important;
+ align-items:center !important;
+ gap:10px !important;
+ flex-wrap:wrap !important;
+ margin-top:18px !important;
+}
+
+.buttons .action,
+.buttons a.action,
+.buttons button.action{
+ display:inline-flex !important;
+ align-items:center !important;
+ justify-content:center !important;
+ gap:7px !important;
+
+ min-width:150px !important;
+ height:46px !important;
+ padding:0 18px !important;
+
+ background:#111 !important;
+ color:#fff !important;
+ border:1px solid #111 !important;
+ border-radius:23px !important;
+
+ font-family:Arial,Helvetica,sans-serif !important;
+ font-size:14px !important;
+ font-weight:700 !important;
+ line-height:1 !important;
+ text-decoration:none !important;
+ cursor:pointer !important;
+
+ box-shadow:0 2px 5px rgba(0,0,0,.12) !important;
+}
+
+.buttons .action:hover,
+.buttons a.action:hover,
+.buttons button.action:hover{
+ background:#333 !important;
+ color:#fff !important;
+ border-color:#333 !important;
+ transform:translateY(-1px);
+}
+
+@media(max-width:600px){
+ .buttons .action,
+ .buttons a.action,
+ .buttons button.action{
+   flex:1 1 100% !important;
+   width:100% !important;
+ }
+}
+</style>
+
+
+<style id="ccu-mobile-fix-v2">
+@media(max-width:850px){
+ html,body{width:100%;height:100%;height:100dvh;overflow:hidden!important}
+ body .top{
+  position:absolute!important;inset:0 0 auto!important;
+  z-index:250;width:100%!important;
+  height:52px!important;min-height:52px!important;
+  padding:6px 8px!important;gap:8px!important;
+  display:flex!important;flex-wrap:wrap!important;
+  overflow:hidden!important;align-content:flex-start!important
+ }
+ body .top .brand,body .top .demo{display:none!important}
+ body .top.ccu-open{
+  height:auto!important;max-height:70vh;max-height:70dvh;
+  overflow-y:auto!important
+ }
+ body .top.ccu-open .demo{
+  display:block!important;flex:1 1 140px;
+  min-height:44px!important;white-space:normal!important
+ }
+ body .top .ccu-mobile-toggle{
+  display:block!important;flex:0 0 100%;width:100%;
+  height:40px;min-height:40px;border:0;border-radius:8px;
+  background:#f4bd24;color:#111;font:700 15px Arial;cursor:pointer
+ }
+ body .viewer{
+  position:absolute!important;inset:52px 0 0!important;
+  width:100%!important;height:auto!important;min-height:0!important
+ }
+ body .viewer iframe{width:100%!important;height:100%!important}
+ body .overlay{inset:52px 0 0!important;padding:8px!important}
+ .overlay .box{width:100%!important;max-width:760px;min-width:0}
+ .overlay .head{padding:12px;gap:10px}
+ .overlay .head h2{min-width:0;font-size:18px;overflow-wrap:anywhere}
+ .overlay .close{flex:0 0 44px;width:44px;height:44px}
+ .overlay .content{padding:12px;min-width:0;overflow-wrap:anywhere}
+ #searchField{width:0!important;min-width:0!important;flex:1 1 0!important}
+ #runSearch{flex:0 0 auto;min-height:44px}
+ #searchResult,#similarResults{min-width:0;max-width:100%}
+ #searchResult>div,#similarResults>div{min-width:0;max-width:100%}
+ #searchResult>div>div,#similarResults>div{
+  flex-wrap:wrap!important;gap:10px!important
+ }
+ #searchResult img,#similarResults img{
+  width:80px!important;height:65px!important;flex:0 0 80px
+ }
+ #searchResult .ccuSelectProperty,#similarResults .selectSimilar{
+  flex:0 0 100%!important;width:100%!important;
+  min-height:44px;white-space:normal
+ }
+ .overlay .buttons .action{
+  min-width:0!important;max-width:100%!important;
+  height:auto!important;min-height:46px;
+  padding:12px!important;white-space:normal!important
+ }
+ #leadName,#leadPhone,#leadEmail{width:100%;min-width:0}
+ #ccuDynamicPhoto{height:45vh!important;height:45dvh!important}
+ #ccuDynamicPrev,#ccuDynamicNext{
+  background:#fff!important;color:#111!important;z-index:2
+ }
+}
+@media(min-width:851px){.ccu-mobile-toggle{display:none!important}}
+</style>
+<script id="ccu-mobile-fix-v2-js">
+(function(){
+ var bar=document.querySelector('.top');
+ if(!bar)return;
+ if(!bar.querySelector('.ccu-mobile-toggle')){
+  var b=document.createElement('button');
+  b.type='button';b.className='ccu-mobile-toggle';
+  function reset(){
+   bar.classList.remove('ccu-open');
+   b.textContent='✦ Ricerca AI';
+   b.setAttribute('aria-expanded','false');
+  }
+  reset();bar.prepend(b);
+  b.onclick=function(){
+   var open=bar.classList.toggle('ccu-open');
+   b.textContent=open?'Chiudi comandi ✕':'✦ Ricerca AI';
+   b.setAttribute('aria-expanded',String(open));
+  };
+  bar.querySelectorAll('.demo').forEach(function(x){
+   x.addEventListener('click',reset);
+  });
+ }
+ try{
+  if(parent!==window){
+   var d=parent.document;
+   if(!d.getElementById('ccu-parent-mobile-v2')){
+    var st=d.createElement('style');
+    st.id='ccu-parent-mobile-v2';
+    st.textContent='@media(max-width:850px){'+
+     '.magazine-reader-head{display:none!important}'+
+     '.pdf-magazine-reader{height:100vh!important;height:100dvh!important;display:block!important}'+
+     '.pdf-magazine-reader iframe{width:100%!important;height:100%!important;display:block!important}'+
+     '.pdf-magazine-reader p{display:none!important}}';
+    d.head.appendChild(st);
+   }
+  }
+ }catch(e){}
+})();
+</script>
+
+<style id="ccu-mobile-search-primary">
+@media(max-width:850px){
+ body .top.ccu-open{
+  gap:7px!important;
+  padding:6px 8px 10px!important;
+ }
+ body .top.ccu-open .demo{
+  flex:1 1 calc(50% - 7px)!important;
+  min-width:0!important;
+  min-height:34px!important;
+  height:34px!important;
+  padding:0 8px!important;
+  font-size:11px!important;
+  border-radius:9px!important;
+ }
+ body .top.ccu-open .demo[data-demo="search"]{
+  flex:0 0 100%!important;
+  width:100%!important;
+  height:50px!important;
+  min-height:50px!important;
+  background:#f4bd24!important;
+  color:#111!important;
+  border:1px solid #f4bd24!important;
+  border-radius:12px!important;
+  font-size:0!important;
+  box-shadow:0 3px 10px #0003;
+ }
+ body .top.ccu-open .demo[data-demo="search"]::before{
+  content:"🔎";
+  font-size:25px;
+  vertical-align:middle;
+  margin-right:9px;
+ }
+ body .top.ccu-open .demo[data-demo="search"]::after{
+  content:"CERCA IMMOBILE";
+  font:800 18px Arial,sans-serif;
+  vertical-align:middle;
+ }
+}
+</style>
+
+<style>
+@media(max-width:850px){
+ body .top .ccu-mobile-toggle{
+  font-size:22px!important;
+  font-weight:800!important;
+ }
+}
+</style>
+
+
+
+<style id="ccu-ai-subtitle">
+@media(max-width:850px){
+ body .top .ccu-mobile-toggle{
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+ }
+ body .top .ccu-mobile-toggle[aria-expanded="false"]::after{
+  content:"Rivista interattiva";
+  font-family:Arial,sans-serif;
+  font-size:12px!important;
+  font-weight:400!important;
+ }
+}
+</style>
+
+<style id="ccu-mobile-layout-v3">
+@media(max-width:850px){
+ body .top{
+  height:68px!important;
+  min-height:68px!important;
+  padding:4px 6px!important;
+  border-bottom:0!important;
+ }
+ body .top.ccu-open{
+  height:auto!important;
+  padding:4px 6px 8px!important;
+ }
+ body .top .ccu-mobile-toggle{
+  height:60px!important;
+  min-height:60px!important;
+  display:flex!important;
+  align-items:baseline!important;
+  justify-content:center!important;
+  gap:8px!important;
+  padding:17px 6px 12px!important;
+  font-size:clamp(22px,6vw,26px)!important;
+  font-weight:800!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+ }
+ body .top .ccu-mobile-toggle[aria-expanded="false"]::after{
+  font-size:clamp(13px,3.8vw,16px)!important;
+  font-weight:800!important;
+  line-height:1!important;
+ }
+ body .viewer{
+  inset:68px 0 0!important;
+  margin:0!important;
+  padding:0!important;
+ }
+ body .overlay{inset:68px 0 0!important}
+}
+</style>
+
+<style id="ccu-ai-desktop-style">
+.ccu-ai-desktop{display:none!important}
+@media(min-width:851px){
+ body .top .ccu-ai-desktop{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  background:#f4bd24!important;
+  color:#111!important;
+  border-color:#f4bd24!important;
+  font-size:15px!important;
+  font-weight:800!important;
+ }
+}
+</style>
+<script id="ccu-ai-desktop-script">
+(function(){
+ var search=document.querySelector('.top [data-demo="search"]');
+ if(!search || document.getElementById('ccu-ai-desktop'))return;
+ var button=document.createElement('button');
+ button.id='ccu-ai-desktop';
+ button.type='button';
+ button.className='demo ccu-ai-desktop';
+ button.textContent='✦ Ricerca AI';
+ button.addEventListener('click',function(){search.click();});
+ search.insertAdjacentElement('afterend',button);
+})();
+</script>
+
+<style id="ccu-magazine-navigation">
+body .top .brand{
+ align-items:center;
+ gap:12px;
+}
+.ccu-nav-logo{
+ display:block;
+ width:145px;
+ max-height:44px;
+ object-fit:contain;
+}
+.ccu-magazine-nav{
+ display:flex;
+ align-items:center;
+ gap:6px;
+}
+.ccu-magazine-nav a{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ min-height:36px;
+ padding:0 12px;
+ border:1px solid #666;
+ border-radius:18px;
+ background:#272727;
+ color:#fff;
+ font:700 13px Arial,sans-serif;
+ text-decoration:none;
+}
+.ccu-magazine-nav a:hover{
+ background:#f4bd24;
+ border-color:#f4bd24;
+ color:#111;
+}
+@media(min-width:851px){
+ body .top .brand{display:flex!important;flex-shrink:0}
+}
+@media(max-width:850px){
+ body .top.ccu-open .brand{
+  display:flex!important;
+  flex:0 0 100%;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin:0!important;
+ }
+}
+</style>
+</body></html>

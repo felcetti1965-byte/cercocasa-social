@@ -1,0 +1,24 @@
+cast m_home_cast 577 frames
+cast m_riv_per_cast 308 frames
+cast m_riv_ter_cast 311 frames
+cast m_riv_vet_cast 127 frames
+cast m_imm2164_cast 752 frames
+cast m_imm3995_cast 752 frames
+cast m_mutuo_cast 339 frames
+cast m_mappa_cast 457 frames
+cast m_valuta_cast 339 frames
+cast m_vendi_cast 325 frames
+cast d_home_cast 577 frames
+cast d_riv_per_cast 104 frames
+cast d_riv_ter_cast 106 frames
+cast d_riv_vet_cast 68 frames
+cast d_imm2164_cast 753 frames
+goto warn /immobile.php?id=3995 Page.goto: Timeout 60000ms exceeded.
+Call log:
+navigating to "https://www.cercocasaumbria.it/immobile.php?id=3995", waiting until "networkidle"
+
+cast d_imm3995_cast 750 frames
+cast d_mutuo_cast 223 frames
+cast d_mappa_cast 1 frames
+cast d_valuta_cast 323 frames
+cast d_vendi_cast 246 frames
