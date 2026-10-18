@@ -731,36 +731,19 @@ def logo_tondo():
 
 
 def copertina(a, sfondo):
-    """primo fotogramma = copertina del post: logo tondo Cercocasa, prezzo e zona, al centro dell'immagine
-    (Instagram nel profilo mostra solo la parte centrale)"""
-    img = Image.new("RGB", (W, H), (3, 3, 2))
+    """primo fotogramma = copertina del post: solo il logo tondo Cercocasa, al centro della zona libera
+    (prezzo e dettagli si vedono nel video, così nulla si accavalla con le scritte di Instagram e TikTok)"""
     lt = logo_tondo()
-    d = ImageDraw.Draw(img)
     if lt is not None:
-        img.paste(lt, (0, 250))
-        y = 250 + lt.height + 40
-    else:
-        img = ImageOps.fit(ImageOps.exif_transpose(sfondo).convert("RGB"), (W, H)).filter(ImageFilter.GaussianBlur(18))
-        img = Image.blend(img, Image.new("RGB", (W, H), (10, 10, 12)), 0.7)
-        lg = logo(900, 420)
-        img = img.convert("RGBA")
-        if lg is not None:
-            img.alpha_composite(lg, ((W - lg.width) // 2, 520))
-        img = img.convert("RGB")
-        y = 1000
-    d = ImageDraw.Draw(img)
-    op = {"IN VENDITA": "IN VENDITA", "IN AFFITTO": "IN AFFITTO", "ALL'ASTA": "ALL'ASTA"}.get(a["operazione"], a["operazione"])
-    pillola(d, (0, y), f"{tipo_immobile(a)} · {op}", font(40, "Bold"), ORO, "white", (34, 16), centro=True)
-    fp = font(110, "Black")
-    while d.textlength(a["prezzo"], font=fp) > W - 160 and fp.size > 60:
-        fp = font(fp.size - 6, "Black")
-    d.text(((W - d.textlength(a["prezzo"], font=fp)) / 2, y + 95), a["prezzo"], font=fp, fill="white")
-    if a["comune"]:
-        fz = font(54, "Bold")
-        while d.textlength(a["comune"], font=fz) > W - 120 and fz.size > 34:
-            fz = font(fz.size - 4, "Bold")
-        d.text(((W - d.textlength(a["comune"], font=fz)) / 2, y + 95 + fp.size + 28), a["comune"], font=fz, fill=(236, 190, 72))
-    return img
+        img = Image.new("RGB", (W, H), (3, 3, 2))
+        img.paste(lt, (0, (ALTO_LIBERO + BASSO_LIBERO) // 2 - lt.height // 2 if ZONA_SICURA else (H - lt.height) // 2))
+        return img
+    img = ImageOps.fit(ImageOps.exif_transpose(sfondo).convert("RGB"), (W, H)).filter(ImageFilter.GaussianBlur(18))
+    img = Image.blend(img, Image.new("RGB", (W, H), (10, 10, 12)), 0.7).convert("RGBA")
+    lg = logo(900, 420)
+    if lg is not None:
+        img.alpha_composite(lg, ((W - lg.width) // 2, (H - lg.height) // 2 - 100))
+    return img.convert("RGB")
 
 
 def copri(img, verticale_ok=True):
