@@ -577,7 +577,7 @@ def livello_foto(a, frase=""):
     d = ImageDraw.Draw(lv)
     fp = font(54, "Black")
     pw = d.textlength(a["prezzo"], font=fp)
-    y0 = (470 if ZONA_SICURA else 330) if CORNICE.exists() else max(130, ALTO_LIBERO + 30)
+    y0 = (500 if ZONA_SICURA else 330) if CORNICE.exists() else max(130, ALTO_LIBERO + 30)
     d.rounded_rectangle([60, y0, 60 + pw + 60, y0 + 85], 42, fill=(255, 255, 255, 240))
     d.text((90, y0 + 8), a["prezzo"], font=fp, fill=SCURO)
     if a["comune"]:
@@ -608,7 +608,8 @@ def cornice():
     if not _cornice_cache:
         c = Image.open(CORNICE).convert("RGBA").resize((W, H), Image.LANCZOS) if CORNICE.exists() else None
         if c is not None and ZONA_SICURA:
-            # sposta le due fasce (logo in alto, slogan in basso) dentro la zona libera dalle scritte dei social
+            # niente fasce: in alto solo il logo tondo, in basso solo la scritta "IL PORTALE IMMOBILIARE DELL'UMBRIA",
+            # entrambi dentro la zona libera dalle scritte dei social, così la foto resta libera
             a = c.getchannel("A")
             righe = [sum(1 for x in range(0, W, 8) if a.getpixel((x, y)) > 20) > W / 16 for y in range(H)]
             fasce, y = [], 0
@@ -623,8 +624,38 @@ def cornice():
             if len(fasce) >= 2:
                 (t0, t1), (b0, b1) = fasce[0], fasce[-1]
                 nuova = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-                nuova.alpha_composite(c.crop((0, t0, W, t1)), (0, ALTO_LIBERO))
-                nuova.alpha_composite(c.crop((0, b0, W, b1)), (0, BASSO_LIBERO - (b1 - b0) - 20))
+                # logo tondo (cerchio + mappamondo) ritagliato dalla fascia alta
+                alto = c.crop((0, t0, W, t1))
+                k = (t1 - t0) / 206
+                maschera = Image.new("L", alto.size, 0)
+                dm = ImageDraw.Draw(maschera)
+                cx, cy, r = 195 * k, 112 * k, 118 * k
+                dm.ellipse([cx - r, cy - r, cx + r, cy + r], fill=255)
+                gx, gy, gr = 278 * k, 22 * k, 36 * k
+                dm.ellipse([gx - gr, gy - gr, gx + gr, gy + gr], fill=255)
+                tondo = Image.new("RGBA", alto.size, (0, 0, 0, 0))
+                tondo.paste(alto, (0, 0), Image.composite(alto.getchannel("A"), Image.new("L", alto.size, 0), maschera))
+                tondo = tondo.crop(tondo.getchannel("A").getbbox())
+                om = Image.new("RGBA", tondo.size, (0, 0, 0, 0))
+                om.putalpha(tondo.getchannel("A").point(lambda v: v * 0.6))
+                nuova.alpha_composite(om.filter(ImageFilter.GaussianBlur(8)), (44, ALTO_LIBERO + 6))
+                nuova.alpha_composite(tondo, (40, ALTO_LIBERO))
+                # scritta della fascia bassa senza il fondo scuro (tengo solo le lettere chiare e oro)
+                basso = c.crop((0, b0, W, b1)).convert("RGBA")
+                lum = basso.convert("L").point(lambda v: 0 if v < 110 else min(255, (v - 110) * 3))
+                bordo = int((b1 - b0) * 0.2)
+                lum.paste(0, (0, 0, W, bordo))
+                lum.paste(0, (0, (b1 - b0) - bordo, W, b1 - b0))
+                scritta = basso.copy()
+                scritta.putalpha(lum)
+                scritta = scritta.crop(lum.getbbox())
+                om = Image.new("RGBA", scritta.size, (0, 0, 0, 0))
+                om.putalpha(scritta.getchannel("A").point(lambda v: min(255, v * 1.2)))
+                ys = BASSO_LIBERO - scritta.height - 40
+                xs = (W - scritta.width) // 2
+                nuova.alpha_composite(om.filter(ImageFilter.GaussianBlur(10)), (xs + 3, ys + 5))
+                nuova.alpha_composite(om.filter(ImageFilter.GaussianBlur(4)), (xs + 2, ys + 3))
+                nuova.alpha_composite(scritta, (xs, ys))
                 c = nuova
         _cornice_cache.append(c)
     return _cornice_cache[0]
