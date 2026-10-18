@@ -35,7 +35,7 @@ LOGO = next(iter(sorted(QUI.glob("logo*.png")) + sorted(QUI.glob("Logo*.png"))),
 # voci SOLO italiane (quelle "Multilingual" a volte leggono le frasi corte in inglese)
 VOCE = os.environ.get("VOCE", "it-IT-IsabellaNeural")
 VOCI_PROVA = ["it-IT-IsabellaNeural", "it-IT-ElsaNeural", "it-IT-DiegoNeural"]
-VERSIONE = 6   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
+VERSIONE = 7   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
 VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-6%")
 VOCE_TONO = os.environ.get("VOCE_TONO", "+0Hz")      # tono naturale (abbassarlo rende la voce metallica)
 STATO = QUI / "pubblicati.json"
@@ -48,6 +48,11 @@ SCURO = (24, 24, 26)
 SECONDI_FOTO = 2.6
 DISSOLVENZA = 0.4
 MAX_FOTO = 12
+# Instagram e TikTok coprono la parte alta (nome della sezione, frecce) e quella bassa (nome account,
+# didascalia, "Account seguito da"): grafica e scritte restano tra ALTO_LIBERO e BASSO_LIBERO.
+ZONA_SICURA = os.environ.get("ZONA_SICURA", "si").lower() != "no"
+ALTO_LIBERO, BASSO_LIBERO = (230, 1450) if ZONA_SICURA else (0, H)
+SECONDI_COPERTINA = 1.0
 
 # pagine da cui raccogliere gli annunci (i più recenti per primi)
 PAGINE_ELENCO = [
@@ -531,7 +536,7 @@ def livello_apertura(a):
         f_prezzo = font(f_prezzo.size - 6, "Black")
     tit = a_capo(d, a["titolo"], f_tit, interno, 2)
     altezza = 50 + 60 + 24 + f_prezzo.size + 22 + len(tit) * 58 + (52 if a["comune"] else 0) + 44
-    y1 = H - 470
+    y1 = 1080 if ZONA_SICURA else H - 470
     y0 = y1 - altezza
     # ombra della scheda
     om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -572,7 +577,7 @@ def livello_foto(a, frase=""):
     d = ImageDraw.Draw(lv)
     fp = font(54, "Black")
     pw = d.textlength(a["prezzo"], font=fp)
-    y0 = 330 if CORNICE.exists() else 130
+    y0 = (470 if ZONA_SICURA else 330) if CORNICE.exists() else max(130, ALTO_LIBERO + 30)
     d.rounded_rectangle([60, y0, 60 + pw + 60, y0 + 85], 42, fill=(255, 255, 255, 240))
     d.text((90, y0 + 8), a["prezzo"], font=fp, fill=SCURO)
     if a["comune"]:
@@ -581,7 +586,7 @@ def livello_foto(a, frase=""):
         f = font(54, "ExtraBold")
         righe = a_capo(d, frase, f, W - 260, 2)
         tw = max(d.textlength(r, font=f) for r in righe)
-        x, y = (W - tw) / 2, H - 760
+        x, y = (W - tw) / 2, (1040 if ZONA_SICURA else H - 760)
         h = len(righe) * 72 + 44
         om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         ImageDraw.Draw(om).rounded_rectangle([x - 44, y - 22 + 10, x + tw + 44, y + h - 22 + 10], 22, fill=(0, 0, 0, 80))
@@ -601,7 +606,27 @@ _cornice_cache = []
 
 def cornice():
     if not _cornice_cache:
-        _cornice_cache.append(Image.open(CORNICE).convert("RGBA").resize((W, H), Image.LANCZOS) if CORNICE.exists() else None)
+        c = Image.open(CORNICE).convert("RGBA").resize((W, H), Image.LANCZOS) if CORNICE.exists() else None
+        if c is not None and ZONA_SICURA:
+            # sposta le due fasce (logo in alto, slogan in basso) dentro la zona libera dalle scritte dei social
+            a = c.getchannel("A")
+            righe = [sum(1 for x in range(0, W, 8) if a.getpixel((x, y)) > 20) > W / 16 for y in range(H)]
+            fasce, y = [], 0
+            while y < H:
+                if righe[y]:
+                    y2 = y
+                    while y2 < H and righe[y2]:
+                        y2 += 1
+                    fasce.append((y, y2))
+                    y = y2
+                y += 1
+            if len(fasce) >= 2:
+                (t0, t1), (b0, b1) = fasce[0], fasce[-1]
+                nuova = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+                nuova.alpha_composite(c.crop((0, t0, W, t1)), (0, ALTO_LIBERO))
+                nuova.alpha_composite(c.crop((0, b0, W, b1)), (0, BASSO_LIBERO - (b1 - b0) - 20))
+                c = nuova
+        _cornice_cache.append(c)
     return _cornice_cache[0]
 
 
@@ -657,36 +682,85 @@ def immagine_finale(a, sfondo):
     def centra(testo, y, f, colore="white"):
         d.text(((W - d.textlength(testo, font=f)) / 2, y), testo, font=f, fill=colore)
 
-    lg = logo(460, 460)
+    lg = logo(400, 400) if ZONA_SICURA else logo(460, 460)
     if lg is not None:
         om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        x, y = (W - lg.width) // 2, 230
+        x, y = (W - lg.width) // 2, (250 if ZONA_SICURA else 230)
         om.paste((0, 0, 0, 180), (x + 8, y + 14), lg.getchannel("A"))
         img.alpha_composite(om.filter(ImageFilter.GaussianBlur(14)))
         img.alpha_composite(lg, (x, y))
         d = ImageDraw.Draw(img)
     ft = titolo_font(112)
+    sy = (lambda v: {735: 620, 895: 770, 975: 840, 980: 845, 1030: 885, 1085: 935, 1300: 1090, 1455: 1225, 1570: 1335}[v]) if ZONA_SICURA else (lambda v: v)
     a1, a2 = "CERCOCASA", "UMBRIA"
     tot = d.textlength(a1, font=ft) + 16 + d.textlength(a2, font=ft)
     x = (W - tot) / 2
-    d.text((x, 735), a1, font=ft, fill=oro2)
-    d.text((x + d.textlength(a1, font=ft) + 16, 735), a2, font=ft, fill=(242, 242, 242))
-    centra("IL PORTALE IMMOBILIARE DELL'UMBRIA", 895, font(32, "SemiBold"), (205, 205, 205))
-    d.rectangle([W / 2 - 90, 975, W / 2 + 90, 980], fill=ORO)
+    d.text((x, sy(735)), a1, font=ft, fill=oro2)
+    d.text((x + d.textlength(a1, font=ft) + 16, sy(735)), a2, font=ft, fill=(242, 242, 242))
+    centra("IL PORTALE IMMOBILIARE DELL'UMBRIA", sy(895), font(32, "SemiBold"), (205, 205, 205))
+    d.rectangle([W / 2 - 90, sy(975), W / 2 + 90, sy(980)], fill=ORO)
     if a["agenzia"]:
-        centra("Annuncio di", 1030, font(40, "Medium"), (215, 215, 215))
+        centra("Annuncio di", sy(1030), font(40, "Medium"), (215, 215, 215))
         for i, r in enumerate(a_capo(d, a["agenzia"], font(52, "Bold"), W - 160, 2)):
-            centra(r, 1085 + i * 66, font(52, "Bold"))
-    pillola(d, (0, 1300), "LINK IN BIO", font(58, "Black"), ORO, "white", (50, 24), centro=True)
+            centra(r, sy(1085) + i * 66, font(52, "Bold"))
+    pillola(d, (0, sy(1300)), "LINK IN BIO", font(58, "Black"), ORO, "white", (50, 24), centro=True)
     fu = titolo_font(70)
     p1, p2, p3 = "www.", "cercocasa", "umbria.it"
     tot = sum(d.textlength(t, font=fu) for t in (p1, p2, p3))
     x = (W - tot) / 2
     for t, col in ((p1, (240, 240, 240)), (p2, oro2), (p3, (240, 240, 240))):
-        d.text((x, 1455), t, font=fu, fill=col)
+        d.text((x, sy(1455)), t, font=fu, fill=col)
         x += d.textlength(t, font=fu)
-    centra(f"Codice annuncio {a['id']}", 1570, font(36, "Medium"), (190, 190, 190))
+    centra(f"Codice annuncio {a['id']}", sy(1570), font(36, "Medium"), (190, 190, 190))
     return img.convert("RGB")
+
+
+def logo_tondo():
+    """il logo tondo dorato preso dalla sigla di chiusura (su fondo stellato), oppure None"""
+    f = SIGLE / "chiusura.mp4"
+    if not f.exists():
+        return None
+    try:
+        out = Path(tempfile.mkdtemp()) / "logo-tondo.png"
+        ff("-ss", "3", "-i", f, "-frames:v", "1", out)
+        im = Image.open(out).convert("RGB").resize((W, H))
+        return im.crop((0, 300, W, 1100))      # solo il logo, senza i contatti
+    except Exception as e:
+        log("  logo tondo non disponibile:", e)
+        return None
+
+
+def copertina(a, sfondo):
+    """primo fotogramma = copertina del post: logo tondo Cercocasa, prezzo e zona, al centro dell'immagine
+    (Instagram nel profilo mostra solo la parte centrale)"""
+    img = Image.new("RGB", (W, H), (3, 3, 2))
+    lt = logo_tondo()
+    d = ImageDraw.Draw(img)
+    if lt is not None:
+        img.paste(lt, (0, 250))
+        y = 250 + lt.height + 40
+    else:
+        img = ImageOps.fit(ImageOps.exif_transpose(sfondo).convert("RGB"), (W, H)).filter(ImageFilter.GaussianBlur(18))
+        img = Image.blend(img, Image.new("RGB", (W, H), (10, 10, 12)), 0.7)
+        lg = logo(900, 420)
+        img = img.convert("RGBA")
+        if lg is not None:
+            img.alpha_composite(lg, ((W - lg.width) // 2, 520))
+        img = img.convert("RGB")
+        y = 1000
+    d = ImageDraw.Draw(img)
+    op = {"IN VENDITA": "IN VENDITA", "IN AFFITTO": "IN AFFITTO", "ALL'ASTA": "ALL'ASTA"}.get(a["operazione"], a["operazione"])
+    pillola(d, (0, y), f"{tipo_immobile(a)} · {op}", font(40, "Bold"), ORO, "white", (34, 16), centro=True)
+    fp = font(110, "Black")
+    while d.textlength(a["prezzo"], font=fp) > W - 160 and fp.size > 60:
+        fp = font(fp.size - 6, "Black")
+    d.text(((W - d.textlength(a["prezzo"], font=fp)) / 2, y + 95), a["prezzo"], font=fp, fill="white")
+    if a["comune"]:
+        fz = font(54, "Bold")
+        while d.textlength(a["comune"], font=fz) > W - 120 and fz.size > 34:
+            fz = font(fz.size - 4, "Bold")
+        d.text(((W - d.textlength(a["comune"], font=fz)) / 2, y + 95 + fp.size + 28), a["comune"], font=fz, fill=(236, 190, 72))
+    return img
 
 
 def copri(img, verticale_ok=True):
@@ -779,6 +853,15 @@ def crea_video(a, foto_locali, destinazione):
 
     # sigle: apertura 3D prima dell'annuncio, chiusura con i contatti dopo
     apertura, chiusura = sigle()
+    if chiusura and ZONA_SICURA:
+        # la chiusura ha i contatti in basso, dove i social scrivono il nome account: la rimpicciolisco e la alzo
+        ch_sicura = tmp / "chiusura-sicura.mp4"
+        try:
+            ff("-i", chiusura[0], "-vf", f"scale={int(W * .8)}:{int(H * .8)},pad={W}:{H}:{int(W * .1)}:40:black,setsar=1,fps={FPS},format=yuv420p",
+               "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", ch_sicura)
+            chiusura = (ch_sicura, chiusura[1])
+        except Exception as e:
+            log("  chiusura non adattata:", e)
     off = 0
     if apertura:
         clip.insert(0, apertura)
@@ -787,6 +870,19 @@ def crea_video(a, foto_locali, destinazione):
         clip.append(chiusura)
     if apertura or chiusura:
         log("  sigle:", ", ".join(p.name for p, _ in (apertura, chiusura) if p))
+    # copertina: primo fotogramma con il logo (è l'anteprima che si vede nel profilo e nel feed)
+    try:
+        cop_p, cop_v = tmp / "copertina.jpg", tmp / "copertina.mp4"
+        copertina(a, Image.open(foto_locali[0])).save(cop_p, quality=93)
+        ff("-loop", "1", "-t", SECONDI_COPERTINA + DISSOLVENZA, "-i", cop_p, "-vf", f"fps={FPS},format=yuv420p",
+           "-t", SECONDI_COPERTINA + DISSOLVENZA, "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", cop_v)
+        copertina_jpg = USCITA / (Path(destinazione).stem + "-copertina.jpg")
+        USCITA.mkdir(exist_ok=True)
+        shutil.copy(cop_p, copertina_jpg)
+        clip.insert(0, (cop_v, SECONDI_COPERTINA + DISSOLVENZA))
+        off += 1
+    except Exception as e:
+        log("  copertina non creata:", e)
 
     # unione con dissolvenze (ogni pezzo portato allo stesso formato, così le sigle si uniscono alle foto)
     ingressi, filtri, prec, t, inizi = [], [], "s0", 0.0, [0.0]
@@ -987,7 +1083,7 @@ def pubblica_instagram(video, testo):
     url_pub = url_pubblico_github(versione_instagram(video))
     if url_pub:
         try:
-            r = HTTP.post(f"{GRAPH}/{ig}/media", data={"media_type": "REELS", "video_url": url_pub, "caption": testo,
+            r = HTTP.post(f"{GRAPH}/{ig}/media", data={"media_type": "REELS", "video_url": url_pub, "caption": testo, "thumb_offset": "0",
                                                      "share_to_feed": "true", "access_token": token}, timeout=60)
             r.raise_for_status()
             log("  Instagram: video consegnato da GitHub, attendo l'elaborazione")
@@ -1014,7 +1110,7 @@ def pubblica_instagram(video, testo):
             log("  Instagram: Facebook non ha dato l'indirizzo del video")
         if url:
             try:
-                r = HTTP.post(f"{GRAPH}/{ig}/media", data={"media_type": "REELS", "video_url": url, "caption": testo,
+                r = HTTP.post(f"{GRAPH}/{ig}/media", data={"media_type": "REELS", "video_url": url, "caption": testo, "thumb_offset": "0",
                                                          "share_to_feed": "true", "access_token": token}, timeout=60)
                 r.raise_for_status()
                 return attendi_e_pubblica_ig(ig, r.json()["id"], token)
@@ -1033,7 +1129,7 @@ def pubblica_instagram(video, testo):
     for nome_modo, modo in modi:
         try:
             r = HTTP.post(f"{GRAPH}/{ig}/media", data={
-                "media_type": "REELS", "upload_type": "resumable", "caption": testo,
+                "media_type": "REELS", "upload_type": "resumable", "caption": testo, "thumb_offset": "0",
                 "share_to_feed": "true", "access_token": token}, timeout=60)
             r.raise_for_status()
             cont = r.json()["id"]
@@ -1115,7 +1211,7 @@ def pubblica_tiktok(video, testo):
     if modo == "diretto":
         url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
         corpo = {"post_info": {"title": testo[:2200], "privacy_level": os.environ.get("TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE"),
-                               "disable_comment": False}, "source_info": sorgente}
+                               "disable_comment": False, "video_cover_timestamp_ms": 0}, "source_info": sorgente}
     else:
         url = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/"
         corpo = {"source_info": sorgente}
