@@ -54,6 +54,9 @@ MAX_FOTO = 12
 ZONA_SICURA = os.environ.get("ZONA_SICURA", "si").lower() != "no"
 ALTO_LIBERO, BASSO_LIBERO = (230, 1450) if ZONA_SICURA else (0, H)
 SECONDI_COPERTINA = 1.0
+# Facebook: video quadrato 1080x1080 nel feed della Pagina (Instagram e TikTok restano 1080x1920)
+FB_QUADRATO = os.environ.get("FB_QUADRATO", "si").lower() != "no"
+QUADRATO = False       # True mentre si crea la versione quadrata
 
 # pagine da cui raccogliere gli annunci (i più recenti per primi)
 PAGINE_ELENCO = [
@@ -532,12 +535,12 @@ def livello_apertura(a):
     x0, x1 = 60, W - 60
     interno = x1 - x0 - 100
     f_tag, f_tit, f_zona = font(32, "Bold"), font(44, "SemiBold"), font(36, "Medium")
-    f_prezzo = font(120, "Black")
+    f_prezzo = font(96 if QUADRATO else 120, "Black")
     while d.textlength(a["prezzo"], font=f_prezzo) > interno and f_prezzo.size > 70:
         f_prezzo = font(f_prezzo.size - 6, "Black")
     tit = a_capo(d, a["titolo"], f_tit, interno, 2)
     altezza = 50 + 60 + 24 + f_prezzo.size + 22 + len(tit) * 58 + (52 if a["comune"] else 0) + 44
-    y1 = 1080 if ZONA_SICURA else H - 470
+    y1 = 760 if QUADRATO else (1080 if ZONA_SICURA else H - 470)
     y0 = y1 - altezza
     # ombra della scheda
     om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -578,7 +581,7 @@ def livello_foto(a, frase=""):
     d = ImageDraw.Draw(lv)
     fp = font(54, "Black")
     pw = d.textlength(a["prezzo"], font=fp)
-    y0 = (340 if ZONA_SICURA else 330) if CORNICE.exists() else max(130, ALTO_LIBERO + 30)
+    y0 = 250 if QUADRATO else ((340 if ZONA_SICURA else 330) if CORNICE.exists() else max(130, ALTO_LIBERO + 30))
     d.rounded_rectangle([60, y0, 60 + pw + 60, y0 + 85], 42, fill=(255, 255, 255, 240))
     d.text((90, y0 + 8), a["prezzo"], font=fp, fill=SCURO)
     if a["comune"]:
@@ -587,7 +590,7 @@ def livello_foto(a, frase=""):
         f = font(54, "ExtraBold")
         righe = a_capo(d, frase, f, W - 260, 2)
         tw = max(d.textlength(r, font=f) for r in righe)
-        x, y = (W - tw) / 2, (1040 if ZONA_SICURA else H - 760)
+        x, y = (W - tw) / 2, (650 if QUADRATO else (1040 if ZONA_SICURA else H - 760))
         h = len(righe) * 72 + 44
         om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         ImageDraw.Draw(om).rounded_rectangle([x - 44, y - 22 + 10, x + tw + 44, y + h - 22 + 10], 22, fill=(0, 0, 0, 80))
@@ -607,17 +610,20 @@ _cornice_cache = []
 
 def cornice():
     if not _cornice_cache:
-        c = Image.open(CORNICE).convert("RGBA").resize((W, H), Image.LANCZOS) if CORNICE.exists() else None
-        if c is not None and ZONA_SICURA:
+        c = Image.open(CORNICE).convert("RGBA").resize((1080, 1920), Image.LANCZOS) if CORNICE.exists() else None
+        if c is not None and not ZONA_SICURA and not QUADRATO:
+            pass
+        elif c is not None:
             # scene dell'annuncio: logo tondo centrato in alto (tra la scritta "Reels" e il "+")
             # e la fascia "IL PORTALE IMMOBILIARE DELL'UMBRIA" in basso; niente fascia in alto
             a = c.getchannel("A")
-            righe = [sum(1 for x in range(0, W, 8) if a.getpixel((x, y)) > 20) > W / 16 for y in range(H)]
+            CW, CH = c.size
+            righe = [sum(1 for x in range(0, CW, 8) if a.getpixel((x, y)) > 20) > CW / 16 for y in range(CH)]
             fasce, y = [], 0
-            while y < H:
+            while y < CH:
                 if righe[y]:
                     y2 = y
-                    while y2 < H and righe[y2]:
+                    while y2 < CH and righe[y2]:
                         y2 += 1
                     fasce.append((y, y2))
                     y = y2
@@ -625,18 +631,19 @@ def cornice():
             if len(fasce) >= 2:
                 b0, b1 = fasce[-1]
                 nuova = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+                lato, ylogo = (210, 22) if QUADRATO else (280, 40)
                 lt = LOGO_TONDO if LOGO_TONDO.exists() else None
                 if lt is not None:
                     im = Image.open(lt).convert("RGBA")
                     im = im.crop(im.getchannel("A").getbbox())
-                    r = 280 / im.width
-                    im = im.resize((280, round(im.height * r)), Image.LANCZOS)
+                    r = lato / im.width
+                    im = im.resize((lato, round(im.height * r)), Image.LANCZOS)
                     om = Image.new("RGBA", im.size, (0, 0, 0, 0))
                     om.putalpha(im.getchannel("A").point(lambda v: v * 0.55))
                     x = (W - im.width) // 2
-                    nuova.alpha_composite(om.filter(ImageFilter.GaussianBlur(10)), (x + 4, 46))
-                    nuova.alpha_composite(im, (x, 40))
-                nuova.alpha_composite(c.crop((0, b0, W, b1)), (0, 1680))
+                    nuova.alpha_composite(om.filter(ImageFilter.GaussianBlur(10)), (x + 4, ylogo + 6))
+                    nuova.alpha_composite(im, (x, ylogo))
+                nuova.alpha_composite(c.crop((0, b0, CW, b1)), (0, H - (b1 - b0) - 14 if QUADRATO else 1680))
                 c = nuova
         _cornice_cache.append(c)
     return _cornice_cache[0]
@@ -694,16 +701,21 @@ def immagine_finale(a, sfondo):
     def centra(testo, y, f, colore="white"):
         d.text(((W - d.textlength(testo, font=f)) / 2, y), testo, font=f, fill=colore)
 
-    lg = logo(400, 400) if ZONA_SICURA else logo(460, 460)
+    lg = logo(300, 230) if QUADRATO else (logo(400, 400) if ZONA_SICURA else logo(460, 460))
     if lg is not None:
         om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        x, y = (W - lg.width) // 2, (250 if ZONA_SICURA else 230)
+        x, y = (W - lg.width) // 2, (60 if QUADRATO else (250 if ZONA_SICURA else 230))
         om.paste((0, 0, 0, 180), (x + 8, y + 14), lg.getchannel("A"))
         img.alpha_composite(om.filter(ImageFilter.GaussianBlur(14)))
         img.alpha_composite(lg, (x, y))
         d = ImageDraw.Draw(img)
     ft = titolo_font(112)
-    sy = (lambda v: {735: 620, 895: 770, 975: 840, 980: 845, 1030: 885, 1085: 935, 1300: 1090, 1455: 1225, 1570: 1335}[v]) if ZONA_SICURA else (lambda v: v)
+    if QUADRATO:
+        sy = lambda v: {735: 330, 895: 465, 975: 530, 980: 535, 1030: 570, 1085: 620, 1300: 770, 1455: 885, 1570: 980}[v]
+    elif ZONA_SICURA:
+        sy = lambda v: {735: 620, 895: 770, 975: 840, 980: 845, 1030: 885, 1085: 935, 1300: 1090, 1455: 1225, 1570: 1335}[v]
+    else:
+        sy = lambda v: v
     a1, a2 = "CERCOCASA", "UMBRIA"
     tot = d.textlength(a1, font=ft) + 16 + d.textlength(a2, font=ft)
     x = (W - tot) / 2
@@ -715,7 +727,7 @@ def immagine_finale(a, sfondo):
         centra("Annuncio di", sy(1030), font(40, "Medium"), (215, 215, 215))
         for i, r in enumerate(a_capo(d, a["agenzia"], font(52, "Bold"), W - 160, 2)):
             centra(r, sy(1085) + i * 66, font(52, "Bold"))
-    pillola(d, (0, sy(1300)), "LINK IN BIO", font(58, "Black"), ORO, "white", (50, 24), centro=True)
+    pillola(d, (0, sy(1300)), "LINK NEL POST" if QUADRATO else "LINK IN BIO", font(58, "Black"), ORO, "white", (50, 24), centro=True)
     fu = titolo_font(70)
     p1, p2, p3 = "www.", "cercocasa", "umbria.it"
     tot = sum(d.textlength(t, font=fu) for t in (p1, p2, p3))
@@ -735,8 +747,8 @@ def logo_tondo():
     try:
         out = Path(tempfile.mkdtemp()) / "logo-tondo.png"
         ff("-ss", "3", "-i", f, "-frames:v", "1", out)
-        im = Image.open(out).convert("RGB").resize((W, H))
-        return im.crop((0, 300, W, 1100))      # solo il logo, senza i contatti
+        im = Image.open(out).convert("RGB").resize((1080, 1920))
+        return im.crop((0, 300, 1080, 1100))      # solo il logo, senza i contatti
     except Exception as e:
         log("  logo tondo non disponibile:", e)
         return None
@@ -746,6 +758,11 @@ def copertina(a, sfondo):
     """primo fotogramma = copertina del post: solo il logo tondo Cercocasa, al centro della zona libera
     (prezzo e dettagli si vedono nel video, così nulla si accavalla con le scritte di Instagram e TikTok)"""
     lt = logo_tondo()
+    if lt is not None and QUADRATO:
+        img = Image.new("RGB", (W, H), (3, 3, 2))
+        lt = lt.resize((round(lt.width * .95), round(lt.height * .95)), Image.LANCZOS)
+        img.paste(lt, ((W - lt.width) // 2, (H - lt.height) // 2))
+        return img
     if lt is not None:
         img = Image.new("RGB", (W, H), (3, 3, 2))
         img.paste(lt, (0, (ALTO_LIBERO + BASSO_LIBERO) // 2 - lt.height // 2 if ZONA_SICURA else (H - lt.height) // 2))
@@ -848,7 +865,26 @@ def crea_video(a, foto_locali, destinazione):
 
     # sigle: apertura 3D prima dell'annuncio, chiusura con i contatti dopo
     apertura, chiusura = sigle()
-    if chiusura and ZONA_SICURA:
+    if QUADRATO:
+        # sigle verticali portate al quadrato: apertura ritagliata al centro, chiusura rimpicciolita su fondo stellato
+        try:
+            if apertura:
+                ap_q = tmp / "apertura-quadrata.mp4"
+                ff("-i", apertura[0], "-vf", f"scale=1080:1920,crop={W}:{H}:0:420,setsar=1,fps={FPS},format=yuv420p",
+                   "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", ap_q)
+                apertura = (ap_q, apertura[1])
+            if chiusura:
+                ch_q = tmp / "chiusura-quadrata.mp4"
+                ff("-i", chiusura[0], "-filter_complex",
+                   "[0:v]scale=1080:1920,split[a][b];[a]crop=1080:1080:0:300[bg];"
+                   "[b]scale=918:1632,crop=918:1080:0:270[fg];"
+                   f"[bg][fg]overlay=81:0,setsar=1,fps={FPS},format=yuv420p",
+                   "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", ch_q)
+                chiusura = (ch_q, chiusura[1])
+        except Exception as e:
+            log("  sigle quadrate non create:", e)
+            apertura = chiusura = None
+    elif chiusura and ZONA_SICURA:
         # la chiusura ha i contatti in basso, dove i social scrivono il nome account: la rimpicciolisco e la alzo
         ch_sicura = tmp / "chiusura-sicura.mp4"
         try:
@@ -926,6 +962,20 @@ def crea_video(a, foto_locali, destinazione):
        "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-movflags", "+faststart", destinazione)
     shutil.rmtree(tmp, ignore_errors=True)
     return durata
+
+
+def crea_video_quadrato(a, foto_locali, destinazione):
+    """stessa scheda, foto, voce e musica del video verticale, ma in 1080x1080 (per il feed di Facebook)"""
+    global W, H, QUADRATO
+    prima = (W, H, QUADRATO)
+    W, H, QUADRATO = 1080, 1080, True
+    _cornice_cache.clear()
+    MUSICA_CONTATORE[0] = max(0, MUSICA_CONTATORE[0] - 1)     # stesso brano del verticale
+    try:
+        return crea_video(a, foto_locali, destinazione)
+    finally:
+        W, H, QUADRATO = prima
+        _cornice_cache.clear()
 
 
 # ---------------------------------------------------------------- testo del post
@@ -1086,7 +1136,7 @@ def pubblica_instagram(video, testo):
         except Exception as e:
             log("  Instagram (da GitHub) non riuscito:", (getattr(getattr(e, "response", None), "text", "") or str(e))[:300])
     # metodo 1: Instagram scarica il video già pubblicato su Facebook
-    if not ULTIMO_VIDEO_FB.get("id") and os.environ.get("FB_PAGE_ID"):
+    if not ULTIMO_VIDEO_FB.get("id") and os.environ.get("FB_PAGE_ID") and not FB_QUADRATO:
         try:
             pagina = os.environ["FB_PAGE_ID"]
             r = HTTP.get(f"{GRAPH}/{pagina}/videos", params={"fields": "id,created_time", "limit": 1,
@@ -1183,6 +1233,39 @@ def pubblica_facebook(video, testo):
     return vid
 
 
+def pubblica_facebook_quadrato(video, testo, copertina_jpg=None):
+    """video 1080x1080 nel feed della Pagina (i Reel di Facebook accettano solo il verticale)"""
+    pagina, token = os.environ.get("FB_PAGE_ID"), os.environ.get("FB_PAGE_TOKEN") or os.environ.get("IG_TOKEN")
+    if not (pagina and token):
+        log("Facebook: chiavi non configurate, salto")
+        return None
+    r = HTTP.get(f"{GRAPH}/{pagina}", params={"fields": "access_token", "access_token": token}, timeout=30)
+    if r.ok and r.json().get("access_token"):
+        token = r.json()["access_token"]
+    file = {"source": (Path(video).name, open(video, "rb"), "video/mp4")}
+    if copertina_jpg and Path(copertina_jpg).exists():
+        file["thumb"] = (Path(copertina_jpg).name, open(copertina_jpg, "rb"), "image/jpeg")
+    try:
+        r = HTTP.post(f"https://graph-video.facebook.com/v21.0/{pagina}/videos", files=file, timeout=600,
+                      data={"description": testo, "published": "true", "access_token": token})
+    finally:
+        for f in file.values():
+            f[1].close()
+    r.raise_for_status()
+    vid = r.json().get("id")
+    log("Facebook: pubblicato video quadrato", vid)
+    link = re.search(r"https://\S+", testo)
+    if link and vid:
+        try:
+            time.sleep(20)
+            rc = HTTP.post(f"{GRAPH}/{vid}/comments", data={
+                "message": f"👉 Foto, dettagli e contatti dell'annuncio: {link.group(0)}", "access_token": token}, timeout=60)
+            log("Facebook: commento con link", "aggiunto" if rc.ok else f"non riuscito: {rc.text[:200]}")
+        except Exception as e:
+            log("Facebook: commento con link non riuscito:", e)
+    return vid
+
+
 # ---------------------------------------------------------------- pubblicazione TikTok
 def token_tiktok():
     rt = os.environ.get("TIKTOK_REFRESH_TOKEN")
@@ -1242,6 +1325,9 @@ PUBBLICA = {"facebook": lambda v, t: pubblica_facebook(v, t),
             "tiktok": lambda v, t: pubblica_tiktok(v, t)}
 
 
+ULTIME_FOTO = []
+
+
 def prepara(a, args):
     """scarica le foto e crea video + testo; restituisce (video, testo) o None"""
     log(f"Annuncio: {a['id']} – {a['titolo']} – {a['prezzo']} – {a['agenzia']} ({a.get('rivista', '')})")
@@ -1252,6 +1338,7 @@ def prepara(a, args):
     if len(foto) < 3:
         log("Troppe poche foto, salto.")
         return None
+    ULTIME_FOTO[:] = foto
     video = USCITA / f"annuncio-{a['id']}.mp4"
     durata = crea_video(a, foto, video)
     log(f"Video pronto: {video.name} ({durata:.1f} s)")
@@ -1336,7 +1423,7 @@ def pubblica_oggi(stato, args):
             return
         a["agenzia"] = gia.get("agenzia") or a["agenzia"]
         a["agenzia_id"], a["rivista"] = gia.get("agenzia_id"), gia.get("rivista")
-        if gia.get("fb_video"):
+        if gia.get("fb_video") and not gia.get("fb_quadrato"):
             ULTIMO_VIDEO_FB.update(id=gia["fb_video"], token=os.environ.get("FB_PAGE_TOKEN") or os.environ.get("IG_TOKEN"))
         voce = gia
         social = mancano
@@ -1352,9 +1439,29 @@ def pubblica_oggi(stato, args):
     video = prepara(a, args)
     if not video:
         return
+    quadrato = None
+    if "facebook" in social and FB_QUADRATO:
+        try:
+            quadrato = USCITA / f"annuncio-{a['id']}-quadrato.mp4"
+            crea_video_quadrato(a, ULTIME_FOTO, quadrato)
+            log("Video quadrato pronto:", quadrato.name)
+        except Exception as e:
+            log("  video quadrato non creato, su Facebook va il Reel verticale:", e)
+            quadrato = None
     for nome in social:
         try:
-            ris = PUBBLICA[nome](video, testo_post(a, nome))
+            ris = None
+            if nome == "facebook" and quadrato:
+                try:
+                    ris = pubblica_facebook_quadrato(quadrato, testo_post(a, nome),
+                                                     USCITA / (quadrato.stem + "-copertina.jpg"))
+                    voce["fb_quadrato"] = True
+                except Exception as e:
+                    # se il video quadrato non passa, Facebook riceve comunque il Reel verticale
+                    log("  Facebook quadrato non riuscito, pubblico il Reel verticale:", e,
+                        (getattr(getattr(e, "response", None), "text", "") or "")[:300])
+            if nome != "facebook" or not voce.get("fb_quadrato"):
+                ris = PUBBLICA[nome](video, testo_post(a, nome))
             voce["social"].append(nome)
             if nome == "facebook" and ris:
                 voce["fb_video"] = ris
