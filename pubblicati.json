@@ -170,9 +170,14 @@
    "agenzia": "CLASSE A IMMOBILIARE DI FUSAROLI ELEONORA",
    "agenzia_id": 41,
    "rivista": "Terni",
-   "social": [],
+   "social": [
+    "facebook",
+    "instagram"
+   ],
    "auto": "2026-10-19",
-   "data": "2026-10-19T07:07"
+   "data": "2026-10-19T07:07",
+   "fb_quadrato": true,
+   "fb_video": "1112875754618419"
   },
   {
    "id": 3332,
