@@ -1267,15 +1267,80 @@ def pubblica_facebook_quadrato(video, testo, copertina_jpg=None):
 
 
 # ---------------------------------------------------------------- pubblicazione TikTok
+TIKTOK_TOKEN_FILE = QUI / "tiktok-token.enc"     # chiave di accesso TikTok, cifrata con il Client secret
+TIKTOK_REDIRECT = os.environ.get("TIKTOK_REDIRECT", "https://www.cercocasaumbria.it/")
+TIKTOK_SCOPE = "user.info.basic,video.upload,video.publish"
+
+
+def _cifratore():
+    import base64, hashlib
+    from cryptography.fernet import Fernet
+    segreto = os.environ.get("TIKTOK_CLIENT_SECRET", "")
+    if not segreto:
+        raise RuntimeError("manca TIKTOK_CLIENT_SECRET")
+    return Fernet(base64.urlsafe_b64encode(hashlib.sha256(("cercocasa:" + segreto).encode()).digest()))
+
+
+def salva_refresh_tiktok(rt):
+    TIKTOK_TOKEN_FILE.write_bytes(_cifratore().encrypt(rt.encode()))
+
+
+def leggi_refresh_tiktok():
+    if TIKTOK_TOKEN_FILE.exists() and os.environ.get("TIKTOK_CLIENT_SECRET"):
+        try:
+            return _cifratore().decrypt(TIKTOK_TOKEN_FILE.read_bytes()).decode()
+        except Exception as e:
+            log("TikTok: chiave salvata non leggibile:", e)
+    return os.environ.get("TIKTOK_REFRESH_TOKEN")
+
+
+def tiktok_configurato():
+    return bool(os.environ.get("TIKTOK_CLIENT_KEY") and os.environ.get("TIKTOK_CLIENT_SECRET") and
+                (TIKTOK_TOKEN_FILE.exists() or os.environ.get("TIKTOK_REFRESH_TOKEN")))
+
+
+def collega_tiktok(indirizzo):
+    """primo collegamento: dall'indirizzo su cui si arriva dopo il login TikTok ricava e salva (cifrata) la chiave"""
+    from urllib.parse import urlparse, parse_qs, unquote
+    q = parse_qs(urlparse(indirizzo.strip()).query)
+    code = (q.get("code") or [unquote(indirizzo.strip())])[0]
+    r = HTTP.post("https://open.tiktokapis.com/v2/oauth/token/", timeout=30, data={
+        "client_key": os.environ["TIKTOK_CLIENT_KEY"], "client_secret": os.environ["TIKTOK_CLIENT_SECRET"],
+        "code": code, "grant_type": "authorization_code", "redirect_uri": TIKTOK_REDIRECT})
+    d = r.json()
+    if not r.ok or not d.get("refresh_token"):
+        raise RuntimeError(f"TikTok non ha dato la chiave: {str(d)[:300]}")
+    salva_refresh_tiktok(d["refresh_token"])
+    log("TikTok collegato: chiave salvata in", TIKTOK_TOKEN_FILE.name, "| permessi:", d.get("scope"))
+
+
 def token_tiktok():
-    rt = os.environ.get("TIKTOK_REFRESH_TOKEN")
+    rt = leggi_refresh_tiktok()
     if not rt:
         return os.environ.get("TIKTOK_TOKEN")
     r = HTTP.post("https://open.tiktokapis.com/v2/oauth/token/", data={
         "client_key": os.environ["TIKTOK_CLIENT_KEY"], "client_secret": os.environ["TIKTOK_CLIENT_SECRET"],
         "grant_type": "refresh_token", "refresh_token": rt}, timeout=30)
     r.raise_for_status()
-    return r.json()["access_token"]
+    d = r.json()
+    if d.get("refresh_token") and d["refresh_token"] != rt and TIKTOK_TOKEN_FILE.exists():
+        salva_refresh_tiktok(d["refresh_token"])       # TikTok a volte rinnova la chiave: la aggiorno
+    return d["access_token"]
+
+
+def privacy_tiktok(token):
+    """pubblico se TikTok lo permette (app approvata), altrimenti privato"""
+    voluta = os.environ.get("TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE")
+    try:
+        r = HTTP.post("https://open.tiktokapis.com/v2/post/publish/creator_info/query/", timeout=30,
+                      headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json; charset=UTF-8"})
+        opzioni = r.json().get("data", {}).get("privacy_level_options") or []
+        if opzioni and voluta not in opzioni:
+            log("  TikTok: pubblico non ancora consentito (app da approvare), uso", opzioni[-1])
+            return opzioni[-1]
+    except Exception as e:
+        log("  TikTok: opzioni privacy non lette:", e)
+    return voluta
 
 
 def pubblica_tiktok(video, testo):
@@ -1288,7 +1353,7 @@ def pubblica_tiktok(video, testo):
     sorgente = {"source": "FILE_UPLOAD", "video_size": dim, "chunk_size": dim, "total_chunk_count": 1}
     if modo == "diretto":
         url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
-        corpo = {"post_info": {"title": testo[:2200], "privacy_level": os.environ.get("TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE"),
+        corpo = {"post_info": {"title": testo[:2200], "privacy_level": privacy_tiktok(token),
                                "disable_comment": False, "video_cover_timestamp_ms": 0}, "source_info": sorgente}
     else:
         url = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/"
@@ -1407,6 +1472,8 @@ def pubblica_oggi(stato, args):
         social.append("facebook")
     if os.environ.get("IG_USER_ID") and os.environ.get("IG_TOKEN") and os.environ.get("AUTO_INSTAGRAM", "si") == "si":
         social.append("instagram")
+    if tiktok_configurato() and os.environ.get("AUTO_TIKTOK", "si") == "si":
+        social.append("tiktok")       # stesso annuncio e stesso video verticale di Instagram
     if not social:
         return
     gia = next((p for p in stato["pubblicati"] if p.get("auto") == oggi), None)
@@ -1480,7 +1547,11 @@ def main():
     ap.add_argument("--dati", help="file json con i dati dell'annuncio (per test)")
     ap.add_argument("--giorni", type=int, default=int(os.environ.get("GIORNI", "0") or 0),
                     help="prepara i post di N giorni da programmare a mano")
+    ap.add_argument("--collega-tiktok", help="indirizzo su cui si arriva dopo il login TikTok (primo collegamento)")
     args = ap.parse_args()
+    if args.collega_tiktok:
+        collega_tiktok(args.collega_tiktok)
+        return
 
     stato = carica_stato()
     USCITA.mkdir(exist_ok=True)

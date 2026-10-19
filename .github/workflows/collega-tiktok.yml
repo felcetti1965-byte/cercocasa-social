@@ -1,0 +1,31 @@
+name: Collega TikTok (una volta sola)
+
+on:
+  workflow_dispatch:
+    inputs:
+      indirizzo:
+        description: "Incolla l'indirizzo completo della pagina su cui arrivi dopo aver autorizzato l'app TikTok"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  collega:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q -r requirements.txt
+      - name: Salva la chiave TikTok (cifrata)
+        env:
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          INDIRIZZO: ${{ inputs.indirizzo }}
+        run: python cercocasa_social.py --collega-tiktok "$INDIRIZZO"
+      - name: Memorizza
+        run: |
+          git config user.name "cercocasa-bot"
+          git config user.email "bot@cercocasaumbria.it"
+          git add tiktok-token.enc
+          git commit -m "Collegato TikTok"
+          git push
