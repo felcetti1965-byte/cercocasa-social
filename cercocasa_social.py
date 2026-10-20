@@ -45,6 +45,11 @@ USCITA = QUI / "video"
 W, H, FPS = 1080, 1920, 30
 BLU = (8, 127, 174)          # colore del sito #087fae
 ORO = (190, 145, 40)         # colori del logo
+# colore del giorno: cambia ogni mattina (copertina, etichetta, barra delle frasi, pulsante finale)
+COLORI_GIORNO = [(190, 145, 40), (8, 127, 174), (150, 32, 52), (28, 122, 84), (212, 104, 18), (98, 58, 146), (0, 112, 122)]
+MESI_LUNGHI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto",
+               "settembre", "ottobre", "novembre", "dicembre"]
+COLORE = COLORI_GIORNO[datetime.now().timetuple().tm_yday % len(COLORI_GIORNO)]
 SCURO = (24, 24, 26)
 SECONDI_FOTO = 2.6
 DISSOLVENZA = 0.4
@@ -552,7 +557,7 @@ def livello_apertura(a):
     tag = f"{tipo_immobile(a)} · {op}"
     tw = d.textlength(tag, font=f_tag)
     y = y0 + 50
-    d.rounded_rectangle([x0 + 50, y, x0 + 50 + tw + 48, y + 60], 30, fill=ORO)
+    d.rounded_rectangle([x0 + 50, y, x0 + 50 + tw + 48, y + 60], 30, fill=COLORE)
     d.text((x0 + 74, y + 10), tag, font=f_tag, fill="white")
     y += 60 + 24
     d.text((x0 + 46, y - 8), a["prezzo"], font=f_prezzo, fill=SCURO)
@@ -561,7 +566,7 @@ def livello_apertura(a):
         d.text((x0 + 52, y), r, font=f_tit, fill=(60, 60, 60))
         y += 58
     if a["comune"]:
-        d.text((x0 + 52, y + 4), a["comune"], font=f_zona, fill=ORO)
+        d.text((x0 + 52, y + 4), a["comune"], font=f_zona, fill=COLORE)
     # caratteristiche in pillole nere
     x, y = x0, y1 + 30
     for c in [c for c in caratteristiche(a).split("  ·  ") if c]:
@@ -597,7 +602,7 @@ def livello_foto(a, frase=""):
         lv.alpha_composite(om.filter(ImageFilter.GaussianBlur(14)))
         d = ImageDraw.Draw(lv)
         d.rounded_rectangle([x - 44, y - 22, x + tw + 44, y + h - 22], 22, fill=(255, 255, 255, 246))
-        d.rounded_rectangle([x - 44, y - 22, x - 30, y + h - 22], 7, fill=ORO)
+        d.rounded_rectangle([x - 44, y - 22, x - 30, y + h - 22], 7, fill=COLORE)
         for i, r in enumerate(righe):
             d.text((x, y + i * 72), r, font=f, fill=SCURO)
     if not applica_cornice(lv):
@@ -722,12 +727,12 @@ def immagine_finale(a, sfondo):
     d.text((x, sy(735)), a1, font=ft, fill=oro2)
     d.text((x + d.textlength(a1, font=ft) + 16, sy(735)), a2, font=ft, fill=(242, 242, 242))
     centra("IL PORTALE IMMOBILIARE DELL'UMBRIA", sy(895), font(32, "SemiBold"), (205, 205, 205))
-    d.rectangle([W / 2 - 90, sy(975), W / 2 + 90, sy(980)], fill=ORO)
+    d.rectangle([W / 2 - 90, sy(975), W / 2 + 90, sy(980)], fill=COLORE)
     if a["agenzia"]:
         centra("Annuncio di", sy(1030), font(40, "Medium"), (215, 215, 215))
         for i, r in enumerate(a_capo(d, a["agenzia"], font(52, "Bold"), W - 160, 2)):
             centra(r, sy(1085) + i * 66, font(52, "Bold"))
-    pillola(d, (0, sy(1300)), "LINK NEL POST" if QUADRATO else "LINK IN BIO", font(58, "Black"), ORO, "white", (50, 24), centro=True)
+    pillola(d, (0, sy(1300)), "LINK NEL POST" if QUADRATO else "LINK IN BIO", font(58, "Black"), COLORE, "white", (50, 24), centro=True)
     fu = titolo_font(70)
     p1, p2, p3 = "www.", "cercocasa", "umbria.it"
     tot = sum(d.textlength(t, font=fu) for t in (p1, p2, p3))
@@ -755,23 +760,54 @@ def logo_tondo():
 
 
 def copertina(a, sfondo):
-    """primo fotogramma = copertina del post: solo il logo tondo Cercocasa, al centro della zona libera
-    (prezzo e dettagli si vedono nel video, così nulla si accavalla con le scritte di Instagram e TikTok)"""
-    lt = logo_tondo()
-    if lt is not None and QUADRATO:
-        img = Image.new("RGB", (W, H), (3, 3, 2))
-        lt = lt.resize((round(lt.width * .95), round(lt.height * .95)), Image.LANCZOS)
-        img.paste(lt, ((W - lt.width) // 2, (H - lt.height) // 2))
-        return img
-    if lt is not None:
-        img = Image.new("RGB", (W, H), (3, 3, 2))
-        img.paste(lt, (0, (ALTO_LIBERO + BASSO_LIBERO) // 2 - lt.height // 2 if ZONA_SICURA else (H - lt.height) // 2))
-        return img
-    img = ImageOps.fit(ImageOps.exif_transpose(sfondo).convert("RGB"), (W, H)).filter(ImageFilter.GaussianBlur(18))
-    img = Image.blend(img, Image.new("RGB", (W, H), (10, 10, 12)), 0.7).convert("RGBA")
-    lg = logo(900, 420)
-    if lg is not None:
-        img.alpha_composite(lg, ((W - lg.width) // 2, (H - lg.height) // 2 - 100))
+    """copertina del post, diversa ogni giorno: foto dell'annuncio, logo tondo, data e prezzo nel colore del giorno.
+    Tutto nella fascia centrale, lontano dalle scritte di Instagram/TikTok e dentro il ritaglio 3:4 del profilo."""
+    img = ImageOps.fit(ImageOps.exif_transpose(sfondo).convert("RGB"), (W, H)).convert("RGBA")
+    sq = QUADRATO
+    alto, basso0 = (300, 600) if sq else (520, 1050)
+    om = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    dm = ImageDraw.Draw(om)
+    for y in range(H):
+        v = 0
+        if y < alto:
+            v = int(170 * (1 - y / alto))
+        if y > basso0:
+            v = int(200 * min(1, (y - basso0) / (H - basso0)))
+        dm.line([(0, y), (W, y)], fill=(0, 0, 0, v))
+    img.alpha_composite(om)
+    lato, ylogo = (210, 40) if sq else (300, 250)
+    if LOGO_TONDO.exists():
+        lg = Image.open(LOGO_TONDO).convert("RGBA")
+        lg = lg.crop(lg.getchannel("A").getbbox())
+        lg = lg.resize((lato, round(lg.height * lato / lg.width)), Image.LANCZOS)
+        img.alpha_composite(lg, ((W - lg.width) // 2, ylogo))
+        ydata = ylogo + lg.height + 40
+    else:
+        ydata = ylogo + 200
+    d = ImageDraw.Draw(img)
+    oggi = datetime.now()
+    t = f"NUOVO · {oggi.day} {MESI_LUNGHI[oggi.month - 1].upper()} {oggi.year}"
+    fd = font(34 if sq else 40, "ExtraBold")
+    tw = d.textlength(t, font=fd)
+    d.rounded_rectangle([(W - tw) / 2 - 34, ydata, (W + tw) / 2 + 34, ydata + (66 if sq else 80)], 40, fill=COLORE)
+    d.text(((W - tw) / 2, ydata + (10 if sq else 12)), t, font=fd, fill="white")
+    yb = 640 if sq else 1110
+    hb = 180 if sq else 220
+    fp = titolo_font(124 if sq else 150)
+    while d.textlength(a["prezzo"], font=fp) > W - 100 and fp.size > 70:
+        fp = titolo_font(fp.size - 8)
+    d.rectangle([0, yb, W, yb + hb], fill=(*COLORE, 238))
+    d.text(((W - d.textlength(a["prezzo"], font=fp)) / 2, yb + (hb - fp.size) / 2 - fp.size * 0.12), a["prezzo"], font=fp, fill="white")
+    y = yb + hb + 18
+    if a.get("comune"):
+        fz = font(46 if sq else 52, "Bold")
+        while d.textlength(a["comune"], font=fz) > W - 100 and fz.size > 30:
+            fz = font(fz.size - 4, "Bold")
+        d.text(((W - d.textlength(a["comune"], font=fz)) / 2, y), a["comune"], font=fz, fill="white")
+        y += fz.size + 18
+    dett = " · ".join(x for x in [tipo_immobile(a).capitalize()] + caratteristiche(a).split("  ·  ")[:2] if x)
+    ft = font(34 if sq else 38, "SemiBold")
+    d.text(((W - d.textlength(dett, font=ft)) / 2, y), dett, font=ft, fill=(232, 232, 232))
     return img.convert("RGB")
 
 
