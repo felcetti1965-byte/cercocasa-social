@@ -325,6 +325,20 @@
     "tiktok"
    ],
    "data": "2026-10-26"
+  },
+  {
+   "id": 4808,
+   "agenzia": "SINERGIE IMMOBILIARE",
+   "agenzia_id": 144,
+   "rivista": "Perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "auto": "2026-10-20",
+   "data": "2026-10-20T07:01",
+   "fb_quadrato": true,
+   "fb_video": "1753235479121467"
   }
  ],
  "versione": 7
