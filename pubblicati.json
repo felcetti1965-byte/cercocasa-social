@@ -339,6 +339,20 @@
    "data": "2026-10-20T07:01",
    "fb_quadrato": true,
    "fb_video": "1422289670093422"
+  },
+  {
+   "id": 5068,
+   "agenzia": "RM L'AGENZIA IMMOBILIARE",
+   "agenzia_id": 136,
+   "rivista": "Terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "auto": "2026-10-21",
+   "data": "2026-10-21T07:02",
+   "fb_quadrato": true,
+   "fb_video": "2099204548136115"
   }
  ],
  "versione": 7
