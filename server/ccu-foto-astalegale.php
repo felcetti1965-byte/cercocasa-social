@@ -97,16 +97,22 @@ function foto_astalegale(array $feed, string $citta, string $lotto, array $prezz
 /* ---------- Fonte 2: Astegiudiziarie.it, mappa del sito ---------- */
 $agSchede = null;   // caricata solo se serve
 $agCache  = [];
+function ag_xml(string $u): string
+{
+    $x = al_get($u);
+    if (strncmp($x, "\x1f\x8b", 2) === 0) $x = (string)@gzdecode($x);   // sitemap compressa
+    return $x;
+}
 function ag_schede(): array
 {
-    $xml = al_get('https://www.astegiudiziarie.it/SiteMap/SchedeDettagliateImmobili');
+    $xml = ag_xml('https://www.astegiudiziarie.it/SiteMap/SchedeDettagliateImmobili');
     preg_match_all('#<loc>\s*([^<]+?)\s*</loc>#i', $xml, $m);
     $loc = $m[1];
     $figli = array_filter($loc, fn($u) => !str_contains($u, 'vendita-asta-'));
     if ($figli && count($figli) === count($loc)) {          // e' un indice di sitemap
         $loc = [];
         foreach ($figli as $f) {
-            preg_match_all('#<loc>\s*([^<]+?)\s*</loc>#i', al_get(html_entity_decode($f)), $mm);
+            preg_match_all('#<loc>\s*([^<]+?)\s*</loc>#i', ag_xml(html_entity_decode($f)), $mm);
             $loc = array_merge($loc, $mm[1]);
             sleep(1);
         }
