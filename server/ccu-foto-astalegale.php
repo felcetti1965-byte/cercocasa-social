@@ -1,11 +1,11 @@
 <?php
 /*
- * CCU – Foto ufficiali Astalegale per le aste senza foto vera
- * Per ogni asta pubblicata che ha solo il segnaposto o la mappa:
- *   1. cerca il lotto nel feed RSS ufficiale Astalegale della provincia
+ * CCU – Foto ufficiali Astalegale per le aste della provincia di Terni senza foto vera
+ * Per ogni asta TR pubblicata che ha solo il segnaposto o la mappa:
+ *   1. cerca il lotto nel feed RSS ufficiale Astalegale della provincia di Terni
  *      (confronto: comune + numero lotto + offerta minima/prezzo)
  *   2. scarica le foto dalla scheda ufficiale (max 6), le salva in webp
- *   3. toglie segnaposto/mappa e, se diverso, corregge il tribunale
+ *   3. toglie segnaposto/mappa. Non modifica nessun altro dato dell'annuncio.
  *
  * Uso:
  *   php ccu-foto-astalegale.php --prova          -> mostra cosa farebbe, NON scrive nulla
@@ -19,7 +19,7 @@ $prova  = in_array('--prova', $argv, true);
 $soloId = 0;
 foreach ($argv as $a) if (preg_match('/^--id=(\d+)$/', $a, $m)) $soloId = (int)$m[1];
 
-$PROVINCE = ['tr' => 'umbria', 'pg' => 'umbria'];
+$PROVINCE = ['tr' => 'umbria'];
 $MAX_FOTO = 6;
 
 function al_get(string $u): string
@@ -58,7 +58,6 @@ foreach ($PROVINCE as $prov => $reg) {
         $feed[] = [
             'id'    => $guid,
             'lotto' => preg_match('/Lott?o?\s*(?:n\.?\s*)?(\w+)/iu', $title, $l) ? strtolower($l[1]) : '',
-            'trib'  => preg_match('/Tribunale\s+di\s+([\p{L}\' ]+?)(?:\s*[-,–|]|\s+Rif|$)/iu', $title . ' ', $t) ? mb_convert_case(trim($t[1]), MB_CASE_TITLE) : '',
             'testo' => al_norm("$title $desc"),
             'prezzi'=> al_prezzi("$title $desc"),
         ];
@@ -68,9 +67,9 @@ echo count($feed) . " lotti nel feed Astalegale\n";
 if (!$feed) exit;
 
 /* 2. Aste senza foto vera */
-$sql = "SELECT p.id,p.code,p.city,p.price,p.minimum_bid,p.court,p.description,p.details_json
+$sql = "SELECT p.id,p.code,p.city,p.price,p.minimum_bid,p.details_json
         FROM properties p
-        WHERE p.operation='asta' AND p.status='pubblicato'
+        WHERE p.operation='asta' AND p.status='pubblicato' AND p.province='TR'
           AND EXISTS (SELECT 1 FROM property_photos f WHERE f.property_id=p.id AND (f.path LIKE '%segnaposto%' OR f.path LIKE '%mappa-posizione%'))
           AND NOT EXISTS (SELECT 1 FROM property_photos f WHERE f.property_id=p.id AND f.path NOT LIKE '%segnaposto%' AND f.path NOT LIKE '%mappa-posizione%')";
 if ($soloId) $sql .= " AND p.id=" . $soloId;
@@ -79,7 +78,6 @@ echo count($rows) . " aste senza foto vera\n";
 
 $insFoto = $db->prepare("INSERT INTO property_photos(property_id,path,alt_text,sort_order,watermark_status,watermark_version,watermarked_at) VALUES (?,?,?,?,'completata',2,NOW())");
 $delSeg  = $db->prepare("DELETE FROM property_photos WHERE property_id=? AND (path LIKE '%segnaposto%' OR path LIKE '%mappa-posizione%')");
-$updTrib = $db->prepare("UPDATE properties SET court=?, description=?, details_json=?, updated_at=NOW() WHERE id=?");
 $fatte = 0;
 
 foreach ($rows as $r) {
@@ -110,7 +108,7 @@ foreach ($rows as $r) {
     $urls = array_slice(array_values(array_unique($m[0])), 0, $MAX_FOTO);
     if (!$urls) $urls = ["https://documents.astalegale.net/asta/0/{$match['id']}"];
 
-    echo "#$id {$r['city']} -> {$match['id']} (lotto {$match['lotto']}, {$match['trib']}): " . count($urls) . " foto\n";
+    echo "#$id {$r['city']} -> {$match['id']} (lotto {$match['lotto']}): " . count($urls) . " foto\n";
     if ($prova) continue;
 
     $salvate = [];
@@ -129,15 +127,6 @@ foreach ($rows as $r) {
     $delSeg->execute([$id]);
     foreach ($salvate as $i => $rel) $insFoto->execute([$id, $rel, "Foto immobile all'asta a {$r['city']}", $i]);
 
-    /* 5. Tribunale corretto */
-    if ($match['trib'] !== '' && al_norm($match['trib']) !== al_norm((string)$r['court'])) {
-        $vecchio = (string)$r['court'];
-        $desc = (string)$r['description'];
-        if ($vecchio !== '') $desc = preg_replace('/(Tribunale\s+(?:di\s+)?|TRIBUNALE:\s*)' . preg_quote($vecchio, '/') . '\b/iu', '${1}' . $match['trib'], $desc);
-        $js['court'] = $match['trib'];
-        $updTrib->execute([$match['trib'], $desc, json_encode($js, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), $id]);
-        echo "   tribunale corretto: $vecchio -> {$match['trib']}\n";
-    }
     $db->commit();
     echo "   " . count($salvate) . " foto caricate\n";
     $fatte++;
