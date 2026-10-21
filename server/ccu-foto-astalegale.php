@@ -23,7 +23,7 @@ $soloId = 0;
 foreach ($argv as $a) if (preg_match('/^--id=(\d+)$/', $a, $m)) $soloId = (int)$m[1];
 
 $MAX_FOTO       = 6;
-$MAX_SCHEDE_AG  = 120;   // massimo schede Astegiudiziarie aperte per comune
+$MAX_SCHEDE_AG  = 400;   // massimo schede Astegiudiziarie aperte per comune
 
 function al_get(string $u): string
 {
@@ -119,10 +119,16 @@ function ag_schede(): array
     }
     return array_values(array_unique(array_filter(array_map('html_entity_decode', $loc), fn($u) => str_contains($u, 'vendita-asta-'))));
 }
-function foto_astegiudiziarie(array &$cache, array $schede, string $cittaSlug, array $prezzi, int $max): array
+function foto_astegiudiziarie(array &$cache, array $schede, string $cittaSlug, string $indirizzo, array $prezzi, int $max): array
 {
     if ($cittaSlug === '') return ['', []];
-    $cand = array_slice(array_values(array_filter($schede, fn($u) => str_contains(strtolower($u), '-' . $cittaSlug . '-'))), 0, $max);
+    $cand = array_values(array_filter($schede, fn($u) => str_contains(strtolower($u), '-' . $cittaSlug . '-')));
+    // prima le schede che contengono parole della via dell'annuncio
+    $parole = array_filter(explode(' ', al_norm($indirizzo)), fn($w) => strlen($w) >= 4 && !in_array($w, ['localita', 'frazione', 'strada', 'viale', 'piazza', 'snc'], true));
+    $punti = [];
+    foreach ($cand as $u) { $n = 0; foreach ($parole as $w) if (str_contains(strtolower($u), $w)) $n++; $punti[$u] = $n; }
+    usort($cand, fn($a, $b) => $punti[$b] <=> $punti[$a]);
+    $cand = array_slice($cand, 0, $max);
     $trovate = [];
     foreach ($cand as $u) {
         if (!isset($cache[$u])) {
@@ -145,7 +151,7 @@ function foto_astegiudiziarie(array &$cache, array $schede, string $cittaSlug, a
 }
 
 /* ---------- Aste di Terni senza foto vera ---------- */
-$sql = "SELECT p.id,p.code,p.city,p.price,p.minimum_bid,p.details_json
+$sql = "SELECT p.id,p.code,p.city,p.address,p.price,p.minimum_bid,p.details_json
         FROM properties p
         WHERE p.operation='asta' AND p.status='pubblicato' AND p.province='TR'
           AND EXISTS (SELECT 1 FROM property_photos f WHERE f.property_id=p.id AND (f.path LIKE '%segnaposto%' OR f.path LIKE '%mappa-posizione%'))
@@ -168,7 +174,7 @@ foreach ($rows as $r) {
     [$fonte, $urls] = foto_astalegale($feed, al_norm((string)$r['city']), $lotto, $prezzi);
     if ($fonte === '') {
         if ($agSchede === null) { $agSchede = ag_schede(); echo count($agSchede) . " schede Astegiudiziarie nella mappa del sito\n"; }
-        [$fonte, $urls] = foto_astegiudiziarie($agCache, $agSchede, al_slug((string)$r['city']), $prezzi, $MAX_SCHEDE_AG);
+        [$fonte, $urls] = foto_astegiudiziarie($agCache, $agSchede, al_slug((string)$r['city']), (string)$r['address'], $prezzi, $MAX_SCHEDE_AG);
     }
     if ($fonte === '')       { echo "#$id {$r['city']}: nessuna scheda ufficiale con foto trovata\n"; continue; }
     if ($fonte === 'doppio') { echo "#$id {$r['city']}: più schede corrispondenti, salto per sicurezza\n"; continue; }
