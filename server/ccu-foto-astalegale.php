@@ -79,7 +79,7 @@ echo count($rows) . " aste senza foto vera\n";
 
 $insFoto = $db->prepare("INSERT INTO property_photos(property_id,path,alt_text,sort_order,watermark_status,watermark_version,watermarked_at) VALUES (?,?,?,?,'completata',2,NOW())");
 $delSeg  = $db->prepare("DELETE FROM property_photos WHERE property_id=? AND (path LIKE '%segnaposto%' OR path LIKE '%mappa-posizione%')");
-$updTrib = $db->prepare("UPDATE properties SET court=?, description=?, updated_at=NOW() WHERE id=?");
+$updTrib = $db->prepare("UPDATE properties SET court=?, description=?, details_json=?, updated_at=NOW() WHERE id=?");
 $fatte = 0;
 
 foreach ($rows as $r) {
@@ -134,7 +134,8 @@ foreach ($rows as $r) {
         $vecchio = (string)$r['court'];
         $desc = (string)$r['description'];
         if ($vecchio !== '') $desc = preg_replace('/(Tribunale\s+(?:di\s+)?|TRIBUNALE:\s*)' . preg_quote($vecchio, '/') . '\b/iu', '${1}' . $match['trib'], $desc);
-        $updTrib->execute([$match['trib'], $desc, $id]);
+        $js['court'] = $match['trib'];
+        $updTrib->execute([$match['trib'], $desc, json_encode($js, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), $id]);
         echo "   tribunale corretto: $vecchio -> {$match['trib']}\n";
     }
     $db->commit();
