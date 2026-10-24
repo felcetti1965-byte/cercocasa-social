@@ -14,7 +14,7 @@ case "$r" in "301 $S/immobile-"*) ;; *) ripristina "il vecchio indirizzo non rei
 NEW=${r#301 }; c=$(curl -sk -A "$UA" -o /tmp/n.html -w '%{http_code}' "$NEW"); echo "nuovo indirizzo -> $c $NEW"
 [ "$c" = 200 ] || ripristina "il nuovo indirizzo non risponde 200"
 grep -q "<link rel=\"canonical\" href=\"$NEW\"" /tmp/n.html || ripristina "canonical non aggiornato"
-grep -q 'assets/style.css' /tmp/n.html && [ "$(curl -sk -A "$UA" -o /dev/null -w '%{http_code}' "$S/assets/style.css")" = 200 ] || ripristina "grafica non caricata"
+n=0; for css in $(grep -oE '<link rel="stylesheet" href="[^"]+"' /tmp/n.html | sed -E 's/.*href="([^"]+)"/\1/' | grep -v '^https\?://fonts'); do case "$css" in http*) u=$css;; /*) u=$S$css;; *) u=$S/$css;; esac; n=$((n+1)); cc=$(curl -sk -A "$UA" -o /dev/null -w '%{http_code}' "$u"); [ "$cc" = 200 ] || ripristina "foglio di stile non caricato: $css ($cc)"; done; echo "fogli di stile caricati: $n"; [ $n -gt 0 ] || ripristina "nessun foglio di stile"
 w=$(curl -sk -A "$UA" -o /dev/null -w '%{http_code} %{redirect_url}' "$S/immobile-nome-sbagliato-4910"); echo "nome sbagliato -> $w"
 [ "$w" = "301 $NEW" ] || ripristina "redirect nome sbagliato"
 for u in / /case-vendita/perugia/ /immobile.php?id=4707; do c=$(curl -sk -A "$UA" -o /tmp/x.html -w '%{http_code}' -L "$S$u"); echo "$u -> $c"; [ "$c" = 200 ] || ripristina "$u non risponde"; done
