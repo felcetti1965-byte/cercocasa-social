@@ -1,0 +1,28 @@
+name: Scarica asset landing Trebbi
+on:
+  push:
+    paths:
+      - trebbi/asset-richiesta.txt
+permissions:
+  contents: write
+jobs:
+  scarica:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scarica logo, foto e video
+        run: |
+          mkdir -p trebbi/asset
+          cd trebbi/asset
+          B=https://www.immobiliaretrebbi.com/wp-content/uploads
+          for f in 2026/02/logo-trebbi.png 2026/02/cropped-logo-trebbi-32x32.png A-Ingresso-1024x576.jpg Attico-di-Design-1536x864.jpg san-sisto-1024x576.jpg A-Ingresso-768x432.jpg 3-2-1536x864.jpg Video-migliorato-Trebbi.mp4; do
+            curl -fsSL -A "Mozilla/5.0" -o "$(basename $f)" "$B/$f" && echo "ok $f" || echo "ERRORE $f"
+          done
+          ls -la
+      - name: Salva nel repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git add trebbi/asset
+          git commit -m "Asset landing Trebbi scaricati" || echo "niente da salvare"
+          git push
