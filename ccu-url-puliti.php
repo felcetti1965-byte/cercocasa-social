@@ -19,12 +19,16 @@ function ccu_property_paths():array{
 }
 function ccu_property_path(int $id):string{$m=ccu_property_paths();return $m[$id]??'';}
 function ccu_rewrite_property_links(string $html):string{
+    /* CCU_URL_PULITI_V2: anche link con parametri (&lang=, #foto) e apici singoli */
     try{
         if(stripos($html,'<html')===false||strpos($html,'immobile.php?id=')===false)return $html;
-        return preg_replace_callback('~(href=["\'])((?:https://www\.cercocasaumbria\.it)?/?)immobile\.php\?id=(\d+)(?=["\'])~',static function($m){
-            $p=ccu_property_path((int)$m[3]); if($p==='')return $m[0];
-            return $m[1].($m[2]!==''&&$m[2]!=='/'?$m[2]:'/').$p;
+        return preg_replace_callback('~(href=)(["\'])((?:https://www\.cercocasaumbria\.it)?/?)immobile\.php\?id=(\d+)((?:&amp;|&)[^"\'#]*)?(#[^"\']*)?\2~',static function($m){
+            $p=ccu_property_path((int)$m[4]); if($p==='')return $m[0];
+            $q=isset($m[5])&&$m[5]!==''?'?'.preg_replace('~^(&amp;|&)~','',$m[5]):'';
+            $h=$m[6]??'';
+            return $m[1].$m[2].($m[3]!==''&&$m[3]!=='/'?$m[3]:'/').$p.$q.$h.$m[2];
         },$html)??$html;
     }catch(Throwable $e){return $html;}
 }
+
 if(PHP_SAPI!=='cli' && strpos((string)($_SERVER['SCRIPT_NAME']??''),'/admin/')===false){ob_start('ccu_rewrite_property_links');}
