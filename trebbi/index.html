@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Immobiliare Trebbi Perugia</title>
+<meta name="description" content="Vendi casa a Perugia con Immobiliare Trebbi: valutazione professionale gratuita, strategia di vendita e assistenza fino al rogito. Dal 1992 a Ferro di Cavallo.">
+<link rel="icon" href="asset/cropped-logo-trebbi-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
+<style>
+/* Layout: la casa e la città portano la pagina. Video a tutto schermo, poi capitoli a campo pieno
+   (bianco, blu notte, blu Cercocasa) alternati con foto del portfolio a misure diverse. */
+:root{
+  --ground:#ffffff;
+  --tint:#eef4f7;        /* gradino di tono per superfici */
+  --ink:#0d1b26;         /* testo pieno */
+  --ink-soft:#3c4b57;
+  --night:#0b2233;       /* campo blu notte */
+  --blue:#087fae;        /* blu Cercocasa: azione */
+  --blue-deep:#06648a;
+  --on-dark:#ffffff;
+  --on-dark-soft:#c4d6e2;
+  --font:"Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --gutter:max(20px, env(safe-area-inset-left, 0px));
+  --gutter-r:max(20px, env(safe-area-inset-right, 0px));
+  --wrap:1280px;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img,video{display:block;max-width:100%}
+a{color:inherit}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-0.03em;line-height:1.02;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter-r)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+/* Pulsanti: piatti, completamente arrotondati, deciso una volta */
+.btn{display:inline-flex;align-items:center;gap:.6em;min-height:54px;padding:0 28px;border-radius:999px;border:0;background:var(--blue);color:#fff;font:600 17px/1 var(--font);text-decoration:none;cursor:pointer;transition:background .2s, transform .15s}
+.btn:hover{background:var(--blue-deep)}
+.btn:active{transform:scale(.97)}
+.btn--light{background:#fff;color:var(--night)}
+.btn--light:hover{background:var(--tint)}
+.btn--ghost{background:rgba(255,255,255,.14);color:#fff}
+.btn--ghost:hover{background:rgba(255,255,255,.24)}
+.btn svg{width:20px;height:20px;flex:none}
+
+/* Barra */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--ground)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--ground);z-index:21}
+.bar .wrap{display:flex;align-items:center;gap:32px;height:84px}
+.bar__logo img{height:60px;width:auto}
+.bar nav{display:flex;gap:28px;margin-left:auto}
+.bar nav a{text-decoration:none;font-weight:500;font-size:16px;color:var(--ink-soft)}
+.bar nav a:hover{color:var(--blue)}
+.bar__tel{font-weight:700;text-decoration:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar .btn{min-height:46px;padding:0 22px;font-size:16px}
+
+/* Hero. Il video è verticale (1080x1920): resta intero e nitido in una cornice verticale,
+   mentre lo stesso video, sfocato, riempie tutto lo sfondo. Niente bande nere, niente ritagli. */
+.hero{position:relative;color:#fff;background:var(--night);overflow:hidden;isolation:isolate}
+.ambient{position:absolute;inset:-8%;width:116%;height:116%;object-fit:cover;filter:blur(34px) saturate(1.2);z-index:-2}
+.hero::after{content:"";position:absolute;inset:0;background:rgba(6,20,31,.58);z-index:-1}
+.hero__inner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:72px;align-items:center;padding-block:64px 72px}
+.hero__actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:36px}
+.hero h1{font-size:clamp(44px,6.2vw,100px);max-width:13ch}
+.hero__lead{margin-top:26px;font-size:clamp(19px,1.6vw,23px);max-width:40ch;color:#e8f0f5}
+.hero__facts{display:flex;flex-wrap:wrap;gap:12px 40px;margin-top:56px;font-size:17px;color:#dbe6ee}
+.hero__facts b{color:#fff;font-weight:700}
+.hero__card{position:relative;margin:0;height:min(76vh,700px);aspect-ratio:9/16;max-width:100%;border-radius:22px;overflow:hidden;background:#000}
+.hero__card video{width:100%;height:100%;object-fit:cover}
+.card__sound{position:absolute;left:14px;right:14px;bottom:14px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border:0;border-radius:999px;background:rgba(255,255,255,.94);color:var(--night);font:600 16px var(--font);cursor:pointer;transition:background .2s,transform .15s}
+.card__sound:hover{background:#fff}
+.card__sound:active{transform:scale(.97)}
+.card__sound svg{width:20px;height:20px}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mic{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;border:0;background:var(--tint);color:var(--night);cursor:pointer;transition:background .2s,color .2s}
+.mic:hover{background:#dbe9f0}
+.mic svg{width:22px;height:22px}
+.mic.on{background:#c62828;color:#fff;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+
+/* Fatti */
+.facts{background:var(--tint)}
+.facts .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;padding-block:56px}
+.facts strong{display:block;font-size:clamp(40px,4.6vw,64px);line-height:1;letter-spacing:-.04em;color:var(--blue);font-variant-numeric:tabular-nums}
+.facts span{display:block;margin-top:10px;font-size:17px;color:var(--ink-soft);max-width:22ch}
+
+section{scroll-margin-top:84px}
+
+/* Chi siamo: split */
+.about .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:72px;align-items:center;padding-block:160px}
+.about h2{font-size:clamp(38px,4.6vw,68px);max-width:14ch}
+.about__text{display:grid;gap:20px;margin-top:32px;max-width:52ch}
+.about__list{list-style:none;padding:0;margin:36px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.about__list li{display:flex;gap:12px;font-weight:600}
+.about__list li::before{content:"";flex:none;width:10px;height:10px;margin-top:.55em;border-radius:50%;background:var(--blue)}
+.about__media{position:relative;justify-self:center;width:min(100%,420px)}
+.about__video{position:relative;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:var(--night)}
+.about__video video{width:100%;height:100%;object-fit:cover}
+.about__sound{position:absolute;top:14px;right:14px;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:rgba(255,255,255,.94);color:var(--night);font:600 15px var(--font);cursor:pointer;transition:background .2s,transform .15s}
+.about__link{position:absolute;inset:0;z-index:1}
+.about__link:focus-visible{outline:3px solid var(--blue);outline-offset:-3px;border-radius:22px}
+.about__sound{z-index:2}
+.about__cta{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:16px;padding:18px 22px;border-radius:16px;background:var(--tint);text-decoration:none;color:var(--ink);transition:background .2s}
+.about__cta:hover{background:#dbe9f0}
+.about__cta b{display:block;font-size:19px;letter-spacing:-.01em}
+.about__cta span{font-size:15px;color:var(--ink-soft)}
+.about__cta i{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;font-style:normal;font-size:20px}
+.about__sound:hover{background:#fff}
+.about__sound:active{transform:scale(.97)}
+.about__sound svg{width:18px;height:18px}
+.about__sign{position:absolute;z-index:3;left:-36px;bottom:140px;background:var(--night);color:#fff;padding:26px 30px;max-width:300px}
+.about__sign b{display:block;font-size:24px;letter-spacing:-.02em}
+.about__sign span{color:var(--on-dark-soft);font-size:16px}
+
+/* Perché: campo blu notte */
+.why{background:var(--night);color:var(--on-dark)}
+.why .wrap{padding-block:150px}
+.why h2{font-size:clamp(38px,5vw,76px);max-width:16ch}
+.why__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:72px 96px;margin-top:88px}
+.why__grid h3{font-size:clamp(26px,2.4vw,36px);letter-spacing:-.025em}
+.why__grid p{margin-top:16px;color:var(--on-dark-soft);max-width:40ch;font-size:19px}
+.why .btn{margin-top:88px}
+
+/* Metodo */
+.how .wrap{padding-block:160px}
+.how h2{font-size:clamp(38px,4.6vw,68px);max-width:22ch}
+.how ol{list-style:none;padding:0;margin:80px 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:28px;counter-reset:step}
+.how li{counter-increment:step;background:var(--tint);padding:36px 30px 40px;display:flex;flex-direction:column;min-height:300px}
+.how li::before{content:counter(step);font-size:84px;font-weight:800;line-height:.8;letter-spacing:-.05em;color:var(--blue)}
+.how h3{margin-top:auto;padding-top:48px;font-size:26px;letter-spacing:-.02em}
+.how li p{margin-top:12px;color:var(--ink-soft);font-size:17px}
+.how li:last-child{background:var(--blue);color:#fff}
+.how li:last-child::before{color:#fff}
+.how li:last-child p{color:#e2f1f8}
+
+/* Check-up documentale: domande a sinistra, semaforo e documenti a destra */
+.check{background:var(--ground)}
+#checkForm{padding:0;background:none}
+.check .wrap{padding-block:150px}
+.check__head{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:end}
+.check h2{font-size:clamp(38px,4.6vw,68px);max-width:14ch}
+.check__head p{color:var(--ink-soft);max-width:48ch}
+.check__body{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;margin-top:72px;align-items:start}
+.q{background:var(--tint);padding:26px 28px;border-radius:18px}
+.q + .q{margin-top:14px}
+.q legend{float:left;width:100%;padding:0;font-weight:700;font-size:20px;letter-spacing:-.01em;line-height:1.3}
+.q legend span{display:block;margin-top:4px;font-weight:400;font-size:16px;color:var(--ink-soft);letter-spacing:0}
+.q fieldset{border:0;margin:0;padding:0;min-width:0}
+.opts{clear:both;display:flex;flex-wrap:wrap;gap:8px;padding-top:16px}
+.opts input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.opts label{padding:11px 18px;border-radius:999px;background:#fff;font-weight:500;font-size:16px;cursor:pointer;transition:background .15s,color .15s}
+.opts label:hover{background:#dbe9f0}
+.opts input:checked + label{background:var(--night);color:#fff}
+.opts input:focus-visible + label{outline:3px solid var(--blue);outline-offset:2px}
+.q__note{margin-top:12px;font-size:16px;padding-left:14px;border-left:4px solid var(--lvl,transparent);color:var(--ink)}
+.q__note[hidden]{display:none}
+.result{position:sticky;top:110px;background:var(--night);color:#fff;border-radius:22px;padding:32px}
+.light{display:flex;gap:10px}
+.light i{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.14);transition:background .3s, transform .3s}
+.light i.on{transform:scale(1.15)}
+.light .g.on{background:#2fbf71}.light .y.on{background:#f2b632}.light .r.on{background:#ef5b4c}
+.result h3{margin-top:22px;font-size:clamp(26px,2.4vw,34px);letter-spacing:-.02em}
+.result__text{margin-top:10px;color:var(--on-dark-soft);font-size:17px}
+.result__count{margin-top:18px;font-size:15px;color:var(--on-dark-soft)}
+.result__bar{height:8px;border-radius:99px;background:rgba(255,255,255,.14);margin-top:8px;overflow:hidden}
+.result__bar i{display:block;height:100%;width:0;background:#8fd3ef;border-radius:99px;transition:width .4s}
+.docs{margin-top:26px}
+.docs h4{margin:0 0 10px;font-size:16px;font-weight:700}
+.docs ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.docs li{display:flex;gap:10px;font-size:16px;color:#e3edf3}
+.docs li::before{content:"";flex:none;width:8px;height:8px;margin-top:.55em;border-radius:50%;background:#8fd3ef}
+.result .btn{margin-top:28px;width:100%;justify-content:center}
+.result__fine{margin-top:14px;font-size:14px;color:var(--on-dark-soft)}
+
+/* Portfolio: stampe di misure diverse */
+.work{background:var(--tint)}
+.work .wrap{padding-block:150px}
+.work__head{display:flex;justify-content:space-between;align-items:end;gap:40px;flex-wrap:wrap}
+.work h2{font-size:clamp(38px,4.6vw,68px);max-width:13ch}
+.work__head p{max-width:42ch;color:var(--ink-soft)}
+.work__grid{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;margin-top:72px}
+.work figure{margin:0;min-width:0}
+.work img{width:100%;height:100%;object-fit:cover;background:#d7e3ea}
+.work figcaption{margin-top:12px;font-weight:600;font-size:17px}
+.work figcaption span{display:block;font-weight:400;color:var(--ink-soft);font-size:16px}
+.w1{grid-column:1/8}.w1 img{aspect-ratio:16/10}
+.w2{grid-column:8/13;align-self:end}.w2 img{aspect-ratio:4/5}
+.w3{grid-column:2/6}.w3 img{aspect-ratio:1/1}
+.w4{grid-column:6/12;margin-top:80px}.w4 img{aspect-ratio:16/9}
+
+/* Recensioni */
+.voices .wrap{padding-block:160px;display:grid;grid-template-columns:1.25fr 1fr;gap:96px}
+.voices__label{font-weight:600;color:var(--blue);font-size:18px}
+.voices blockquote{margin:24px 0 0;font-size:clamp(28px,2.9vw,42px);line-height:1.18;letter-spacing:-.025em;font-weight:500}
+.voices cite{display:block;margin-top:28px;font-style:normal;font-weight:700}
+.voices cite span{font-weight:400;color:var(--ink-soft)}
+.voices__list{display:grid;gap:36px;align-content:start}
+.voices__list figure{margin:0;padding-left:24px;border-left:4px solid var(--tint)}
+.voices__list p{font-size:18px}
+.voices__list figcaption{margin-top:8px;font-weight:700;font-size:16px}
+
+/* Valutazione: campo blu */
+.ask{background:var(--blue);color:#fff}
+.ask .wrap > *{min-width:0}
+.ask .wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:80px;padding-block:150px}
+.ask h2{font-size:clamp(38px,4.8vw,72px);max-width:12ch}
+.ask__lead{margin-top:24px;font-size:20px;max-width:36ch;color:#e6f4fb}
+.ask__contacts{margin-top:56px;display:grid;gap:22px}
+.ask__contacts div{display:flex;flex-direction:column}
+.ask__contacts small{font-size:15px;color:#cfe8f4}
+.ask__contacts a,.ask__contacts address{font-style:normal;font-size:23px;font-weight:700;text-decoration:none;font-variant-numeric:tabular-nums}
+.ask__contacts a:hover{text-decoration:underline}
+form{background:#fff;color:var(--ink);padding:44px}
+form h3{font-size:28px;letter-spacing:-.02em}
+form > p{margin-top:8px;color:var(--ink-soft);font-size:16px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field--full{grid-column:1/-1}
+label{font-size:15px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--tint);border:2px solid transparent;border-radius:10px;padding:13px 14px;min-height:52px}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);background:#fff}
+.mode{display:inline-flex;gap:4px;padding:4px;background:var(--tint);border-radius:999px;margin-top:22px}
+.mode input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.mode label{padding:10px 18px;border-radius:999px;font-weight:600;cursor:pointer;color:var(--ink-soft);transition:background .2s,color .2s}
+.mode input:checked + label{background:var(--night);color:#fff}
+.mode input:focus-visible + label{outline:3px solid var(--blue);outline-offset:2px}
+.story{position:relative;margin-top:18px}
+.story textarea{min-height:132px;padding:16px 64px 16px 16px;font-size:18px;line-height:1.5}
+.story .mic{position:absolute;right:10px;top:10px}
+.tries{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:15px;color:var(--ink-soft);align-items:center}
+.tries button{font:inherit;font-size:15px;border:0;background:var(--tint);color:var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer;transition:background .2s}
+.tries button:hover{background:#dbe9f0}
+.understood{margin-top:24px}
+.understood h4{margin:0;font-size:16px;font-weight:700;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.understood h4 span{font-weight:500;color:var(--ink-soft)}
+.meter{height:8px;border-radius:99px;background:var(--tint);margin-top:10px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--blue);border-radius:99px;transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.facts-found{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;min-height:40px}
+.tag{display:inline-flex;gap:6px;align-items:baseline;padding:9px 14px;border-radius:12px;background:#e3f2f9;color:var(--night);font-size:15px;animation:pop .35s cubic-bezier(.2,.8,.3,1.2) both}
+.tag b{font-weight:700}
+.tag--empty{background:var(--tint);color:var(--ink-soft)}
+@keyframes pop{from{opacity:0;transform:translateY(6px) scale(.94)}}
+.next{margin-top:12px;font-size:15px;color:var(--ink-soft)}
+.next b{color:var(--ink)}
+.fields{grid-template-columns:1fr 1fr}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:22px;font-size:15px;color:var(--ink-soft)}
+.consent input{width:22px;height:22px;min-height:0;flex:none;margin-top:2px;accent-color:var(--blue)}
+.preview{margin-top:24px;background:var(--tint);padding:18px 20px;font-size:16px;color:var(--ink-soft);white-space:pre-line}
+.preview b{display:block;color:var(--ink);margin-bottom:6px}
+.form__actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.form__actions .btn--alt{background:var(--night)}
+.form__actions .btn--alt:hover{background:#13344b}
+.form__note{margin-top:14px;font-size:15px;color:var(--ink-soft)}
+.form__error{margin-top:14px;font-size:15px;color:#b3261e;font-weight:600}
+
+/* Mappa */
+.map{position:relative;height:420px;background:var(--tint)}
+.map iframe{width:100%;height:100%;border:0;filter:grayscale(.35)}
+
+/* Footer */
+footer{background:var(--night);color:var(--on-dark)}
+footer .wrap{padding-block:96px 40px}
+.foot__top{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:48px}
+.foot__top img{height:96px;width:auto;background:#fff;padding:10px;border-radius:6px}
+.foot__top h4{margin:0 0 12px;font-size:16px;color:var(--on-dark-soft);font-weight:500}
+.foot__top p,.foot__top a{font-size:18px;text-decoration:none;line-height:1.7}
+.foot__top a:hover{text-decoration:underline}
+.foot__name{margin-top:96px;font-size:clamp(48px,9.6vw,148px);font-weight:800;letter-spacing:-.055em;line-height:.85;white-space:nowrap}
+.foot__motto{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:28px;font-size:15px;color:var(--on-dark-soft)}
+.foot__motto a{color:var(--on-dark-soft)}
+
+/* WhatsApp fisso */
+.wa{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:#1fa855;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .15s}
+.wa:hover{transform:scale(1.06)}
+.wa svg{width:32px;height:32px}
+
+/* Entrate */
+.rise{transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)}
+.js .rise.pre{opacity:0;transform:translateY(24px)}
+
+/* Tablet */
+@media (max-width:1080px){
+  .bar nav{display:none}
+  .about .wrap,.voices .wrap,.ask .wrap{grid-template-columns:1fr;gap:56px}
+  .about__sign{left:20px}
+  .how ol{grid-template-columns:1fr 1fr}
+  .hero__inner{grid-template-columns:1fr;gap:48px}
+  .hero__card{height:auto;width:min(100%,420px);justify-self:center}
+  .facts .wrap{grid-template-columns:1fr 1fr}
+  .foot__top{grid-template-columns:1fr 1fr}
+  .check__head,.check__body{grid-template-columns:1fr}
+  .result{position:static}
+}
+/* Telefono: composizione propria */
+@media (max-width:640px){
+  body{font-size:17px}
+  .bar .wrap{height:68px;gap:12px}
+  .bar__logo img{height:46px}
+  .bar__tel{margin-left:auto;font-size:15px}
+  .bar .btn{display:none}
+  section{scroll-margin-top:68px}
+  .hero__inner{padding-block:40px 56px;gap:40px}
+  .hero__actions .btn{width:100%;justify-content:center}
+  .hero__facts{margin-top:36px}
+  .hero__card{width:min(100%,320px)}
+  .story textarea{min-height:150px}
+  .hero__facts{margin-top:36px;gap:8px 24px;font-size:15px}
+  .facts .wrap{gap:28px 20px;padding-block:44px}
+  .about .wrap,.how .wrap,.voices .wrap{padding-block:96px}
+  .why .wrap,.work .wrap,.ask .wrap{padding-block:96px}
+  .about__list{grid-template-columns:1fr}
+  .about__media{width:min(100%,360px)}
+  .about__sign{position:static;max-width:none}
+  .why__grid{grid-template-columns:1fr;gap:44px;margin-top:56px}
+  .why .btn{margin-top:56px;width:100%;justify-content:center}
+  .how ol{grid-template-columns:1fr;margin-top:48px;gap:14px}
+  .how li{min-height:0;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:0 18px;padding:26px 22px}
+  .how li::before{font-size:52px}
+  .how h3{padding-top:0;margin-top:0}
+  .how li p{flex-basis:100%}
+  .work__grid{grid-template-columns:minmax(0,1fr);gap:36px;margin-top:48px}
+  .work img{height:auto}
+  .w1,.w2,.w3,.w4{grid-column:auto;margin-top:0}
+  .w2 img{aspect-ratio:4/3}
+  form{padding:26px 18px}
+  .fields{grid-template-columns:1fr}
+  .form__actions .btn{width:100%;justify-content:center}
+  .map{height:300px}
+  .check .wrap{padding-block:96px}
+  .check__body{margin-top:44px}
+  .q{padding:22px 18px}
+  .result{padding:26px 20px}
+  .foot__top{grid-template-columns:1fr}
+  .foot__name{white-space:normal;font-size:16vw}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rise,.js .rise.pre{transition:none;opacity:1;transform:none}
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="bar__logo" href="#top" aria-label="Immobiliare Trebbi, inizio pagina"><img src="asset/logo-trebbi.png" alt="Immobiliare Trebbi" width="248" height="300"></a>
+    <nav aria-label="Sezioni">
+      <a href="#metodo">Come lavoriamo</a>
+      <a href="#check-up">Check-up casa</a>
+      <a href="#portfolio">Immobili</a>
+      <a href="#recensioni">Recensioni</a>
+      <a href="#contatti">Contatti</a>
+    </nav>
+    <a class="bar__tel" href="tel:+390755005034">075 500 50 34</a>
+    <a class="btn" href="#valutazione">Valuta la tua casa</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero" aria-label="Vendi casa a Perugia">
+    <canvas class="ambient" id="heroAmbient" aria-hidden="true"></canvas>
+    <div class="hero__inner wrap">
+      <div>
+        <h1 class="rise">Vendi casa a Perugia al prezzo giusto</h1>
+        <p class="hero__lead rise">Valutazione professionale gratuita e una strategia di vendita costruita sul tuo immobile, fino al rogito.</p>
+        <div class="hero__actions rise">
+          <a class="btn" href="#valutazione">Richiedi la valutazione gratuita
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn--ghost" href="https://wa.me/393355650247?text=Buongiorno%2C%20vorrei%20una%20valutazione%20della%20mia%20casa." target="_blank" rel="noopener">Scrivici su WhatsApp</a>
+        </div>
+        <p class="hero__facts rise"><span><b>Dal 1992</b> a Perugia</span><span><b>Risposta</b> entro 24 ore</span><span><b>Nessun</b> impegno</span></p>
+      </div>
+      <figure class="hero__card rise">
+        <video id="heroVideo" autoplay muted loop playsinline preload="auto" aria-label="Video di presentazione del geom. Paolo Trebbi">
+          <source src="asset/hero.mp4#t=0.1" type="video/mp4">
+        </video>
+        <button class="card__sound" type="button" id="heroSound">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+          <span>Guarda il video con audio</span>
+        </button>
+      </figure>
+    </div>
+  </section>
+
+  <div class="facts" aria-label="In breve">
+    <div class="wrap">
+      <div class="rise"><strong>1992</strong><span>l'anno in cui il geom. Paolo Trebbi apre l'agenzia</span></div>
+      <div class="rise"><strong>24 ore</strong><span>il tempo massimo per essere ricontattato</span></div>
+      <div class="rise"><strong>0 €</strong><span>per la valutazione del tuo immobile</span></div>
+      <div class="rise"><strong>4 passi</strong><span>dal primo contatto alla firma dal notaio</span></div>
+    </div>
+  </div>
+
+  <section class="about" id="chi-siamo" aria-labelledby="about-title">
+    <div class="wrap">
+      <div>
+        <h2 id="about-title" class="rise">La tua casa merita il giusto valore</h2>
+        <div class="about__text rise">
+          <p>Immobiliare Trebbi nasce con un obiettivo chiaro: offrire ai proprietari un servizio serio, trasparente e orientato al risultato.</p>
+          <p>Conosciamo il mercato di Perugia e sappiamo come posizionare ogni immobile nel modo corretto, evitando svalutazioni e tempi lunghi di vendita. Vendere casa non è solo una trattativa: è una scelta importante, che richiede competenza e strategia.</p>
+        </div>
+        <ul class="about__list rise">
+          <li>Analisi comparativa reale del mercato</li>
+          <li>Assistenza completa fino al rogito</li>
+          <li>Comunicazione mirata e professionale</li>
+          <li>Supporto documentale e tecnico</li>
+        </ul>
+      </div>
+      <div class="about__media rise">
+        <div class="about__video">
+          <video id="aboutVideo" autoplay muted loop playsinline preload="metadata" poster="asset/le-nove-dimore.jpg" aria-label="Video di presentazione delle Nove Dimore, nove abitazioni indipendenti di Immobiliare Trebbi">
+            <source src="asset/le-nove-dimore.mp4" type="video/mp4">
+          </video>
+          <a class="about__link" href="https://novedimore.cercocasaumbria.com/" target="_blank" rel="noopener" aria-label="Apri la pagina de Le Nove Dimore"></a>
+          <button class="about__sound" type="button" id="aboutSound">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+            <span>Audio</span>
+          </button>
+        </div>
+        <a class="about__cta" href="https://novedimore.cercocasaumbria.com/" target="_blank" rel="noopener"><div><b>Scopri Le Nove Dimore</b><span>9 nuove ville a San Mariano di Corciano</span></div><i aria-hidden="true">↗</i></a>
+        <div class="about__sign"><b>Geom. Paolo Trebbi</b><span>Titolare, mediatore immobiliare dal 1992</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why" aria-labelledby="why-title">
+    <div class="wrap">
+      <h2 id="why-title" class="rise">Perché i proprietari si affidano a noi</h2>
+      <div class="why__grid">
+        <div class="rise"><h3>Valutazione gratuita e senza impegno</h3><p>Ti diciamo quanto vale davvero il tuo immobile oggi, con un'analisi dei prezzi reali della tua zona.</p></div>
+        <div class="rise"><h3>Zero perdite di tempo</h3><p>Accompagniamo in visita solo acquirenti realmente interessati e qualificati.</p></div>
+        <div class="rise"><h3>Marketing immobiliare vero</h3><p>Foto professionali, annunci ottimizzati, portali immobiliari e social media.</p></div>
+        <div class="rise"><h3>Trattativa gestita da professionisti</h3><p>Difendiamo il valore del tuo immobile fino alla firma dal notaio.</p></div>
+      </div>
+      <a class="btn btn--light rise" href="#valutazione">Richiedi informazioni</a>
+    </div>
+  </section>
+
+  
+
+  <section class="how" id="metodo" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title" class="rise">Vendere casa è più semplice di quanto pensi</h2>
+      <ol>
+        <li class="rise"><h3>Contattaci</h3><p>Compila il modulo, chiamaci o scrivici su WhatsApp.</p></li>
+        <li class="rise"><h3>Valutazione gratuita</h3><p>Analizziamo il tuo immobile e il mercato di riferimento.</p></li>
+        <li class="rise"><h3>Strategia di vendita</h3><p>Definiamo insieme prezzo, acquirente ideale e piano marketing.</p></li>
+        <li class="rise"><h3>Vendita sicura</h3><p>Gestiamo visite, trattativa e documentazione fino al rogito.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="check" id="check-up" aria-labelledby="check-title">
+    <div class="wrap">
+      <div class="check__head">
+        <h2 id="check-title" class="rise">La tua casa è pronta per il rogito?</h2>
+        <p class="rise">Molte vendite si fermano dal notaio per una planimetria che non corrisponde, lavori senza pratiche o una successione non chiusa. Rispondi a otto domande: il geom. Paolo Trebbi ti dice cosa sistemare prima di mettere in vendita, non dopo aver trovato l'acquirente.</p>
+      </div>
+      <div class="check__body">
+        <form id="checkForm" class="rise" novalidate></form>
+        <aside class="result rise" aria-live="polite">
+          <div class="light" aria-hidden="true"><i class="g"></i><i class="y"></i><i class="r"></i></div>
+          <h3 id="cTitle">Rispondi alle domande</h3>
+          <p class="result__text" id="cText">Il semaforo si aggiorna a ogni risposta.</p>
+          <p class="result__count" id="cCount">0 risposte su 8</p>
+          <div class="result__bar"><i id="cBar"></i></div>
+          <div class="docs"><h4>Documenti da preparare</h4><ul id="cDocs"></ul></div>
+          <a class="btn btn--light" id="cSend" href="https://wa.me/393355650247" target="_blank" rel="noopener">Prenota il check-up con Paolo Trebbi</a>
+          <p class="result__fine">Indicazioni orientative: la verifica vera si fa sui documenti e con un sopralluogo.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="work" id="portfolio" aria-labelledby="work-title">
+    <div class="wrap">
+      <div class="work__head">
+        <h2 id="work-title" class="rise">Case che abbiamo valorizzato</h2>
+        <p class="rise">Appartamenti, attici, immobili cielo-terra e strutture ricettive: ogni casa viene presentata con fotografie curate e una descrizione che ne racconta il valore.</p>
+      </div>
+      <div class="work__grid">
+        <figure class="w1 rise"><img src="asset/Attico-di-Design-1536x864.jpg" alt="Attico di design" loading="lazy"><figcaption>Attico di design<span>Perugia</span></figcaption></figure>
+        <figure class="w2 rise"><img src="asset/san-sisto-1024x576.jpg" alt="Immobile a San Sisto, Perugia" loading="lazy"><figcaption>San Sisto<span>Perugia</span></figcaption></figure>
+        <figure class="w3 rise"><img src="asset/A-Ingresso-768x432.jpg" alt="Ingresso e zona giorno" loading="lazy"><figcaption>Zona giorno con ingresso<span>Perugia</span></figcaption></figure>
+        <figure class="w4 rise"><img src="asset/3-2-1536x864.jpg" alt="Interno di un appartamento in vendita" loading="lazy"><figcaption>Appartamento luminoso<span>Perugia e dintorni</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="voices" id="recensioni" aria-labelledby="voices-title">
+    <div class="wrap">
+      <div>
+        <p class="voices__label" id="voices-title">Recensioni dei clienti su Google</p>
+        <blockquote class="rise">Paolo si è dimostrato disponibilissimo, efficiente e sempre presente. Consiglio a chi ha intenzione di comprare o vendere casa di rivolgersi a lui.</blockquote>
+        <cite class="rise">Emanuela Stefanini <span>· recensione Google</span></cite>
+      </div>
+      <div class="voices__list">
+        <figure class="rise"><p>Preciso, puntuale, disponibile, un vero professionista.</p><figcaption>Stefan Mocini</figcaption></figure>
+        <figure class="rise"><p>Ho trovato disponibilità, serietà, competenza, distinta professionalità unita ad una grande gentilezza.</p><figcaption>Caterina Cola</figcaption></figure>
+        <figure class="rise"><p>Dalle trattative alla scelta del notaio, dal rogito al servizio post-acquisto: tutto gestito in maniera esauriente e in tempi brevissimi.</p><figcaption>Luigi Santibacci</figcaption></figure>
+        <figure class="rise"><p>L'esperienza e la professionalità di Paolo sono sempre una sicurezza.</p><figcaption>Irene Fioresino</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="ask" id="valutazione" aria-labelledby="ask-title">
+    <div class="wrap" id="contatti">
+      <div>
+        <h2 id="ask-title" class="rise">Quanto vale la tua casa?</h2>
+        <p class="ask__lead rise">Raccontaci il tuo immobile in trenta secondi, scrivendo o a voce. Ti ricontattiamo entro 24 ore con una valutazione professionale gratuita.</p>
+        <div class="ask__contacts rise">
+          <div><small>Telefono</small><a href="tel:+390755005034">075 500 50 34</a></div>
+          <div><small>WhatsApp</small><a href="https://wa.me/393355650247" target="_blank" rel="noopener">335 56 50 247</a></div>
+          <div><small>Email</small><a href="mailto:trebbi@libero.it">trebbi@libero.it</a></div>
+          <div><small>Agenzia</small><address>Via Gregorovius 36-38, Ferro di Cavallo<br>06127 Perugia</address></div>
+        </div>
+      </div>
+
+      <form id="valForm" class="rise" novalidate>
+        <h3>Descrivi la tua casa, al resto pensiamo noi</h3>
+        <p>Scrivi o detta come la racconteresti a un amico. L'assistente riconosce tipologia, metri, zona, piano e dotazioni e prepara la scheda per Paolo.</p>
+        <div class="mode" role="radiogroup" aria-label="Cosa vuoi fare">
+          <input type="radio" name="mode" id="mSell" value="sell" checked><label for="mSell">Voglio vendere</label>
+          <input type="radio" name="mode" id="mBuy" value="buy"><label for="mBuy">Cerco casa</label>
+        </div>
+        <div class="story">
+          <label for="story" class="sr">Descrizione della casa</label>
+          <textarea id="story" name="story" placeholder="Es. Ho un trilocale di 95 mq a Madonna Alta, terzo piano con ascensore, due bagni, cantina e posto auto. Ristrutturato nel 2019, vorrei vendere entro sei mesi."></textarea>
+          <button class="mic" type="button" data-mic="story" aria-label="Detta a voce" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        </div>
+        <div class="tries" id="tries"></div>
+        <div class="understood" aria-live="polite">
+          <h4>Cosa abbiamo capito <span id="score">Scheda al 0%</span></h4>
+          <div class="meter"><i id="meter"></i></div>
+          <div class="facts-found" id="found"><span class="tag tag--empty">Inizia a scrivere: le informazioni appariranno qui</span></div>
+          <p class="next" id="next"></p>
+        </div>
+        <div class="fields">
+          <div class="field">
+            <label for="nome">Nome e cognome *</label>
+            <input id="nome" name="nome" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="tel">Telefono *</label>
+            <input id="tel" name="tel" type="tel" autocomplete="tel" required>
+          </div>
+        </div>
+        <label class="consent"><input type="checkbox" id="privacy" required> <span>Ho letto l'<a href="https://www.immobiliaretrebbi.com/privacy-policy/" target="_blank" rel="noopener">informativa sulla privacy</a> e acconsento al trattamento dei dati per essere ricontattato. *</span></label>
+        <div class="preview" id="preview" aria-live="polite"></div>
+        <div class="form__actions">
+          <button class="btn" type="submit" data-via="wa">Invia su WhatsApp</button>
+          <button class="btn btn--alt" type="submit" data-via="mail">Invia per email</button>
+        </div>
+        <p class="form__error" id="formError" hidden></p>
+        <p class="form__note">Il messaggio si apre già compilato con la scheda: ti basta premere invia.</p>
+      </form>
+    </div>
+  </section>
+
+  <div class="map">
+    <iframe title="Mappa: Immobiliare Trebbi, Via Gregorovius 36-38, Perugia" loading="lazy" src="https://maps.google.com/maps?q=Via%20Gregorovius%2C%2036-38%20Ferro%20di%20Cavallo%2C%2006127%20Perugia&t=m&z=15&output=embed&iwloc=near"></iframe>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot__top">
+      <div><img src="asset/logo-trebbi.png" alt="Immobiliare Trebbi" loading="lazy"></div>
+      <div><h4>Contatti</h4><p><a href="tel:+390755005034">075 500 50 34</a><br><a href="https://wa.me/393355650247" target="_blank" rel="noopener">WhatsApp 335 56 50 247</a><br><a href="mailto:trebbi@libero.it">trebbi@libero.it</a></p></div>
+      <div><h4>Agenzia</h4><p>Via Gregorovius 36-38<br>Ferro di Cavallo, 06127 Perugia</p></div>
+    </div>
+    <p class="foot__name" aria-hidden="true">Trebbi Immobiliare</p>
+    <div class="foot__motto">
+      <span>Immobiliare Trebbi, "Risolve sempre" · P.IVA 01930470545</span>
+      <span><a href="https://www.immobiliaretrebbi.com/privacy-policy/" target="_blank" rel="noopener">Privacy policy</a> · <a href="https://www.immobiliaretrebbi.com/cookie-policy-ue/" target="_blank" rel="noopener">Cookie policy</a></span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/393355650247" target="_blank" rel="noopener" aria-label="Scrivici su WhatsApp">
+  <svg viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+</a>
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(id){ return document.getElementById(id); }
+
+  /* ---------- Entrate: il contenuto resta visibile se lo script non parte ---------- */
+  var items = [].slice.call(document.querySelectorAll('.rise'));
+  if (!reduce && 'IntersectionObserver' in window) {
+    items.forEach(function(el){ if (el.getBoundingClientRect().top > window.innerHeight * 0.92) el.classList.add('pre'); });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var sibs = [].slice.call(e.target.parentElement.querySelectorAll(':scope > .rise.pre'));
+        var i = Math.max(0, sibs.indexOf(e.target));
+        setTimeout(function(){ e.target.classList.remove('pre'); }, i * 75);
+        io.unobserve(e.target);
+      });
+    }, {rootMargin:'0px 0px -8% 0px'});
+    items.forEach(function(el){ if (el.classList.contains('pre')) io.observe(el); });
+  }
+
+  /* ---------- Sfondo: lo stesso video, sfocato, disegnato su una tela piccola ----------
+     Un solo video da scaricare; la tela segue ogni fotogramma, quindi è sempre sincronizzata. */
+  function ambient(video, canvas, focusY){
+    if (!video || !canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    function size(){
+      var r = canvas.getBoundingClientRect();
+      canvas.width = 72;
+      canvas.height = Math.max(24, Math.round(72 * (r.height || 9) / (r.width || 16)));
+    }
+    function draw(){
+      if (video.readyState < 2 || !video.videoWidth) return;
+      var vw = video.videoWidth, vh = video.videoHeight, ca = canvas.width / canvas.height;
+      var sw = vw, sh = vw / ca;
+      if (sh > vh) { sh = vh; sw = vh * ca; }
+      var sx = (vw - sw) / 2, sy = Math.max(0, Math.min(vh - sh, vh * focusY - sh / 2));
+      try { ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height); } catch(e){}
+    }
+    var running = false;
+    function loop(){ draw(); if (!video.paused && !video.ended) { requestAnimationFrame(loop); } else { running = false; } }
+    function start(){ if (!running) { running = true; loop(); } }
+    size();
+    window.addEventListener('resize', function(){ size(); draw(); });
+    ['loadeddata','seeked','canplay'].forEach(function(ev){ video.addEventListener(ev, draw); });
+    video.addEventListener('play', start);
+    if (!video.paused) start(); else draw();
+  }
+
+  /* ---------- Apertura: video verticale intero ---------- */
+  var hv = $('heroVideo');
+  if (hv) {
+    if (reduce) { hv.removeAttribute('autoplay'); hv.pause(); }
+    ambient(hv, $('heroAmbient'), 0.22);
+    var snd = $('heroSound');
+    snd.addEventListener('click', function(){
+      if (hv.muted) {
+        hv.muted = false; hv.loop = false; hv.currentTime = 0;
+        var p = hv.play(); if (p && p.catch) p.catch(function(){});
+        snd.querySelector('span').textContent = 'Disattiva audio';
+      } else {
+        hv.muted = true; hv.loop = true;
+        snd.querySelector('span').textContent = 'Guarda il video con audio';
+      }
+    });
+    hv.addEventListener('ended', function(){ hv.muted = true; hv.loop = true; hv.currentTime = 0; hv.play(); snd.querySelector('span').textContent = 'Guarda il video con audio'; });
+  }
+
+  /* ---------- Video "Le Nove Dimore" ---------- */
+  var av = $('aboutVideo'), as = $('aboutSound');
+  if (av) {
+    if (reduce) { av.removeAttribute('autoplay'); av.pause(); }
+    as.addEventListener('click', function(){
+      var on = av.muted;
+      if (on && hv && !hv.muted) { hv.muted = true; }
+      av.muted = !on;
+      if (on) { av.currentTime = 0; var p = av.play(); if (p && p.catch) p.catch(function(){}); }
+      as.querySelector('span').textContent = on ? 'Disattiva audio' : 'Audio';
+    });
+  }
+
+  /* ================= Assistente: capisce la descrizione della casa =================
+     Lavora nel browser, in italiano: riconosce sinonimi, numeri scritti in lettere,
+     negazioni ("senza ascensore") e i quartieri di Perugia anche con piccoli errori. */
+  var NUM = {un:1,uno:1,una:1,due:2,tre:3,quattro:4,cinque:5,sei:6,sette:7,otto:8,nove:9,dieci:10};
+  function norm(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’`]/g,"'").replace(/\s+/g,' '); }
+  function num(w){ w = norm(w).trim(); return /^\d+$/.test(w) ? parseInt(w,10) : (NUM[w] || null); }
+  var N = '(\\d+|un|uno|una|due|tre|quattro|cinque|sei|sette|otto|nove|dieci)';
+
+  var ZONES = ['Centro storico','Ferro di Cavallo','San Sisto','Madonna Alta','Ponte San Giovanni','Elce','Monteluce','Castel del Piano',
+    'Fontivegge','Prepo','Ponte Felcino','Ponte della Pietra','Case Bruciate','Montegrillo','Olmo','Ellera','Corciano','San Marco','Santa Lucia',
+    'Monteripido','Porta Pesa','Pallotta','Lacugnano','San Martino in Campo','Pila','Sant\'Andrea delle Fratte','Settevalli','Ponte Pattoli',
+    'Colombella','Ripa','Balanzano','Collestrada','Piscille','Cenerente','San Mariano','Capanne','Bellocchio','Ponte Valleceppi','Montebello',
+    'Bastia Umbra','Torgiano','Deruta','Magione','Assisi','Marsciano','Umbertide','Todi','Passignano sul Trasimeno','Foligno','Gubbio','Perugia'];
+  var ZONE_ALIAS = {'centro':'Centro storico','s. sisto':'San Sisto','s sisto':'San Sisto','psg':'Ponte San Giovanni','ponte s. giovanni':'Ponte San Giovanni',
+    'ponte s giovanni':'Ponte San Giovanni','ferro di cavallo':'Ferro di Cavallo','madonnalta':'Madonna Alta','s. marco':'San Marco','s. lucia':'Santa Lucia',
+    'castel d. piano':'Castel del Piano','stazione':'Fontivegge','bastia':'Bastia Umbra','passignano':'Passignano sul Trasimeno','s. mariano':'San Mariano'};
+  function lev(a,b){ var m=a.length,n=b.length,d=[],i,j; for(i=0;i<=m;i++){d[i]=[i];} for(j=0;j<=n;j++){d[0][j]=j;}
+    for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)); return d[m][n]; }
+  function findZone(t){
+    var k; for (k in ZONE_ALIAS) { if (t.indexOf(k) > -1) return ZONE_ALIAS[k]; }
+    var best = null;
+    ZONES.forEach(function(z){ var nz = norm(z); if (t.indexOf(nz) > -1 && (!best || nz.length > norm(best).length) && !(z === 'Perugia' && best)) best = z; });
+    if (best) return best;
+    // tolleranza agli errori di battitura: confronta gruppi di parole della stessa lunghezza
+    var words = t.replace(/[^a-z' ]/g,' ').split(' ').filter(Boolean);
+    ZONES.forEach(function(z){
+      if (best) return;
+      var zw = norm(z).split(' '), L = zw.length, nz = zw.join(' ');
+      if (nz.length < 5) return;
+      for (var i = 0; i + L <= words.length; i++) {
+        var chunk = words.slice(i, i + L).join(' ');
+        if (lev(chunk, nz) <= (nz.length > 9 ? 2 : 1)) { best = z; return; }
+      }
+    });
+    return best;
+  }
+  function neg(t, re){ return new RegExp('(senza|niente|privo di|non (ha|c\'e|ce)|no) (l\'|il |la |lo |un |una |di )?(' + re + ')').test(t); }
+  function has(t, re){ return new RegExp('\\b(' + re + ')').test(t) && !neg(t, re); }
+  function money(t){
+    var m;
+    if ((m = t.match(/(\d{2,4}(?:[.,]\d{1,3})?)\s*(mila|k)\b/))) return Math.round(parseFloat(m[1].replace(',','.')) * 1000);
+    if ((m = t.match(/(\d{1,3}(?:[. ]\d{3})+|\d{5,7})\s*(€|euro)?/))) { var v = parseInt(m[1].replace(/[. ]/g,''),10); if (v >= 20000) return v; }
+    if ((m = t.match(/(€|euro)\s*(\d{1,3}(?:[. ]\d{3})+|\d{5,7})/))) return parseInt(m[2].replace(/[. ]/g,''),10);
+    if ((m = t.match(/(\d+(?:[.,]\d+)?)\s*(milion)/))) return Math.round(parseFloat(m[1].replace(',','.')) * 1e6);
+    return null;
+  }
+  function eur(v){ return '€ ' + v.toLocaleString('it-IT'); }
+
+  function understand(raw, mode){
+    var t = norm(raw), f = [], m, v;
+    function add(key, label, value){ f.push({key:key, label:label, value:value}); }
+    if (!t.trim()) return {facts:f, mode:mode};
+
+    // intenzione
+    if (/\b(cerco|cerchiamo|vorrei (comprare|acquistare)|compro|acquistare|in affitto cerco)\b/.test(t)) mode = 'buy';
+    else if (/\b(vendo|vendere|vendiamo|valutare|valutazione|la mia casa|il mio appartamento)\b/.test(t)) mode = 'sell';
+
+    // tipologia
+    var TYPES = [['monolocale','Monolocale'],['bilocale','Bilocale'],['trilocale','Trilocale'],['quadrilocale','Quadrilocale'],['pentalocale','Pentalocale'],
+      ['attico','Attico'],['mansarda','Mansarda'],['loft','Loft'],['villetta a schiera|villa a schiera|schiera','Villetta a schiera'],['bifamiliare','Bifamiliare'],
+      ['villa|villetta','Villa'],['casa indipendente|casa singola|indipendente','Casa indipendente'],['terratetto|terra tetto|cielo terra|cielo-terra','Terratetto'],
+      ['casale|rustico|colonica|casolare','Casale o rustico'],['negozio|fondo commerciale|locale commerciale','Negozio'],['ufficio|studio professionale','Ufficio'],
+      ['capannone|magazzino|laboratorio','Capannone o magazzino'],['terreno','Terreno'],['appartamento|casa','Appartamento']];
+    for (var i = 0; i < TYPES.length; i++) { if (new RegExp('\\b(' + TYPES[i][0] + ')').test(t)) { add('tipo','Tipologia',TYPES[i][1]); break; } }
+
+    if ((m = t.match(/(\d{2,4})\s*(mq|m2|m²|metri quadr\w*|metri|mt|metriquadri)\b/)) || (m = t.match(/(\d{2,4})\s*m\b/))) add('mq','Superficie', m[1] + ' m²');
+    if ((m = t.match(new RegExp(N + ' (locali|vani)\\b')))) add('locali','Locali', num(m[1]));
+    else if ((m = t.match(new RegExp(N + ' (camere|camera|stanze da letto)')))) add('camere','Camere', num(m[1]));
+    if (/doppi servizi/.test(t)) add('bagni','Bagni', 2);
+    else if ((m = t.match(new RegExp(N + ' bagn')))) add('bagni','Bagni', num(m[1]));
+
+    var z = findZone(t); if (z) add('zona','Zona', z);
+
+    // piano
+    if (/piano terra|pianoterra|piano rialzato|al piano strada/.test(t)) add('piano','Piano','Terra o rialzato');
+    else if (/ultimo piano/.test(t)) add('piano','Piano','Ultimo');
+    else if ((m = t.match(/\b(primo|secondo|terzo|quarto|quinto|sesto|settimo) piano\b/))) add('piano','Piano', m[1].charAt(0).toUpperCase() + m[1].slice(1));
+    else if ((m = t.match(/(\d+)\s*(°|o)?\s*piano|piano (\d+)/))) add('piano','Piano', (m[1] || m[3]) + '°');
+
+    if (neg(t,'ascensore')) add('ascensore','Ascensore','No');
+    else if (/ascensore/.test(t)) add('ascensore','Ascensore','Sì');
+
+    // dotazioni
+    var EXTRA = [['garage|box auto|\\bbox\\b|autorimessa','Garage'],['posto auto|posti auto|parcheggio privato|posto macchina','Posto auto'],
+      ['giardino|verde privato|corte esclusiva','Giardino'],['terrazz','Terrazzo'],['balcon','Balcone'],['cantina|soffitta|ripostiglio esterno','Cantina'],
+      ['vista|panoramic','Vista panoramica'],['camino','Camino'],['piscina','Piscina'],['arredat','Arredato'],['fotovoltaic|pannelli solari','Fotovoltaico'],
+      ['condizionat|climatizzat','Aria condizionata'],['domotic','Domotica']];
+    var extras = [];
+    EXTRA.forEach(function(e){ if (has(t, e[0])) extras.push(e[1]); });
+    extras.forEach(function(x){ add('extra','Con', x); });
+
+    // stato
+    if (/da ristrutturare|da sistemare|da rimodernare|da rinnovare/.test(t)) add('stato','Stato','Da ristrutturare');
+    else if ((m = t.match(/ristrutturat\w* (nel |del )?(\d{4})/))) add('stato','Stato','Ristrutturato nel ' + m[2]);
+    else if (/ristrutturat|rinnovat/.test(t)) add('stato','Stato','Ristrutturato');
+    else if (/nuova costruzione|nuovo|mai abitat/.test(t)) add('stato','Stato','Nuovo');
+    else if (/ottim|perfett/.test(t)) add('stato','Stato','Ottimo');
+    else if (/buono stato|buone condizioni|abitabile/.test(t)) add('stato','Stato','Buono');
+
+    if (/riscaldamento autonomo|autonomo/.test(t)) add('risc','Riscaldamento','Autonomo');
+    else if (/centralizzat/.test(t)) add('risc','Riscaldamento','Centralizzato');
+    else if (/pompa di calore/.test(t)) add('risc','Riscaldamento','Pompa di calore');
+    if ((m = t.match(/classe (energetica )?([a-g])(\d)?\b/))) add('classe','Classe energetica', m[2].toUpperCase() + (m[3] || ''));
+    if ((m = t.match(/(costruit\w*|edificat\w*|anno) (nel |del )?(19\d\d|20\d\d)/))) add('anno','Costruzione', m[3]);
+
+    // prezzo o budget
+    v = money(t);
+    if (v) add('prezzo', mode === 'buy' ? 'Budget massimo' : 'Prezzo che hai in mente', eur(v));
+
+    // tempi
+    if (/subito|al piu presto|prima possibile|urgente/.test(t)) add('tempi','Tempi','Il prima possibile');
+    else if ((m = t.match(/entro (fine anno|l'estate|la primavera|l'autunno|natale|(\w+) mesi|(\w+) anno)/))) add('tempi','Tempi','Entro ' + m[1]);
+    else if ((m = t.match(/tra (\w+) mesi/))) add('tempi','Tempi','Tra ' + m[1] + ' mesi');
+    else if (/non ho fretta|senza fretta|con calma/.test(t)) add('tempi','Tempi','Senza fretta');
+
+    return {facts:f, mode:mode};
+  }
+
+  var KEYS_SELL = [['tipo','la tipologia'],['mq','i metri quadri'],['zona','la zona'],['piano','il piano'],['stato',"lo stato dell'immobile"],['extra','le dotazioni (garage, giardino, terrazzo…)'],['tempi','quando vorresti vendere']];
+  var KEYS_BUY  = [['tipo','che tipo di casa cerchi'],['zona','la zona'],['mq','i metri quadri'],['camere','quante camere'],['prezzo','il budget'],['extra','cosa non deve mancare'],['tempi','quando vorresti comprare']];
+
+  var story = $('story'), found = $('found'), meter = $('meter'), score = $('score'), next = $('next'), prev = $('preview'), form = $('valForm'), err = $('formError');
+  var shown = {};
+  function currentMode(){ return (form.querySelector('input[name=mode]:checked') || {}).value || 'sell'; }
+
+  function render(){
+    var r = understand(story.value, currentMode());
+    if (r.mode !== currentMode()) { $(r.mode === 'buy' ? 'mBuy' : 'mSell').checked = true; setTries(); }
+    var keys = r.mode === 'buy' ? KEYS_BUY : KEYS_SELL;
+    var got = {}; r.facts.forEach(function(x){ got[x.key] = true; if (x.key === 'locali') got.camere = true; });
+    var done = keys.filter(function(k){ return got[k[0]]; }).length, pct = Math.round(done / keys.length * 100);
+    meter.style.width = pct + '%';
+    score.textContent = 'Scheda al ' + pct + '%';
+
+    found.innerHTML = '';
+    if (!r.facts.length) {
+      var e = document.createElement('span'); e.className = 'tag tag--empty';
+      e.textContent = story.value.trim() ? 'Continua: aggiungi tipologia, metri e zona' : 'Inizia a scrivere: le informazioni appariranno qui';
+      found.appendChild(e);
+    }
+    var seen = {};
+    r.facts.forEach(function(x){
+      var id = x.key + ':' + x.value, el = document.createElement('span');
+      el.className = 'tag'; if (shown[id]) el.style.animation = 'none';
+      var b = document.createElement('b'); b.textContent = x.label;
+      el.appendChild(b); el.appendChild(document.createTextNode(' ' + x.value));
+      found.appendChild(el); seen[id] = true;
+    });
+    shown = seen;
+
+    var miss = keys.filter(function(k){ return !got[k[0]]; });
+    next.innerHTML = '';
+    if (story.value.trim() && miss.length) {
+      next.appendChild(document.createTextNode('Per una valutazione più precisa aggiungi '));
+      var b2 = document.createElement('b'); b2.textContent = miss[0][1]; next.appendChild(b2);
+      next.appendChild(document.createTextNode(miss.length > 1 ? ' e ' + miss[1][1] + '.' : '.'));
+    } else if (story.value.trim()) { next.textContent = 'Scheda completa: Paolo ha tutto quello che serve per prepararsi.'; }
+
+    // messaggio
+    var lines = [r.mode === 'buy' ? 'Buongiorno, sto cercando casa.' : 'Buongiorno, vorrei una valutazione gratuita.'];
+    if (r.facts.length) {
+      lines.push('');
+      var extras = [];
+      r.facts.forEach(function(x){ if (x.key === 'extra') extras.push(x.value); else lines.push('• ' + x.label + ': ' + x.value); });
+      if (extras.length) lines.push('• Con: ' + extras.join(', '));
+    }
+    if (story.value.trim()) { lines.push(''); lines.push('In parole mie: "' + story.value.trim() + '"'); }
+    var nome = $('nome').value.trim(), tel = $('tel').value.trim();
+    if (nome || tel) { lines.push(''); lines.push((nome || '…') + (tel ? ', tel. ' + tel : '')); }
+    prev.innerHTML = ''; var h = document.createElement('b'); h.textContent = 'Il messaggio che riceverà Paolo'; prev.appendChild(h);
+    prev.appendChild(document.createTextNode(lines.join('\n')));
+    return lines.join('\n');
+  }
+
+  var timer;
+  form.addEventListener('input', function(){ clearTimeout(timer); timer = setTimeout(render, 160); });
+  form.addEventListener('change', function(e){ if (e.target.name === 'mode') setTries(); render(); });
+
+  var TRIES = {
+    sell: ['Trilocale di 95 mq a Madonna Alta, terzo piano con ascensore, due bagni, cantina e posto auto, ristrutturato nel 2019',
+           'Villetta a schiera a Ellera, 160 metri, giardino e garage, classe energetica C, vorrei vendere entro sei mesi'],
+    buy:  ['Cerco un trilocale a San Sisto con garage, massimo 190 mila euro',
+           'Cerchiamo una casa indipendente con giardino vicino Perugia, tre camere, budget 300.000, senza fretta']
+  };
+  function setTries(){
+    var box = $('tries'); box.innerHTML = '';
+    box.appendChild(document.createTextNode('Esempi:'));
+    TRIES[currentMode()].forEach(function(txt, i){
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = i ? 'Esempio 2' : 'Esempio 1'; b.title = txt;
+      b.addEventListener('click', function(){ typeInto(story, txt); });
+      box.appendChild(b);
+    });
+  }
+  setTries();
+
+  // scrittura animata degli esempi, così si vede l'assistente al lavoro
+  function typeInto(el, txt){
+    if (reduce) { el.value = txt; render(); return; }
+    el.value = ''; var i = 0;
+    (function step(){ i += 2; el.value = txt.slice(0, i); render(); if (i < txt.length) setTimeout(step, 18); })();
+  }
+
+  /* ---------- Dettatura a voce ---------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    [].slice.call(document.querySelectorAll('[data-mic]')).forEach(function(btn){
+      btn.hidden = false;
+      var target = $(btn.getAttribute('data-mic')), rec = null;
+      btn.addEventListener('click', function(){
+        if (rec) { rec.stop(); return; }
+        rec = new SR(); rec.lang = 'it-IT'; rec.interimResults = true; rec.continuous = true;
+        var base = target.value ? target.value.replace(/\s*$/, ' ') : '';
+        rec.onresult = function(ev){
+          var txt = '';
+          for (var i = 0; i < ev.results.length; i++) txt += ev.results[i][0].transcript;
+          target.value = base + txt;
+          if (target === story) render();
+        };
+        rec.onend = function(){ rec = null; btn.classList.remove('on'); btn.setAttribute('aria-label','Detta a voce'); if (target === story) render(); };
+        rec.onerror = function(){ if (rec) rec.stop(); };
+        try { rec.start(); btn.classList.add('on'); btn.setAttribute('aria-label','Interrompi la dettatura'); } catch(e){ rec = null; }
+      });
+    });
+  }
+
+  render();
+
+
+  /* ================= Check-up documentale ================= */
+  (function(){
+    var form = document.getElementById('checkForm'); if (!form) return;
+    // livello: 0 a posto, 1 da sistemare, 2 da approfondire con il geometra
+    var Q = [
+      {id:'plan', q:'La planimetria catastale corrisponde a com\'è la casa oggi?', h:'È la pianta depositata al Catasto: va confrontata con lo stato reale.',
+       o:[['Sì, è identica',0,''],['No, ci sono differenze',2,'Le differenze che toccano consistenza, categoria o rendita vanno aggiornate prima del rogito; quelle minime vanno comunque valutate da un tecnico.'],['Non lo so',1,'Si verifica confrontando la planimetria con un sopralluogo: è il primo controllo del check-up.']]},
+      {id:'lav', q:'Negli anni sono stati fatti lavori?', h:'Pareti spostate, stanze unite o divise, verande, soppalchi, una soffitta o una taverna diventate abitabili.',
+       o:[['Nessun lavoro',0,''],['Sì, con le pratiche in Comune',0,'Bene: servono le pratiche (CILA, SCIA o permesso) da mostrare al notaio.'],['Sì, senza pratiche',2,'Va verificata la conformità urbanistica: aggiornare solo il Catasto non basta e può non essere sufficiente per vendere.'],['Non lo so',1,'Si ricostruisce la storia edilizia dell\'immobile con l\'accesso agli atti in Comune.']]},
+      {id:'anno', q:'Quando è stata costruita la casa?', h:'La data cambia i documenti che il notaio deve richiamare nell\'atto.',
+       o:[['Prima del 1° settembre 1967',1,'Si può dichiarare la costruzione ante \'67, ma i lavori fatti dopo quella data vanno comunque verificati.'],['Dopo il 1967',0,'Servono gli estremi della licenza o del permesso di costruire.'],['Non lo so',1,'Si ricava da visure e archivio comunale.']]},
+      {id:'ape', q:'Hai l\'attestato di prestazione energetica (APE) valido?', h:'La classe energetica deve comparire già nell\'annuncio di vendita.',
+       o:[['Sì, valido',0,''],['No, o è scaduto',1,'Va fatto prima di pubblicare l\'annuncio: serve sia per l\'annuncio sia per l\'atto.'],['Non lo so',1,'L\'APE dura dieci anni se si rispettano i controlli sugli impianti: si verifica in un attimo.']]},
+      {id:'prop', q:'Chi sono i proprietari?', h:'Per vendere devono firmare tutti.',
+       o:[['Io, o tutti i proprietari d\'accordo',0,''],['La casa è ereditata',1,'Servono dichiarazione di successione e voltura catastale; il notaio controlla anche l\'accettazione dell\'eredità.'],['Proprietari non d\'accordo o separazione in corso',2,'Senza la firma di tutti i proprietari la vendita non si può fare: conviene chiarire prima di cercare acquirenti.']]},
+      {id:'mutuo', q:'C\'è un mutuo o un\'ipoteca sulla casa?', h:'Non impedisce la vendita, ma va organizzato.',
+       o:[['No',0,''],['Sì',0,'Si può vendere: il mutuo si chiude al rogito con il prezzo di vendita. Serve il conteggio di estinzione della banca.']]},
+      {id:'cond', q:'Se è in condominio, è tutto in regola?', h:'Spese ordinarie pagate e nessun lavoro straordinario in sospeso.',
+       o:[['Sì, o non è in condominio',0,''],['Ci sono arretrati o lavori già decisi',1,'Va scritto chiaramente nel compromesso chi paga cosa, per evitare contestazioni.'],['Non lo so',1,'Basta una dichiarazione dell\'amministratore sulla situazione delle spese.']]},
+      {id:'imp', q:'Hai le certificazioni degli impianti?', h:'Elettrico, gas e riscaldamento.',
+       o:[['Sì',0,''],['No',0,'Non bloccano la vendita, ma averle aumenta la fiducia di chi compra. Si può valutare se farle prima.'],['Non lo so',0,'Si cercano tra le carte dei lavori o si chiedono all\'installatore.']]}
+    ];
+    var LVL = ['#2fbf71','#f2b632','#ef5b4c'];
+    Q.forEach(function(item, qi){
+      var box = document.createElement('div'); box.className = 'q';
+      var fs = document.createElement('fieldset');
+      var lg = document.createElement('legend'); lg.textContent = item.q;
+      var hs = document.createElement('span'); hs.textContent = item.h; lg.appendChild(hs); fs.appendChild(lg);
+      var opts = document.createElement('div'); opts.className = 'opts';
+      item.o.forEach(function(op, oi){
+        var id = 'c_' + item.id + '_' + oi;
+        var inp = document.createElement('input'); inp.type = 'radio'; inp.name = item.id; inp.id = id; inp.value = oi;
+        var lab = document.createElement('label'); lab.htmlFor = id; lab.textContent = op[0];
+        opts.appendChild(inp); opts.appendChild(lab);
+      });
+      fs.appendChild(opts);
+      var note = document.createElement('p'); note.className = 'q__note'; note.hidden = true; note.id = 'n_' + item.id;
+      fs.appendChild(note); box.appendChild(fs); form.appendChild(box);
+    });
+
+    function update(){
+      var answered = 0, worst = 0, ans = {};
+      Q.forEach(function(item){
+        var sel = form.querySelector('input[name=' + item.id + ']:checked'), note = document.getElementById('n_' + item.id);
+        if (!sel) { note.hidden = true; return; }
+        var op = item.o[+sel.value]; answered++; ans[item.id] = op; worst = Math.max(worst, op[1]);
+        note.textContent = op[2]; note.hidden = !op[2]; note.style.setProperty('--lvl', LVL[op[1]]);
+      });
+      document.getElementById('cCount').textContent = answered + ' risposte su ' + Q.length;
+      document.getElementById('cBar').style.width = (answered / Q.length * 100) + '%';
+      var lights = document.querySelectorAll('.light i');
+      [].forEach.call(lights, function(l){ l.classList.remove('on'); });
+      var t, x;
+      if (!answered) { t = 'Rispondi alle domande'; x = 'Il semaforo si aggiorna a ogni risposta.'; }
+      else if (worst === 2) { lights[2].classList.add('on'); t = 'Da approfondire con il geometra'; x = 'C\'è almeno un punto che può fermare la vendita dal notaio. Meglio sistemarlo ora, prima di firmare un compromesso.'; }
+      else if (worst === 1) { lights[1].classList.add('on'); t = 'Da sistemare prima del rogito'; x = 'Niente di grave, ma alcune carte vanno preparate o verificate. Farlo prima rende la trattativa più veloce e più forte sul prezzo.'; }
+      else { lights[0].classList.add('on'); t = answered < Q.length ? 'Finora tutto in ordine' : 'Pronta per la vendita'; x = answered < Q.length ? 'Completa le domande per il risultato finale.' : 'Dalle tue risposte la casa è in regola: con i documenti pronti si può partire subito.'; }
+      document.getElementById('cTitle').textContent = t; document.getElementById('cText').textContent = x;
+
+      var docs = ['Atto di provenienza (compravendita, donazione o successione)', 'Visura e planimetria catastale aggiornate', 'Attestato di prestazione energetica (APE)', 'Documento d\'identità e codice fiscale di tutti i proprietari'];
+      if (ans.lav && ans.lav[0].indexOf('Sì') === 0) docs.push('Pratiche edilizie dei lavori (CILA, SCIA, permessi, condoni)');
+      if (ans.anno && ans.anno[0].indexOf('Dopo') === 0) docs.push('Licenza o permesso di costruire e agibilità');
+      if (ans.prop && ans.prop[0].indexOf('ereditata') > -1) docs.push('Dichiarazione di successione e voltura');
+      if (ans.mutuo && ans.mutuo[0] === 'Sì') docs.push('Conteggio di estinzione del mutuo dalla banca');
+      if (!ans.cond || ans.cond[0].indexOf('non è in condominio') === -1) docs.push('Regolamento e situazione spese dall\'amministratore');
+      var ul = document.getElementById('cDocs'); ul.innerHTML = '';
+      docs.forEach(function(d){ var li = document.createElement('li'); li.textContent = d; ul.appendChild(li); });
+
+      var msg = ['Buongiorno, vorrei prenotare il check-up documentale della mia casa.', '', 'Risultato: ' + t + '.'];
+      Q.forEach(function(item){ if (ans[item.id]) msg.push('• ' + item.q + ' ' + ans[item.id][0]); });
+      document.getElementById('cSend').href = 'https://wa.me/393355650247?text=' + encodeURIComponent(msg.join('\n'));
+    }
+    form.addEventListener('change', update);
+    update();
+  })();
+
+  /* ---------- Invio ---------- */
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var via = (ev.submitter && ev.submitter.dataset.via) || 'wa', miss = [];
+    if (!$('nome').value.trim()) miss.push('il nome');
+    if (!$('tel').value.trim()) miss.push('il telefono');
+    if (!$('privacy').checked) miss.push("il consenso all'informativa privacy");
+    if (miss.length) { err.textContent = 'Per ricontattarti manca ' + miss.join(', ') + '.'; err.hidden = false; return; }
+    err.hidden = true;
+    var text = render();
+    var url = via === 'mail'
+      ? 'mailto:trebbi@libero.it?subject=' + encodeURIComponent(currentMode() === 'buy' ? 'Ricerca casa' : 'Richiesta valutazione gratuita') + '&body=' + encodeURIComponent(text)
+      : 'https://wa.me/393355650247?text=' + encodeURIComponent(text);
+    window.open(url, via === 'mail' ? '_self' : '_blank', 'noopener');
+  });
+})();
+
+</script>
+</body>
+</html>
