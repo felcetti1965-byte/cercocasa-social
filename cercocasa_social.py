@@ -83,10 +83,18 @@ def log(*a):
 
 
 # ---------------------------------------------------------------- lettura sito
-def scarica_testo(url):
-    r = HTTP.get(url, timeout=30)
-    r.raise_for_status()
-    return r.text
+def scarica_testo(url, tentativi=4):
+    """legge una pagina del sito; se il server non risponde riprova (blocchi momentanei, es. fail2ban)"""
+    for n in range(tentativi):
+        try:
+            r = HTTP.get(url, timeout=30)
+            r.raise_for_status()
+            return r.text
+        except Exception as e:
+            if n == tentativi - 1:
+                raise
+            log(f"  sito non raggiungibile ({e.__class__.__name__}), riprovo tra {45 * (n + 1)} s")
+            time.sleep(45 * (n + 1))
 
 
 def raccogli_id():
