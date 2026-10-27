@@ -610,6 +610,17 @@
    "data": "2026-10-27T12:26",
    "facebook_id": "989346060204459",
    "instagram_id": "18146039554595953"
+  },
+  {
+   "id": 4686,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-27T12:55",
+   "facebook_id": "1791589658560039",
+   "instagram_id": "18105771323363552"
   }
  ],
  "versione": 7
