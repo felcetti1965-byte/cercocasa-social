@@ -290,14 +290,17 @@ def foto_annuncio(s, cartella):
     return file
 
 
-def render(browser, dati, totale, cartella, verticale):
-    """fotogrammi della grafica -> video muto + copertina (ultimo fotogramma = foto principale)"""
-    alto = 1920 if verticale else H
-    nome = "reel" if verticale else "post"
-    fotogrammi = cartella / f"fotogrammi-{nome}"
+FORMATI = {"reel": (1920, {"vertical": True}), "quadrato": (1080, {"square": True})}
+
+
+def render(browser, dati, totale, cartella, formato):
+    """fotogrammi della grafica -> video muto + copertina (ultimo fotogramma = foto principale).
+    formato: 'reel' 1080x1920 (Instagram, TikTok) oppure 'quadrato' 1080x1080 (Facebook)"""
+    alto, opzioni = FORMATI[formato]
+    fotogrammi = cartella / f"fotogrammi-{formato}"
     fotogrammi.mkdir()
     pagina = browser.new_page(viewport={"width": W, "height": alto})
-    pagina.add_init_script("window.POST = " + json.dumps(dict(dati, vertical=verticale)) + ";")
+    pagina.add_init_script("window.POST = " + json.dumps(dict(dati, **opzioni)) + ";")
     pagina.goto("file://" + str(GRAFICA / "post.html"))
     pagina.evaluate("document.fonts.ready")
     pagina.wait_for_function("[...document.images].every(i => i.complete)", timeout=30000)
@@ -305,17 +308,17 @@ def render(browser, dati, totale, cartella, verticale):
         pagina.evaluate(f"window.seek({i * 1000 / FPS})")
         pagina.screenshot(path=str(fotogrammi / f"{i:04d}.jpg"), type="jpeg", quality=92)
     pagina.close()
-    video = cartella / f"{nome}.mp4"
+    video = cartella / f"{formato}.mp4"
     cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.jpg", "-c:v", "libx264", "-preset", "veryfast",
           "-crf", "18", "-pix_fmt", "yuv420p", video)
-    copertina = cartella / f"copertina-{nome}.jpg"
+    copertina = cartella / f"copertina-{formato}.jpg"
     cs.ff("-i", sorted(fotogrammi.iterdir())[-1], "-q:v", "2", copertina)
     shutil.rmtree(fotogrammi, ignore_errors=True)
     return video, copertina
 
 
 def video_post(browser, s, cartella, foto, con_facebook=True):
-    """stesse scene, voce e musica: 9:16 vero per Instagram e TikTok, 4:5 per Facebook (solo se serve)"""
+    """stesse scene, voce e musica: 9:16 per Instagram e TikTok, 1080x1080 per Facebook (solo se serve)"""
     scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
     dati = dati_post(s, [x["photo"] for x in scene])
     dati.update(scenes=scene, captions=didascalie, total=totale)
@@ -324,10 +327,10 @@ def video_post(browser, s, cartella, foto, con_facebook=True):
     qr = cartella / "qr.png"
     qrcode.make(f"{cs.SITO}/immobile.php?id={s['id']}", box_size=12, border=2).save(qr)
     dati["qr"] = {"img": "file://" + str(qr), "code": str(s["id"]), "start": scene[-1]["start"]}
-    post916, cop916 = render(browser, dati, totale, cartella, verticale=True)
-    post45, cop45 = (render(browser, dati, totale, cartella, verticale=False) if con_facebook else (None, cop916))
+    reel, cop_reel = render(browser, dati, totale, cartella, "reel")
+    quad, cop_quad = (render(browser, dati, totale, cartella, "quadrato") if con_facebook else (None, cop_reel))
     audio = audio_post(voci, totale, cartella)
-    return post45, post916, audio, cop45, cop916
+    return quad, reel, audio, cop_quad, cop_reel
 
 
 def musica():
@@ -373,13 +376,21 @@ def apertura_breve():
 
 
 def monta(post, audio, s, destinazione, verticale):
-    """apertura breve + annuncio (voce e musica) + chiusura con i contatti, in 4:5 oppure 9:16"""
-    sfondo = SFONDO[s["tipo"]]
-    alto = 1920 if verticale else H
-    sigla = f"scale={W}:1920,crop={W}:{alto},setsar=1,fps={FPS},format=yuv420p"
-    corpo = f"scale={W}:{alto},setsar=1,fps={FPS},format=yuv420p"     # la grafica è già nel formato giusto
+    """apertura breve + annuncio (voce e musica) + chiusura con i contatti:
+    9:16 (Instagram, TikTok) oppure quadrato 1080x1080 (Facebook), mai deformato"""
     stereo = "aresample=48000,aformat=sample_rates=48000:channel_layouts=stereo"
-    filtro = (f"[0:v]{sigla}[v0];[1:v]{corpo}[v1];[3:v]{sigla}[v2];"
+    fine = f"setsar=1,fps={FPS},format=yuv420p"
+    if verticale:
+        apertura = f"scale={W}:1920,{fine}"
+        corpo = f"scale={W}:1920,{fine}"
+        chiusura = f"[3:v]scale={W}:1920,{fine}[v2]"
+    else:
+        # come il video quadrato di prima: apertura ritagliata al centro, chiusura rimpicciolita sul fondo
+        apertura = f"scale={W}:1920,crop={W}:{W}:0:420,{fine}"
+        corpo = f"scale={W}:{W},{fine}"
+        chiusura = (f"[3:v]scale={W}:1920,split[ca][cb];[ca]crop={W}:{W}:0:300[cbg];"
+                    f"[cb]scale=918:1632,crop=918:{W}:0:270[cfg];[cbg][cfg]overlay=81:0,{fine}[v2]")
+    filtro = (f"[0:v]{apertura}[v0];[1:v]{corpo}[v1];{chiusura};"
               f"[0:a]{stereo}[a0];[2:a]{stereo}[a1];[3:a]{stereo}[a2];"
               f"[v0][a0][v1][a1][v2][a2]concat=n=3:v=1:a=1[v][a]")
     cs.ff("-i", apertura_breve(), "-i", post, "-i", audio, "-i", cs.SIGLE / "chiusura.mp4",
