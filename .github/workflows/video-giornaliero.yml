@@ -13,6 +13,10 @@ on:
         description: "Quanti post (1-6): vendita, affitto, asta a Terni e Perugia"
         type: number
         default: 6
+      social:
+        description: "Solo questi social (es. instagram). Vuoto = quelli di sempre"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -43,7 +47,7 @@ jobs:
           TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
           MODO_POST: ${{ vars.MODO_POST || 'diversi' }}
           SOCIAL: ${{ vars.SOCIAL || 'facebook,instagram,tiktok' }}
-          SOCIAL_SEI: ${{ vars.SOCIAL_SEI || 'instagram,tiktok' }}
+          SOCIAL_SEI: ${{ inputs.social || vars.SOCIAL_SEI || 'instagram,tiktok' }}
           PAUSA_MINUTI: ${{ vars.PAUSA_MINUTI || '3' }}
           MODO_GIORNALIERO: ${{ vars.MODO_GIORNALIERO || 'sei' }}
         run: |
