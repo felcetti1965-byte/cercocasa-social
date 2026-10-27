@@ -313,13 +313,13 @@ def render(browser, dati, totale, cartella, verticale):
     return video, copertina
 
 
-def video_post(browser, s, cartella, foto):
-    """stesse scene, voce e musica in due formati: 4:5 per Facebook e 9:16 vero per Instagram"""
+def video_post(browser, s, cartella, foto, con_facebook=True):
+    """stesse scene, voce e musica: 9:16 vero per Instagram e TikTok, 4:5 per Facebook (solo se serve)"""
     scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
     dati = dati_post(s, [x["photo"] for x in scene])
     dati.update(scenes=scene, captions=didascalie, total=totale)
-    post45, cop45 = render(browser, dati, totale, cartella, verticale=False)
     post916, cop916 = render(browser, dati, totale, cartella, verticale=True)
+    post45, cop45 = (render(browser, dati, totale, cartella, verticale=False) if con_facebook else (None, cop916))
     audio = audio_post(voci, totale, cartella)
     return post45, post916, audio, cop45, cop916
 
@@ -448,17 +448,18 @@ def produci(nome, tipo, citta, schede, social):
             with sync_playwright() as p:
                 browser = p.chromium.launch()
                 try:
-                    post45, post916, audio, copertina, cop916 = video_post(browser, s, cartella, foto)
+                    post45, post916, audio, copertina, cop916 = video_post(browser, s, cartella, foto,
+                                                                           con_facebook="facebook" in social)
                 finally:
                     browser.close()
-            v45 = monta(post45, audio, s, cs.USCITA / f"{nome}.mp4", verticale=False)
+            v45 = monta(post45, audio, s, cs.USCITA / f"{nome}.mp4", verticale=False) if post45 else None
             v916 = monta(post916, audio, s, cs.USCITA / f"{nome}-reel.mp4", verticale=True)
             shutil.copy(cop916, cs.USCITA / f"{nome}-reel.jpg")
             cop = cs.USCITA / f"{nome}.jpg"
             shutil.copy(copertina, cop)
             for soc in social:
                 (cs.USCITA / f"{nome}-{soc}.txt").write_text(cs.testo_post(a, soc), encoding="utf-8")
-            cs.log("Video pronto:", v45.name, f"({durata(v45):.1f} s)")
+            cs.log("Video pronto:", v916.name, f"({durata(v916):.1f} s)")
             return s, v45, v916, cop
         except Exception as e:
             cs.log(f"  {nome}: annuncio {scheda.get('id')} non riuscito:", e)
@@ -474,7 +475,7 @@ def main():
     ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "6") or 6))
     args = ap.parse_args()
 
-    social = [x.strip() for x in os.environ.get("SOCIAL_SEI", "facebook,instagram").split(",") if x.strip()]
+    social = [x.strip() for x in os.environ.get("SOCIAL_SEI", "instagram,tiktok").split(",") if x.strip()]
     pausa = int(os.environ.get("PAUSA_MINUTI", "3") or 3) * 60
     stato = cs.carica_stato()
     cs.USCITA.mkdir(exist_ok=True)
