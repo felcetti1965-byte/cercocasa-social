@@ -5,7 +5,16 @@
 - Instagram: profilo "Cercocasa Dove&Come Umbria" (deve essere Business e collegato alla Pagina Facebook qui sopra)
 - TikTok: @cercocasa2020
 
-**Ogni mattina 3 post:** uno su Facebook, uno su Instagram, uno su TikTok, ognuno con l'annuncio di **un'agenzia diversa** delle riviste, alternando Perugia e Terni.
+**Ogni mattina 6 post** (dal 27/10/2026), su Facebook e Instagram:
+vendita Terni, vendita Perugia, affitto Terni, affitto Perugia, asta Terni, asta Perugia.
+Ogni video: apertura Cercocasa → post con le foto dell'annuncio (grafica nella cartella `grafica/`) → chiusura con i contatti.
+Su Facebook va il video 4:5 con la copertina del post; su Instagram il Reel 9:16, con la copertina sul post.
+Il programma è `sei_post.py`; pubblica un post ogni 3 minuti (variabile `PAUSA_MINUTI`).
+- Pubblicare a mano: Actions → Video giornaliero Cercocasa → Run workflow → togli "Solo prova" e scegli quanti post (1–6).
+- Tornare al vecchio sistema (1 annuncio al giorno delle agenzie della rivista, anche su TikTok): crea la variabile `MODO_GIORNALIERO` = `uno`.
+- Aggiungere TikTok ai 6 post: variabile `SOCIAL_SEI` = `facebook,instagram,tiktok`.
+
+**Vecchio sistema (`MODO_GIORNALIERO` = `uno`):** uno su Facebook, uno su Instagram, uno su TikTok, ognuno con l'annuncio di **un'agenzia diversa** delle riviste, alternando Perugia e Terni.
 Se preferisci lo stesso video su tutti e tre: GitHub → Settings → Secrets and variables → Actions → scheda **Variables** → crea `MODO_POST` = `uguale`.
 
 Ogni giorno, da solo, il programma:

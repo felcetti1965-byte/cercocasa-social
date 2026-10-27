@@ -6,9 +6,13 @@ on:
   workflow_dispatch:
     inputs:
       prova:
-        description: "Solo prova (crea i 3 video ma non pubblica)"
+        description: "Solo prova (crea i video ma non pubblica)"
         type: boolean
         default: true
+      quanti:
+        description: "Quanti post (1-6): vendita, affitto, asta a Terni e Perugia"
+        type: number
+        default: 6
 
 permissions:
   contents: write
@@ -16,7 +20,7 @@ permissions:
 jobs:
   video:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
 
@@ -24,6 +28,7 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           pip install -q -r requirements.txt
+          python -m playwright install --with-deps chromium > /dev/null
           mkdir -p font
           [ -f font/Montserrat.ttf ] || curl -sSL -o font/Montserrat.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf"
 
@@ -38,11 +43,18 @@ jobs:
           TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
           MODO_POST: ${{ vars.MODO_POST || 'diversi' }}
           SOCIAL: ${{ vars.SOCIAL || 'facebook,instagram,tiktok' }}
+          SOCIAL_SEI: ${{ vars.SOCIAL_SEI || 'facebook,instagram' }}
+          PAUSA_MINUTI: ${{ vars.PAUSA_MINUTI || '3' }}
+          MODO_GIORNALIERO: ${{ vars.MODO_GIORNALIERO || 'sei' }}
         run: |
-          if [ "${{ inputs.prova }}" = "true" ]; then
-            python cercocasa_social.py --prova
+          PROVA=""
+          [ "${{ inputs.prova }}" = "true" ] && PROVA="--prova"
+          if [ "$MODO_GIORNALIERO" = "uno" ]; then
+            # vecchio sistema: un annuncio al giorno delle agenzie della rivista
+            python cercocasa_social.py $PROVA
           else
-            python cercocasa_social.py
+            # 6 post: vendita, affitto e asta a Terni e Perugia, con la grafica nuova
+            python sei_post.py $PROVA --quanti "${{ inputs.quanti || 6 }}"
           fi
 
       - name: Salva il video
