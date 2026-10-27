@@ -188,7 +188,8 @@ def voce_apertura(a):
 
 
 def voce_finale(a):
-    return "Tutte le foto e i contatti su Cerco Casa Umbria."
+    """a fine video: come arrivare all'annuncio (QR sullo schermo o codice da cercare sul sito)"""
+    return f"Per vederlo, inquadra il codice QR oppure cerca il codice {a['id']} su Cerco Casa Umbria."
 
 
 cs.voce_apertura, cs.voce_finale = voce_apertura, voce_finale
@@ -318,6 +319,11 @@ def video_post(browser, s, cartella, foto, con_facebook=True):
     scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
     dati = dati_post(s, [x["photo"] for x in scene])
     dati.update(scenes=scene, captions=didascalie, total=totale)
+    # ultima scena: QR che apre direttamente l'annuncio + codice da cercare sul sito
+    import qrcode
+    qr = cartella / "qr.png"
+    qrcode.make(f"{cs.SITO}/immobile.php?id={s['id']}", box_size=12, border=2).save(qr)
+    dati["qr"] = {"img": "file://" + str(qr), "code": str(s["id"]), "start": scene[-1]["start"]}
     post916, cop916 = render(browser, dati, totale, cartella, verticale=True)
     post45, cop45 = (render(browser, dati, totale, cartella, verticale=False) if con_facebook else (None, cop916))
     audio = audio_post(voci, totale, cartella)

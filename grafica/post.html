@@ -65,6 +65,12 @@ html.v,html.v body{height:1920px}
 .v .specs{font-size:30px}
 @keyframes footInTop{from{transform:translateY(-100%)}to{transform:none}}
 .v .foot{animation-name:footInTop}
+.qrcard{position:absolute;left:0;right:0;top:50%;margin:0 auto;width:fit-content;transform:translateY(-50%);background:#FFFFFF;color:#1F1F1F;border-radius:28px;padding:30px 36px;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.28);opacity:0;text-align:center}
+.qrcard img{width:340px;height:340px;display:block}
+.qrcard .qrcode{font-family:Oswald;font-size:46px;font-weight:700;line-height:1}
+.qrcard .qrsite{font-size:26px;font-weight:600;color:#5A5A5A}
+.v .qrcard img{width:420px;height:420px}
+@keyframes qrIn{from{opacity:0;margin-top:40px}to{opacity:1;margin-top:0}}
 </style>
 </head>
 <body>
@@ -102,6 +108,7 @@ el.innerHTML=`
     <div class="photo-inner" style="animation-duration:${TOTAL}ms">${photos.length?SCENES.map((sc,i)=>`<img src="${sc.photo}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:${['50% 50%','30% 40%','70% 40%','50% 70%'][i%4]};animation:${i?`photoSwap 450ms ${sc.start}ms both,`:''}kenburns ${(sc.dur||TOTAL)+600}ms ${sc.start}ms linear both">`).join(''):`<svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"></path><circle cx="12" cy="13.5" r="3.5"></circle></svg><span>FOTO DELL’ANNUNCIO</span>`}</div>
     <span class="badge ease">${P.badge}</span>
     <span class="chip ease">${P.city}</span>
+    ${P.qr?`<div class="qrcard" style="animation:qrIn 500ms ${P.qr.start+200}ms both"><img src="${P.qr.img}" alt=""><span class="qrcode">Codice ${P.qr.code}</span><span class="qrsite">Inquadra o cerca su cercocasaumbria.it</span></div>`:''}
     ${(P.captions||SCENES).filter(sc=>sc.text).map(sc=>`<span class="phrase" style="animation:phraseIn 420ms ${sc.start+150}ms both,phraseOut 300ms ${sc.start+sc.dur-250}ms forwards">${sc.text}</span>`).join('')}
   </div>
   <div class="card ease"><div class="price-wrap" style="display:flex;align-items:baseline;gap:14px">${P.pre?`<span class="pre">${P.pre}</span>`:''}<span class="price" id="price">${P.price}</span>${P.suf?`<span class="suf">${P.suf}</span>`:''}</div></div>

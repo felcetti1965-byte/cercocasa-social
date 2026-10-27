@@ -4,3 +4,4 @@ edge-tts
 cryptography
 beautifulsoup4
 playwright
+qrcode
