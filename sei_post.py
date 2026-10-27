@@ -205,6 +205,16 @@ def tipo_bello(t):
     return "Immobile" if t.lower() in GENERICI else t[0].upper() + t[1:]
 
 
+def colore_del_giorno():
+    """lo stesso colore del giorno del sistema di prima (cercocasa_social.COLORE), con il testo leggibile sopra"""
+    r, g, b = cs.COLORE
+    lum = lambda c: (c / 255 / 12.92) if c <= 10 else (((c / 255) + 0.055) / 1.055) ** 2.4
+    L = 0.2126 * lum(r) + 0.7152 * lum(g) + 0.0722 * lum(b)
+    sul_bianco = 1.05 / (L + 0.05)
+    sul_scuro = (L + 0.05) / (0.0137 + 0.05)          # #1F1F1F
+    return f"#{r:02X}{g:02X}{b:02X}", ("#FFFFFF" if sul_bianco >= sul_scuro else "#1F1F1F")
+
+
 def dati_post(s, foto):
     tipo = tipo_bello(s["tipo_imm"])
     if s["tipo"] == "asta":
@@ -322,6 +332,7 @@ def video_post(browser, s, cartella, foto, con_facebook=True):
     scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
     dati = dati_post(s, [x["photo"] for x in scene])
     dati.update(scenes=scene, captions=didascalie, total=totale)
+    dati["accent"], dati["onAccent"] = colore_del_giorno()
     # ultima scena: QR che apre direttamente l'annuncio + codice da cercare sul sito
     import qrcode
     qr = cartella / "qr.png"

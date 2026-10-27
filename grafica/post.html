@@ -115,7 +115,14 @@ const THEMES={
 const P=window.POST;
 if(P.vertical)document.documentElement.classList.add('v');
 if(P.square)document.documentElement.classList.add('q');
-const T=THEMES[P.theme];
+const T=Object.assign({},THEMES[P.theme]);
+// colore del giorno (cambia ogni mattina come nel sistema di prima): testo bianco o scuro secondo il contrasto
+if(P.accent){
+  const A=P.accent, ON=P.onAccent||'#FFFFFF';
+  if(P.theme==='vendita'){Object.assign(T,{bg:A,text:ON,specFg:ON,icon:ON,badgeBg:'#FFFFFF',badgeFg:'#1F1F1F'});}
+  else if(P.theme==='affitto'){Object.assign(T,{badgeBg:A,badgeFg:ON});}
+  else if(P.theme==='asta'){Object.assign(T,{badgeBg:A,badgeFg:ON,cardBg:A,priceFg:ON,icon:A,footBorder:'4px solid '+A});}
+}
 const el=document.getElementById('post');
 // foto: la prima resta la principale; le altre si alternano e alla fine torna la prima (= copertina)
 // scene: [{photo, text, start(ms), dur(ms)}]: ogni scena cambia foto e mostra la frase detta dalla voce
