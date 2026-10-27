@@ -115,6 +115,7 @@ const THEMES={
 const P=window.POST;
 if(P.vertical)document.documentElement.classList.add('v');
 if(P.square)document.documentElement.classList.add('q');
+if(P.square&&P.titleShort)P.title=P.titleShort;   // quadrato: titolo corto
 const T=Object.assign({},THEMES[P.theme]);
 // colore del giorno (cambia ogni mattina come nel sistema di prima): testo bianco o scuro secondo il contrasto
 if(P.accent){

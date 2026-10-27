@@ -215,6 +215,15 @@ def colore_del_giorno():
     return f"#{r:02X}{g:02X}{b:02X}", ("#FFFFFF" if sul_bianco >= sul_scuro else "#1F1F1F")
 
 
+def titolo_breve_asta(titolo):
+    """'Villa all'asta a Orvieto, Via Nettuno snc, loc. Canale – 7 locali' -> 'Villa all'asta a Orvieto – 7 locali'"""
+    base = titolo.split(",")[0].split(" – ")[0].strip()
+    coda = re.search(r"\s[–-]\s*([^–,]{2,24})$", titolo)
+    if coda and coda.group(1).strip() not in base:
+        return f"{base} – {coda.group(1).strip()}"
+    return base
+
+
 def dati_post(s, foto):
     tipo = tipo_bello(s["tipo_imm"])
     if s["tipo"] == "asta":
@@ -229,7 +238,9 @@ def dati_post(s, foto):
         if len(voci) < 2:
             voci.insert(0, ["pin", dove])
         return {"theme": "asta", "badge": "ASTA GIUDIZIARIA", "city": dove.upper(), "pre": "da",
-                "price": euro(s["prezzo"]), "title": ((s.get("dettaglio") or {}).get("titolo") or f"{tipo} a {dove}"), "specs": voci, "photos": foto,
+                "price": euro(s["prezzo"]), "title": ((s.get("dettaglio") or {}).get("titolo") or f"{tipo} a {dove}"),
+                "titleShort": titolo_breve_asta((s.get("dettaglio") or {}).get("titolo") or f"{tipo} a {dove}"),
+                "specs": voci, "photos": foto,
                 "cta": "Perizia e avviso<br>link in bio"}
     zona = s["zona"] or s["citta"].title()
     d = {"theme": s["tipo"], "badge": "IN VENDITA" if s["tipo"] == "vendita" else "IN AFFITTO",
