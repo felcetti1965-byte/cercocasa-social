@@ -578,7 +578,12 @@
     "facebook",
     "instagram"
    ],
-   "data": "2026-10-27T11:22"
+   "data": "2026-10-27T11:22",
+   "titolo": "APPARTAMENTO VIA ROSSINI TERNI",
+   "prezzo": "€ 58.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5270/copertina-3f3d4af35e.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5270"
   },
   {
    "id": 5259,
@@ -587,7 +592,12 @@
     "facebook",
     "instagram"
    ],
-   "data": "2026-10-27T11:30"
+   "data": "2026-10-27T11:30",
+   "titolo": "APPARTAMENTO RISTRUTTURATO VIA DEI FILOSOFI",
+   "prezzo": "€ 195.000",
+   "comune": "Perugia",
+   "foto": "",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5259"
   },
   {
    "id": 5091,
@@ -598,7 +608,12 @@
    ],
    "data": "2026-10-27T11:54",
    "facebook_id": "1654203686366531",
-   "instagram_id": "17888222046665038"
+   "instagram_id": "17888222046665038",
+   "titolo": "AFFITTO APPARTAMENTO TERNI",
+   "prezzo": "€ 450/mese",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5091/copertina-3d58d6b30d.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5091"
   },
   {
    "id": 5092,
@@ -609,7 +624,12 @@
    ],
    "data": "2026-10-27T12:26",
    "facebook_id": "989346060204459",
-   "instagram_id": "18146039554595953"
+   "instagram_id": "18146039554595953",
+   "titolo": "APPARTAMENTO ZONA VETERINARIA",
+   "prezzo": "€ 750/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5092/copertina-f45ac3daed.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5092"
   },
   {
    "id": 4686,
@@ -620,7 +640,12 @@
    ],
    "data": "2026-10-27T12:55",
    "facebook_id": "1791589658560039",
-   "instagram_id": "18105771323363552"
+   "instagram_id": "18105771323363552",
+   "titolo": "Villa all’asta a Orvieto, Via Nettuno snc, loc. Canale – 7 locali",
+   "prezzo": "€ 115.593",
+   "comune": "Orvieto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4686/foto-ufficiale-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4686"
   },
   {
    "id": 5300,
@@ -629,7 +654,12 @@
     "instagram"
    ],
    "data": "2026-10-27T14:12",
-   "instagram_id": "18149630563565448"
+   "instagram_id": "18149630563565448",
+   "titolo": "Appartamento all’asta a Marsciano",
+   "prezzo": "€ 15.525",
+   "comune": "Marsciano",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5300/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5300"
   }
  ],
  "versione": 7

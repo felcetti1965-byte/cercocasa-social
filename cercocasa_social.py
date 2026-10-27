@@ -1098,7 +1098,7 @@ def testo_post(a, social="instagram"):
         righe += [agenzia, "", f"👉 Tutte le foto e i contatti: {a['url']}", "", domanda, "", hashtags(a, 4)]
     elif social == "tiktok":
         righe = [gancio(a), f"{a['titolo']}", f"{car}" if car else "", agenzia,
-                 f"Foto e contatti su cercocasaumbria.it (codice {a['id']})", hashtags(a, 5)]
+                 f"👉 Link in bio per foto e contatti (codice {a['id']})", hashtags(a, 5)]
     else:  # instagram
         righe = [gancio(a), "", a["titolo"], "", *scheda, "", agenzia, "",
                  f"👉 Tutte le foto e i contatti: link in bio oppure {a['url'].replace('https://', '')}",

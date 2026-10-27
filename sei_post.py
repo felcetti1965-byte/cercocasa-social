@@ -189,7 +189,7 @@ def voce_apertura(a):
 
 def voce_finale(a):
     """a fine video: come arrivare all'annuncio (QR sullo schermo o codice da cercare sul sito)"""
-    return f"Per vederlo, inquadra il codice QR oppure cerca il codice {a['id']} su Cerco Casa Umbria."
+    return "Tutte le foto e i contatti: apri il link nella bio."
 
 
 cs.voce_apertura, cs.voce_finale = voce_apertura, voce_finale
@@ -516,7 +516,10 @@ def main():
         if k:
             time.sleep(pausa)
         a = s["dettaglio"]
-        voce = {"id": s["id"], "sei": s["slot"], "social": [], "data": datetime.now().isoformat(timespec="minutes")}
+        voce = {"id": s["id"], "sei": s["slot"], "social": [], "data": datetime.now().isoformat(timespec="minutes"),
+                # per la pagina "link nella bio" (cercocasaumbria.it/oggi.php)
+                "titolo": a.get("titolo", ""), "prezzo": a.get("prezzo", ""), "comune": a.get("citta", ""),
+                "foto": urljoin(cs.SITO + "/", s.get("foto", "")), "url": a.get("url", "")}
         for nome in social:
             try:
                 if nome == "facebook":
