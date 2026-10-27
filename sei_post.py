@@ -479,6 +479,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prova", action="store_true", help="crea video e testi senza pubblicare")
     ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "6") or 6))
+    ap.add_argument("--slot", default="", help="un post in più di questo tipo, es. vendita-perugia (prova a mano)")
     args = ap.parse_args()
 
     social = [x.strip() for x in os.environ.get("SOCIAL_SEI", "instagram,tiktok").split(",") if x.strip()]
@@ -487,12 +488,15 @@ def main():
     cs.USCITA.mkdir(exist_ok=True)
     oggi = date.today().isoformat()
     fatti_oggi = [p for p in stato["pubblicati"] if p.get("sei") and str(p.get("data", "")).startswith(oggi)]
-    da_fare = max(0, args.quanti - (0 if args.prova else len(fatti_oggi)))
-    if not da_fare:
-        cs.log("I post di oggi sono già stati pubblicati.")
-        return
-    gia = {p.get("sei") for p in fatti_oggi}
-    lista = [x for x in candidati(stato) if x[3] and (args.prova or x[0] not in gia)][:da_fare]
+    if args.slot:      # un post in più del tipo scelto (annuncio mai pubblicato)
+        lista = [x for x in candidati(stato) if x[0] == args.slot and x[3]][:1]
+    else:
+        da_fare = max(0, args.quanti - (0 if args.prova else len(fatti_oggi)))
+        if not da_fare:
+            cs.log("I post di oggi sono già stati pubblicati.")
+            return
+        gia = {p.get("sei") for p in fatti_oggi}
+        lista = [x for x in candidati(stato) if x[3] and (args.prova or x[0] not in gia)][:da_fare]
 
     apertura_breve()
     pronti = []

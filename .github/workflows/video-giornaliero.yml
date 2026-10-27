@@ -17,6 +17,10 @@ on:
         description: "Solo questi social (es. instagram). Vuoto = quelli di sempre"
         type: string
         default: ""
+      slot:
+        description: "Un post in più di questo tipo (es. vendita-perugia). Vuoto = i 6 del giorno"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -58,7 +62,9 @@ jobs:
             python cercocasa_social.py $PROVA
           else
             # 6 post: vendita, affitto e asta a Terni e Perugia, con la grafica nuova
-            python sei_post.py $PROVA --quanti "${{ inputs.quanti || 6 }}"
+            SLOT_ARG=""
+            [ -n "${{ inputs.slot }}" ] && SLOT_ARG="--slot ${{ inputs.slot }}"
+            python sei_post.py $PROVA --quanti "${{ inputs.quanti || 6 }}" $SLOT_ARG
           fi
 
       - name: Salva il video
