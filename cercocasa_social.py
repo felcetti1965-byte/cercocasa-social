@@ -144,10 +144,22 @@ def leggi_annuncio(id_):
     citta = comune.split("·")[0].strip() if comune else ""
     provincia = "PG" if "(PG)" in testo else ("TR" if "(TR)" in testo else "")
 
+    # nome dell'agenzia: dal riquadro contatti (non dai link tipo "Vedi tutti gli immobili dell'agenzia")
     agenzia = ""
-    for m in re.finditer(r'agenzia\.php\?id=\d+[^>]*>([^<]{3,120})</a>', t, re.I):
+    generico = re.compile(r"vedi|tutti|scrivi|contatta|immobili dell|invia|parlare", re.I)
+    m = re.search(r'contact-card-identity.{0,600}?<a[^>]*>(.*?)</a>', t, re.S | re.I)
+    if m and not generico.search(pulisci(m.group(1))):
         agenzia = pulisci(m.group(1))
-        break
+    if not agenzia:
+        m = re.search(r"puoi parlare con\s+([^.]{3,120}?)\s*\.", testo)
+        if m:
+            agenzia = m.group(1).strip()
+    if not agenzia:
+        for m in re.finditer(r'agenzia\.php\?id=\d+[^>]*>(.*?)</a>', t, re.S | re.I):
+            nome = pulisci(m.group(1))
+            if 3 <= len(nome) <= 120 and not generico.search(nome):
+                agenzia = nome
+                break
 
     def numero(rx):
         m = re.search(rx, testo, re.I)

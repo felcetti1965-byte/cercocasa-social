@@ -32,9 +32,10 @@ GRAFICA = QUI / "grafica"
 FPS, W, H = 30, 1080, 1350
 COPERTINA_MS = 2600          # da qui il post è completo (serve per la copertina di Instagram)
 MAX_FOTO = 8                 # foto dell'annuncio usate nelle scene
-MAX_FRASI = 6                # frasi descrittive (una per foto), dette dalla voce
+MAX_FRASI = 5                # frasi della descrizione raccontate dalla voce
 APERTURA_VELOCITA = 2.5      # la sigla di apertura (8 s) dura circa 3 s
-VOCI = ["it-IT-IsabellaNeural", "it-IT-DiegoNeural", "it-IT-ElsaNeural"]
+# voce più naturale per prima; le altre solo se la prima non funziona (variabile VOCI per cambiarle)
+VOCI = ["it-IT-GiuseppeMultilingualNeural", "it-IT-IsabellaNeural", "it-IT-DiegoNeural"]
 
 SLOT = [  # (nome, tipo, città, pagina del sito)
     ("vendita-terni", "vendita", "terni", "/case-vendita/terni/"),
@@ -247,78 +248,186 @@ def dati_voce(s):
     return a
 
 
-def frase_asta(s):
-    extra = []
-    if s.get("data_asta"):
-        extra.append(f"Asta il {s['data_asta']}")
-    if s.get("tribunale"):
-        extra.append(f"Tribunale di {s['tribunale']}")
-    return extra
-
-
 MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto",
         "settembre", "ottobre", "novembre", "dicembre"]
+STANZE = r"ingresso|soggiorno|salone|sala|cucin|camer|bagn|balcon|terrazz|giardin|cantin|garage|box|" \
+         r"taverna|mansard|soffitta|ripostigl|studio|corte|piscina|vista|esterno|facciata|veranda|scala"
+RIFERIMENTO = re.compile(r"^(rif\w*|riferimento|codice)\s*[:.]?\s*[\w/-]+\s*", re.I)
+SCARTA_VOCE = re.compile(r"€|\biva\b|buona fede|telefon|contatt|www|@|codice|agenzia|mediazione|provvigion|"
+                         r"appuntamento|chiama|whatsapp|informazion|classe energetica|\bape\b|perizia|procedura|"
+                         r"lotto|prezzo|offerta minima|catast", re.I)
+
+
+def data_a_parole(m):
+    g, me, an = int(m.group(1)), int(m.group(2)), m.group(3)
+    return f"{g} {MESI[me - 1]} {an}" if 1 <= me <= 12 else m.group(0)
 
 
 def parlato(frase):
-    """la frase come la dice la voce: le date diventano '25 novembre 2026'"""
-    def data(m):
-        g, me, an = int(m.group(1)), int(m.group(2)), m.group(3)
-        return f"{g} {MESI[me - 1]} {an}" if 1 <= me <= 12 else m.group(0)
-    return re.sub(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", data, frase) + "."
+    """la frase come deve leggerla la voce"""
+    f = re.sub(r"\([^)]*\)", "", frase)                              # niente sigle tra parentesi
+    f = re.sub(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", data_a_parole, f)
+    f = re.sub(r"€\s*([\d.]+)", r"\1 euro", f)
+    f = re.sub(r"(\d)\s*(mq|m²|m2|metri quadri)\b", r"\1 metri quadrati", f, flags=re.I)
+    f = re.sub(r"\bmq\b", "metri quadrati", f, flags=re.I)
+    f = re.sub(r"\bloc\.\s*", "località ", f, flags=re.I)
+    f = re.sub(r"\bfraz\.\s*", "frazione ", f, flags=re.I)
+    f = re.sub(r"\bsnc\b|\bs\.n\.c\.", "", f, flags=re.I)
+    f = re.sub(r"\bp\.\s*", "piano ", f)
+    f = re.sub(r"\s+([,.;:])", r"\1", re.sub(r"\s{2,}", " ", f)).strip(" ,;")
+    return f if f.endswith((".", "!", "?")) else f + "."
 
 
-def voce_del_giorno(s):
-    """la voce cambia da un post all'altro (e da un giorno all'altro)"""
+def frasi_descrizione(a, massimo=135):
+    """la descrizione dell'agenzia in frasi intere, nell'ordine in cui è scritta (= giro della casa)"""
+    testo = re.sub(r"\s+", " ", a.get("descrizione") or "")
+    out = []
+    for f in re.split(r"(?<=[.!?;])\s+", testo):
+        f = RIFERIMENTO.sub("", f.strip()).strip()
+        f = cs.APERTURE.sub("", f).strip(" .,;:-–")
+        if len(f) < 20 or SCARTA_VOCE.search(f) or sum(ch.isdigit() for ch in f) > 10 or f.isupper():
+            continue
+        f = f[0].upper() + f[1:]
+        if len(f) <= massimo:
+            out.append(f)
+            continue
+        # frase lunga: la divido alle virgole in pezzi che si leggono bene
+        pezzo = ""
+        for p in re.split(r",\s+", f):
+            if pezzo and len(pezzo) + len(p) + 2 > massimo:
+                out.append(pezzo)
+                pezzo = p
+            else:
+                pezzo = f"{pezzo}, {p}" if pezzo else p
+        if pezzo:
+            out.append(pezzo)
+    return [x[0].upper() + x[1:] for x in out if len(x) >= 20]
+
+
+def didascalia(frase, massimo=46):
+    """scritta breve sulla foto: la parte della frase che parla di una stanza o di un punto di forza"""
+    parti = [re.sub(r"^(ma|e|ed|che|con|di cui)\s+", "", p.strip(" .,;:"), flags=re.I)
+             for p in re.split(r",\s+|\s+e\s+(?=\w+\s)|;\s*|:\s*", frase) if p.strip(" .,;:")]
+    for p in parti:
+        if re.search(STANZE, p, re.I) and 6 <= len(p) <= massimo:
+            p = cs.ARTICOLO.sub("", p) if len(p) > 20 else p
+            return p[0].upper() + p[1:]
+    corte = [p for p in parti if 6 <= len(p) <= massimo]
+    if corte:
+        return corte[0][0].upper() + corte[0][1:]
+    return cs.accorcia(frase, massimo)[0] if cs.accorcia(frase, massimo) else ""
+
+
+def dati_principali(a, s):
+    """una frase con superficie, camere e bagni (se la descrizione non li dice già)"""
+    parti = []
+    if a.get("mq"):
+        parti.append(f"{a['mq']} metri quadrati")
+    if a.get("camere"):
+        parti.append("una camera da letto" if a["camere"] == "1" else f"{a['camere']} camere da letto")
+    elif a.get("locali"):
+        parti.append(f"{a['locali']} locali")
+    if a.get("bagni"):
+        parti.append("un bagno" if a["bagni"] == "1" else f"{a['bagni']} bagni")
+    if not parti:
+        return None
+    testo = parti[0] if len(parti) == 1 else ", ".join(parti[:-1]) + " e " + parti[-1]
+    return testo[0].upper() + testo[1:]
+
+
+def nome_agenzia(nome):
+    """'RM L'AGENZIA IMMOBILIARE' -> "RM L'Agenzia Immobiliare" (le sigle restano maiuscole)"""
+    nome = re.sub(r"\b(s\.?r\.?l\.?s?|s\.?a\.?s\.?|s\.?n\.?c\.?|s\.?p\.?a\.?)\b", "", nome or "", flags=re.I)
+    nome = re.sub(r"^affiliato\s+", "", nome, flags=re.I).replace(":", "").strip(" ,.-")
+    parole = []
+    for w in nome.split():
+        if w.isupper() and w.isalpha() and not re.search(r"[AEIOU]", w):   # sigle come RM, GB
+            parole.append(w)
+        else:
+            parole.append("'".join(x[:1].upper() + x[1:].lower() for x in w.split("'")))
+    return " ".join(parole)
+
+
+def voce_scelta():
     voci = [v.strip() for v in os.environ.get("VOCI", ",".join(VOCI)).split(",") if v.strip()]
-    i = [n for n, *_ in SLOT].index(s["slot"]) if s.get("slot") in [n for n, *_ in SLOT] else 0
-    return voci[(i + date.today().toordinal()) % len(voci)]
+    return voci
+
+
+def crea_voce(testo, mp3):
+    """prova le voci in ordine (la prima è la più naturale); None se nessuna funziona"""
+    for v in voce_scelta():
+        d = cs.crea_voce(testo, mp3, v)
+        if d:
+            return d, v
+    return None, None
 
 
 def scene_e_voce(s, foto, cartella):
-    """scene sincronizzate: foto + frase sullo schermo + stessa frase detta dalla voce.
-    La prima scena presenta l'annuncio, l'ultima torna sulla foto principale (= copertina)."""
+    """La voce racconta l'annuncio con le frasi della descrizione, in ordine, mentre scorrono le foto.
+    Ogni frase ha la sua scritta sullo schermo; una frase lunga copre più foto.
+    Inizio e fine sulla foto principale (= copertina)."""
     a = dati_voce(s)
-    frasi = frase_asta(s) if s["tipo"] == "asta" else []
-    for f in cs.frasi_video(a):
-        if f in frasi or (f.startswith("Zona ") and re.search(r"\d|\bvia\b|\bsnc\b|\bloc\.|,", f, re.I)):
-            continue      # niente indirizzi nelle frasi
-        frasi.append(f)
-    frasi = frasi[:MAX_FRASI]
+    tipo = cs.tipo_parola(a).capitalize()
+    dove = a.get("citta") or s["citta"].title()
     if s["tipo"] == "asta":
-        tipo = cs.tipo_parola(a).capitalize()
-        apertura = f"{tipo} all'asta a {a['citta'] or 'Umbria'}. Offerta minima {cs.prezzo_voce(a) or euro(s['prezzo'])}."
+        apertura = f"{tipo} all'asta a {dove}. Offerta minima {cs.prezzo_voce(a) or euro(s['prezzo'])}."
     else:
         apertura = cs.voce_apertura(a)
-    pezzi = [(0, "", apertura)]
-    for i, f in enumerate(frasi):
-        pezzi.append((1 + i % max(1, len(foto) - 1) if len(foto) > 1 else 0, f, parlato(f)))
-    pezzi.append((0, "", cs.voce_finale(a)))
+    racconto = []                              # (scritta, testo detto)
+    if s["tipo"] == "asta" and (s.get("data_asta") or s.get("tribunale")):
+        frase = "L'asta si terrà" + (f" il {s['data_asta']}" if s.get("data_asta") else "") + \
+                (f" presso il Tribunale di {s['tribunale']}" if s.get("tribunale") else "")
+        racconto.append(((f"Asta il {s['data_asta']}" if s.get("data_asta") else f"Tribunale di {s['tribunale']}"), frase))
+    principali = dati_principali(a, s)
+    descr = frasi_descrizione(a)
+    if principali and not any(re.search(r"metri|mq|m²", d, re.I) for d in descr[:3]):
+        racconto.append((principali, principali))
+    for d in descr[:MAX_FRASI]:
+        racconto.append((didascalia(d), d))
+    if len(racconto) < 3:                       # descrizione povera: uso i punti di forza
+        for f in cs.frasi_video(a):
+            if len(racconto) >= 5:
+                break
+            if not (f.startswith("Zona ") and re.search(r"\d|\bvia\b|\bsnc\b|\bloc\.|,", f, re.I)):
+                racconto.append((f, f))
+    ag = nome_agenzia(a.get("agenzia") or "")
+    if ag:   # "RM L'Agenzia Immobiliare presenta: appartamento in vendita a Terni..."
+        apertura = f"{ag} presenta: {apertura[0].lower()}{apertura[1:]}"
+    finale = "Tutte le foto e i contatti su Cerco Casa Umbria. Link in bio."
 
-    voce = voce_del_giorno(s)
-    scene, audio, t = [], [], 0
-    for k, (n_foto, scritta, detto) in enumerate(pezzi):
+    pezzi = [("", apertura, "apertura")] + [(sc, dt, "racconto") for sc, dt in racconto] + [("", finale, "finale")]
+    altre = foto[1:] or foto[:1]
+    n_foto, foto_scene, didascalie, audio, t, voce_usata = 0, [], [], [], 0, None
+    for k, (scritta, detto, ruolo) in enumerate(pezzi):
         mp3 = cartella / f"voce{k}.mp3"
-        d = cs.crea_voce(detto, mp3, voce) if detto else None
-        minimo = 3200 if k == 0 else (3000 if k < len(pezzi) - 1 else 3600)
-        dur = max(minimo, int((d or 0) * 1000) + 700)
-        if k == 0:
-            dur = max(dur, 2900)   # tempo per l'entrata di prezzo e titolo
-        scene.append({"photo": "file://" + str(foto[n_foto]), "text": scritta, "start": t, "dur": dur})
+        d, v = crea_voce(parlato(detto), mp3)
+        voce_usata = voce_usata or v
+        dur = max(3200 if ruolo != "racconto" else 3000, int((d or 0) * 1000) + 650)
+        if ruolo == "apertura":
+            foto_scene.append({"photo": "file://" + str(foto[0]), "start": t})
+        elif ruolo == "finale":
+            foto_scene.append({"photo": "file://" + str(foto[0]), "start": t})
+        else:
+            # una foto ogni ~3,8 secondi di voce, nell'ordine dell'agenzia
+            quante = max(1, round(dur / 3800))
+            for j in range(quante):
+                foto_scene.append({"photo": "file://" + str(altre[n_foto % len(altre)]), "start": t + j * dur // quante})
+                n_foto += 1
+            didascalie.append({"text": scritta, "start": t, "dur": dur})
         if d:
             audio.append((mp3, t + 250))
         t += dur
-    cs.log(f"  voce {voce.replace('it-IT-', '').replace('Neural', '')}: {len(audio)} frasi, {t / 1000:.1f} s")
-    return scene, audio, t
+    cs.log(f"  voce {str(voce_usata).replace('it-IT-', '')}: {len(audio)} frasi, {len(foto_scene)} foto, {t / 1000:.1f} s")
+    return foto_scene, didascalie, audio, t
 
 
 def video_post(browser, s, cartella):
     foto = foto_annuncio(s, cartella)
     if not foto:
         raise RuntimeError("nessuna foto scaricata")
-    scene, voci, totale = scene_e_voce(s, foto, cartella)
+    scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
     dati = dati_post(s, [x["photo"] for x in scene])
-    dati.update(scenes=scene, total=totale)
+    dati.update(scenes=scene, captions=didascalie, total=totale)
     fotogrammi = cartella / "fotogrammi"
     fotogrammi.mkdir()
     pagina = browser.new_page(viewport={"width": W, "height": H})
@@ -448,6 +557,27 @@ def pubblica_instagram_reel(video, testo_ig):
         cs.HTTP.post = originale
 
 
+def produci(s, social):
+    """crea i due video, la copertina e i testi di un annuncio (gira in un processo a parte)"""
+    from playwright.sync_api import sync_playwright
+    cartella = Path(tempfile.mkdtemp())
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
+            post, audio, copertina = video_post(browser, s, cartella)
+        finally:
+            browser.close()
+    v45 = monta(post, audio, s, cs.USCITA / f"{s['slot']}.mp4", verticale=False)
+    v916 = monta(post, audio, s, cs.USCITA / f"{s['slot']}-reel.mp4", verticale=True)
+    cop = cs.USCITA / f"{s['slot']}.jpg"
+    shutil.copy(copertina, cop)
+    for nome in social:
+        (cs.USCITA / f"{s['slot']}-{nome}.txt").write_text(testo(s, nome), encoding="utf-8")
+    shutil.rmtree(cartella, ignore_errors=True)
+    cs.log("Video pronto:", v45.name, f"({durata(v45):.1f} s)")
+    return s, v45, v916, cop
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prova", action="store_true", help="crea video e testi senza pubblicare")
@@ -467,24 +597,17 @@ def main():
     gia_slot = {p.get("sei") for p in fatti_oggi}
     scelte = [s for s in scegli(stato) if args.prova or s["slot"] not in gia_slot][:da_fare]
 
-    from playwright.sync_api import sync_playwright
+    # i video si creano 3 alla volta (il runner di GitHub ha 4 processori)
+    apertura_breve()
     pronti = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        for s in scelte:
-            cartella = Path(tempfile.mkdtemp())
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=int(os.environ.get("VIDEO_IN_PARALLELO", "3") or 3)) as pool:
+        lavori = [pool.submit(produci, s, social) for s in scelte]
+        for s, lavoro in zip(scelte, lavori):
             try:
-                post, audio, copertina = video_post(browser, s, cartella)
-                v45 = monta(post, audio, s, cs.USCITA / f"{s['slot']}.mp4", verticale=False)
-                v916 = monta(post, audio, s, cs.USCITA / f"{s['slot']}-reel.mp4", verticale=True)
-                shutil.copy(copertina, cs.USCITA / f"{s['slot']}.jpg")
-                for nome in social:
-                    (cs.USCITA / f"{s['slot']}-{nome}.txt").write_text(testo(s, nome), encoding="utf-8")
-                pronti.append((s, v45, v916, cs.USCITA / f"{s['slot']}.jpg"))
-                cs.log("Video pronto:", v45.name, f"({durata(v45):.1f} s)")
+                pronti.append(lavoro.result())
             except Exception as e:
                 cs.log("ERRORE video", s["slot"], e)
-        browser.close()
 
     if args.prova:
         cs.log(f"Prova: {len(pronti)} video nella cartella video/ (nessuna pubblicazione)")
