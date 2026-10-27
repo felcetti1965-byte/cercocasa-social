@@ -289,14 +289,14 @@ def foto_annuncio(s, cartella):
     return file
 
 
-def video_post(browser, s, cartella, foto):
-    scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
-    dati = dati_post(s, [x["photo"] for x in scene])
-    dati.update(scenes=scene, captions=didascalie, total=totale)
-    fotogrammi = cartella / "fotogrammi"
+def render(browser, dati, totale, cartella, verticale):
+    """fotogrammi della grafica -> video muto + copertina (ultimo fotogramma = foto principale)"""
+    alto = 1920 if verticale else H
+    nome = "reel" if verticale else "post"
+    fotogrammi = cartella / f"fotogrammi-{nome}"
     fotogrammi.mkdir()
-    pagina = browser.new_page(viewport={"width": W, "height": H})
-    pagina.add_init_script("window.POST = " + json.dumps(dati) + ";")
+    pagina = browser.new_page(viewport={"width": W, "height": alto})
+    pagina.add_init_script("window.POST = " + json.dumps(dict(dati, vertical=verticale)) + ";")
     pagina.goto("file://" + str(GRAFICA / "post.html"))
     pagina.evaluate("document.fonts.ready")
     pagina.wait_for_function("[...document.images].every(i => i.complete)", timeout=30000)
@@ -304,14 +304,24 @@ def video_post(browser, s, cartella, foto):
         pagina.evaluate(f"window.seek({i * 1000 / FPS})")
         pagina.screenshot(path=str(fotogrammi / f"{i:04d}.jpg"), type="jpeg", quality=92)
     pagina.close()
-    post = cartella / "post.mp4"
+    video = cartella / f"{nome}.mp4"
     cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.jpg", "-c:v", "libx264", "-preset", "veryfast",
-          "-crf", "18", "-pix_fmt", "yuv420p", post)
-    copertina = cartella / "copertina.jpg"
+          "-crf", "18", "-pix_fmt", "yuv420p", video)
+    copertina = cartella / f"copertina-{nome}.jpg"
     cs.ff("-i", sorted(fotogrammi.iterdir())[-1], "-q:v", "2", copertina)
     shutil.rmtree(fotogrammi, ignore_errors=True)
+    return video, copertina
+
+
+def video_post(browser, s, cartella, foto):
+    """stesse scene, voce e musica in due formati: 4:5 per Facebook e 9:16 vero per Instagram"""
+    scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
+    dati = dati_post(s, [x["photo"] for x in scene])
+    dati.update(scenes=scene, captions=didascalie, total=totale)
+    post45, cop45 = render(browser, dati, totale, cartella, verticale=False)
+    post916, cop916 = render(browser, dati, totale, cartella, verticale=True)
     audio = audio_post(voci, totale, cartella)
-    return post, audio, copertina
+    return post45, post916, audio, cop45, cop916
 
 
 def musica():
@@ -361,8 +371,7 @@ def monta(post, audio, s, destinazione, verticale):
     sfondo = SFONDO[s["tipo"]]
     alto = 1920 if verticale else H
     sigla = f"scale={W}:1920,crop={W}:{alto},setsar=1,fps={FPS},format=yuv420p"
-    corpo = (f"pad={W}:{alto}:0:(oh-ih)/2:color={sfondo},setsar=1,fps={FPS},format=yuv420p" if verticale
-             else f"setsar=1,fps={FPS},format=yuv420p")
+    corpo = f"scale={W}:{alto},setsar=1,fps={FPS},format=yuv420p"     # la grafica è già nel formato giusto
     stereo = "aresample=48000,aformat=sample_rates=48000:channel_layouts=stereo"
     filtro = (f"[0:v]{sigla}[v0];[1:v]{corpo}[v1];[3:v]{sigla}[v2];"
               f"[0:a]{stereo}[a0];[2:a]{stereo}[a1];[3:a]{stereo}[a2];"
@@ -439,11 +448,12 @@ def produci(nome, tipo, citta, schede, social):
             with sync_playwright() as p:
                 browser = p.chromium.launch()
                 try:
-                    post, audio, copertina = video_post(browser, s, cartella, foto)
+                    post45, post916, audio, copertina, cop916 = video_post(browser, s, cartella, foto)
                 finally:
                     browser.close()
-            v45 = monta(post, audio, s, cs.USCITA / f"{nome}.mp4", verticale=False)
-            v916 = monta(post, audio, s, cs.USCITA / f"{nome}-reel.mp4", verticale=True)
+            v45 = monta(post45, audio, s, cs.USCITA / f"{nome}.mp4", verticale=False)
+            v916 = monta(post916, audio, s, cs.USCITA / f"{nome}-reel.mp4", verticale=True)
+            shutil.copy(cop916, cs.USCITA / f"{nome}-reel.jpg")
             cop = cs.USCITA / f"{nome}.jpg"
             shutil.copy(copertina, cop)
             for soc in social:

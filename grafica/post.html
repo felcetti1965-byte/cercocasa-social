@@ -53,6 +53,18 @@ html,body{margin:0;width:1080px;height:1350px;overflow:hidden}
 .title{animation:up 550ms 1450ms}
 .s0{animation:up 500ms 1750ms}.s1{animation:up 500ms 1900ms}.s2{animation:up 500ms 2050ms}
 .foot{animation:footIn 700ms 150ms}
+
+/* versione verticale 9:16 per i Reel di Instagram: logo in alto, foto più alta,
+   spazio libero in basso dove Instagram mette didascalia e pulsanti */
+html.v,html.v body{height:1920px}
+.v .post{height:1920px}
+.v .foot{order:-1;border-top:none;border-bottom:var(--footBorder)}
+.v .main{padding:32px 36px 290px}
+.v .photo{height:1180px}
+.v .title{font-size:56px}
+.v .specs{font-size:30px}
+@keyframes footInTop{from{transform:translateY(-100%)}to{transform:none}}
+.v .foot{animation-name:footInTop}
 </style>
 </head>
 <body>
@@ -72,6 +84,7 @@ const THEMES={
  asta:{bg:'#262626',text:'#FFFFFF',photoBg:'#3D3D3D',photoFg:'#C9CBCA',badgeBg:'#DB9C12',badgeFg:'#1F1F1F',chipBg:'#FFFFFF',chipFg:'#1F1F1F',cardBg:'#DB9C12',priceFg:'#1F1F1F',specFg:'#E6E6E6',icon:'#DB9C12',footBg:'#141414',footBorder:'4px solid #DB9C12'}
 };
 const P=window.POST;
+if(P.vertical)document.documentElement.classList.add('v');
 const T=THEMES[P.theme];
 const el=document.getElementById('post');
 // foto: la prima resta la principale; le altre si alternano e alla fine torna la prima (= copertina)
