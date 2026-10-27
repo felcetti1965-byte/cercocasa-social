@@ -121,6 +121,8 @@ def leggi_annuncio(id_):
 
     h1 = re.search(r"<h1[^>]*>(.*?)</h1>", t, re.S | re.I)
     titolo = pulisci(h1.group(1)) if h1 else meta("og:title").split("|")[0].strip()
+    # aste: "Negozio all'asta a Foligno, Via Umberto I – 4 locali" (la data si dice a parte)
+    titolo = re.sub(r"\s*[–-]\s*asta\s+\d{1,2}/\d{1,2}/\d{4}\s*$", "", titolo, flags=re.I)
 
     prezzo = ""
     m = re.search(r"(da\s*)?€\s?\d{1,3}(?:\.\d{3})+", testo)
@@ -146,14 +148,18 @@ def leggi_annuncio(id_):
 
     # nome dell'agenzia: dal riquadro contatti (non dai link tipo "Vedi tutti gli immobili dell'agenzia")
     agenzia = ""
-    generico = re.compile(r"vedi|tutti|scrivi|contatta|immobili dell|invia|parlare", re.I)
-    m = re.search(r'contact-card-identity.{0,600}?<a[^>]*>(.*?)</a>', t, re.S | re.I)
-    if m and not generico.search(pulisci(m.group(1))):
-        agenzia = pulisci(m.group(1))
+    generico = re.compile(r"vedi|tutti|scrivi|contatta|immobili dell|invia|parlare|telefon|cellulare|"
+                          r"whatsapp|\d{5,}|☎|✆|@", re.I)
+    m = re.search(r"puoi parlare con\s+([^.]{3,120}?)\s*\.", testo)
+    if m and not generico.search(m.group(1)):
+        agenzia = m.group(1).strip()
     if not agenzia:
-        m = re.search(r"puoi parlare con\s+([^.]{3,120}?)\s*\.", testo)
-        if m:
-            agenzia = m.group(1).strip()
+        blocco = re.search(r'contact-card-identity(.{0,1500})', t, re.S | re.I)
+        for m in re.finditer(r"<a[^>]*>(.*?)</a>", blocco.group(1) if blocco else "", re.S | re.I):
+            nome = pulisci(m.group(1))
+            if 3 <= len(nome) <= 120 and not generico.search(nome):
+                agenzia = nome
+                break
     if not agenzia:
         for m in re.finditer(r'agenzia\.php\?id=\d+[^>]*>(.*?)</a>', t, re.S | re.I):
             nome = pulisci(m.group(1))
