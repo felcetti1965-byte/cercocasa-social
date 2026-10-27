@@ -660,6 +660,22 @@
    "comune": "Marsciano",
    "foto": "https://www.cercocasaumbria.it/uploads/properties/5300/miogest-1.jpg",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5300"
+  },
+  {
+   "id": 5256,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-27T15:28",
+   "titolo": "APPARTAMENTO VENDITA PONTE SAN GIOVANNI PERUGIA",
+   "prezzo": "€ 184.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5256/copertina-2e94e31c4d.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5256",
+   "facebook_id": "1506983661367990",
+   "instagram_id": "18188682313413602"
   }
  ],
  "versione": 7
