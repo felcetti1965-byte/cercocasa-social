@@ -98,7 +98,10 @@ h1{font-size:22px;margin:4px 0 4px}
 <?php endif; ?>
 <?php foreach ($annunci as $v):
     $id = (int)$v['id'];
-    $url = !empty($v['url']) ? $v['url'] : "/immobile.php?id=$id";
+    // solo indirizzi del nostro sito: link e foto che non iniziano così vengono ignorati
+    $nostro = function ($u) { return is_string($u) && strpos($u, 'https://www.cercocasaumbria.it/') === 0; };
+    $url = $nostro($v['url'] ?? '') ? $v['url'] : "/immobile.php?id=$id";
+    if (!$nostro($v['foto'] ?? '')) $v['foto'] = '';
     $tipo = explode('-', $v['sei'] ?? '')[0];
     $titolo = $v['titolo'] ?? '';
     if ($titolo === '') $titolo = 'Annuncio ' . $id;
