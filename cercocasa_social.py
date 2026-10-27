@@ -390,8 +390,15 @@ def frasi_video(a):
     """frasi brevi e sicure: dati dell'annuncio + caratteristiche trovate nel testo"""
     femminile = tipo_parola(a) in ("villa", "villetta", "casa")
     frasi = []
+    if a.get("operazione") == "ALL'ASTA":
+        m = re.search(r"(?:data\s+asta|asta\s+si\s+terr\w*\s+il|asta\s+il)\D{0,6}(\d{1,2})/(\d{1,2})/(\d{4})",
+                      " ".join([a.get("titolo", ""), a.get("descrizione", "")]), re.I)
+        if m and 1 <= int(m.group(2)) <= 12:
+            frasi.append(f"Asta il {int(m.group(1))} {MESI_LUNGHI[int(m.group(2)) - 1]} {m.group(3)}")
     if "·" in (a.get("comune") or ""):
-        frasi.append("Zona " + a["comune"].split("·")[-1].strip())
+        zona = a["comune"].split("·")[-1].strip()
+        if not re.search(r"\d|\bvia\b|\bsnc\b|\bloc\.|\bstrada\b|\bvocabolo\b|,", zona, re.I):   # niente indirizzi
+            frasi.append("Zona " + zona)
     if a.get("mq"):
         frasi.append(f"{a['mq']} metri quadrati")
     if a.get("camere"):
@@ -431,7 +438,7 @@ def voce_apertura(a):
     dove = a["citta"] or "Umbria"
     p = prezzo_voce(a)
     if a["operazione"] == "ALL'ASTA":
-        return f"{tipo} all'asta a {dove}. Base d'asta {p}." if p else f"{tipo} all'asta a {dove}."
+        return f"{tipo} all'asta a {dove}, a partire da {p}." if p else f"{tipo} all'asta a {dove}."
     if a["operazione"] == "IN AFFITTO":
         return f"{tipo} in affitto a {dove}, {p} al mese." if p else f"{tipo} in affitto a {dove}."  # canone
     return f"{tipo} in vendita a {dove}, a {p}." if p else f"{tipo} in vendita a {dove}."
