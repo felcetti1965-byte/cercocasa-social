@@ -29,8 +29,12 @@ import cercocasa_social as cs
 
 QUI = Path(__file__).resolve().parent
 GRAFICA = QUI / "grafica"
-FPS, W, H, POST_MS = 30, 1080, 1350, 9000
+FPS, W, H = 30, 1080, 1350
 COPERTINA_MS = 2600          # da qui il post è completo (serve per la copertina di Instagram)
+MAX_FOTO = 8                 # foto dell'annuncio usate nelle scene
+MAX_FRASI = 6                # frasi descrittive (una per foto), dette dalla voce
+APERTURA_VELOCITA = 2.5      # la sigla di apertura (8 s) dura circa 3 s
+VOCI = ["it-IT-IsabellaNeural", "it-IT-DiegoNeural", "it-IT-ElsaNeural"]
 
 SLOT = [  # (nome, tipo, città, pagina del sito)
     ("vendita-terni", "vendita", "terni", "/case-vendita/terni/"),
@@ -196,18 +200,18 @@ def dati_post(s, foto):
 
 
 def foto_annuncio(s, cartella):
-    """foto principale della scheda + fino a 2 foto in più dalla pagina dell'annuncio, convertite in jpg"""
+    """foto principale della scheda + le altre foto della pagina dell'annuncio, convertite in jpg"""
     indirizzi = [s["foto"]]
     try:
         a = cs.leggi_annuncio(s["id"])
         s["dettaglio"] = a
         for u in a.get("foto", []):
-            if u not in indirizzi and "mappa" not in u.lower():
+            if u not in indirizzi and not re.search(r"mappa|planimetr|piantin", u, re.I):
                 indirizzi.append(u)
     except Exception as e:
         cs.log("  pagina annuncio non letta:", e)
     file = []
-    for i, u in enumerate(indirizzi[:3]):
+    for i, u in enumerate(indirizzi[:MAX_FOTO]):
         try:
             r = cs.HTTP.get(u, timeout=60)
             r.raise_for_status()
@@ -221,11 +225,100 @@ def foto_annuncio(s, cartella):
     return file
 
 
+def dati_voce(s):
+    """dati per frasi e voce: quelli completi della pagina annuncio, altrimenti quelli della scheda"""
+    a = dict(s.get("dettaglio") or {})
+    a.setdefault("titolo", s["titolo"])
+    a.setdefault("citta", s["zona"] if s["tipo"] == "asta" else s["citta"].title())
+    if not a.get("citta"):
+        a["citta"] = s["citta"].title()
+    a.setdefault("operazione", {"vendita": "IN VENDITA", "affitto": "IN AFFITTO", "asta": "ALL'ASTA"}[s["tipo"]])
+    a.setdefault("prezzo", euro(s["prezzo"]))
+    a.setdefault("agenzia", "")
+    if not s.get("dettaglio"):
+        for k, v in s.get("voci", []):
+            n = re.match(r"\d+", v)
+            if n and k == "area":
+                a["mq"] = n.group(0)
+            elif n and "camer" in v:
+                a["camere"] = n.group(0)
+            elif n and k == "bath":
+                a["bagni"] = n.group(0)
+    return a
+
+
+def frase_asta(s):
+    extra = []
+    if s.get("data_asta"):
+        extra.append(f"Asta il {s['data_asta']}")
+    if s.get("tribunale"):
+        extra.append(f"Tribunale di {s['tribunale']}")
+    return extra
+
+
+MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto",
+        "settembre", "ottobre", "novembre", "dicembre"]
+
+
+def parlato(frase):
+    """la frase come la dice la voce: le date diventano '25 novembre 2026'"""
+    def data(m):
+        g, me, an = int(m.group(1)), int(m.group(2)), m.group(3)
+        return f"{g} {MESI[me - 1]} {an}" if 1 <= me <= 12 else m.group(0)
+    return re.sub(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", data, frase) + "."
+
+
+def voce_del_giorno(s):
+    """la voce cambia da un post all'altro (e da un giorno all'altro)"""
+    voci = [v.strip() for v in os.environ.get("VOCI", ",".join(VOCI)).split(",") if v.strip()]
+    i = [n for n, *_ in SLOT].index(s["slot"]) if s.get("slot") in [n for n, *_ in SLOT] else 0
+    return voci[(i + date.today().toordinal()) % len(voci)]
+
+
+def scene_e_voce(s, foto, cartella):
+    """scene sincronizzate: foto + frase sullo schermo + stessa frase detta dalla voce.
+    La prima scena presenta l'annuncio, l'ultima torna sulla foto principale (= copertina)."""
+    a = dati_voce(s)
+    frasi = frase_asta(s) if s["tipo"] == "asta" else []
+    for f in cs.frasi_video(a):
+        if f in frasi or (f.startswith("Zona ") and re.search(r"\d|\bvia\b|\bsnc\b|\bloc\.|,", f, re.I)):
+            continue      # niente indirizzi nelle frasi
+        frasi.append(f)
+    frasi = frasi[:MAX_FRASI]
+    if s["tipo"] == "asta":
+        tipo = cs.tipo_parola(a).capitalize()
+        apertura = f"{tipo} all'asta a {a['citta'] or 'Umbria'}. Offerta minima {cs.prezzo_voce(a) or euro(s['prezzo'])}."
+    else:
+        apertura = cs.voce_apertura(a)
+    pezzi = [(0, "", apertura)]
+    for i, f in enumerate(frasi):
+        pezzi.append((1 + i % max(1, len(foto) - 1) if len(foto) > 1 else 0, f, parlato(f)))
+    pezzi.append((0, "", cs.voce_finale(a)))
+
+    voce = voce_del_giorno(s)
+    scene, audio, t = [], [], 0
+    for k, (n_foto, scritta, detto) in enumerate(pezzi):
+        mp3 = cartella / f"voce{k}.mp3"
+        d = cs.crea_voce(detto, mp3, voce) if detto else None
+        minimo = 3200 if k == 0 else (3000 if k < len(pezzi) - 1 else 3600)
+        dur = max(minimo, int((d or 0) * 1000) + 700)
+        if k == 0:
+            dur = max(dur, 2900)   # tempo per l'entrata di prezzo e titolo
+        scene.append({"photo": "file://" + str(foto[n_foto]), "text": scritta, "start": t, "dur": dur})
+        if d:
+            audio.append((mp3, t + 250))
+        t += dur
+    cs.log(f"  voce {voce.replace('it-IT-', '').replace('Neural', '')}: {len(audio)} frasi, {t / 1000:.1f} s")
+    return scene, audio, t
+
+
 def video_post(browser, s, cartella):
     foto = foto_annuncio(s, cartella)
     if not foto:
         raise RuntimeError("nessuna foto scaricata")
-    dati = dati_post(s, ["file://" + str(f) for f in foto])
+    scene, voci, totale = scene_e_voce(s, foto, cartella)
+    dati = dati_post(s, [x["photo"] for x in scene])
+    dati.update(scenes=scene, total=totale)
     fotogrammi = cartella / "fotogrammi"
     fotogrammi.mkdir()
     pagina = browser.new_page(viewport={"width": W, "height": H})
@@ -233,17 +326,18 @@ def video_post(browser, s, cartella):
     pagina.goto("file://" + str(GRAFICA / "post.html"))
     pagina.evaluate("document.fonts.ready")
     pagina.wait_for_function("[...document.images].every(i => i.complete)", timeout=30000)
-    for i in range(POST_MS * FPS // 1000):
+    for i in range(totale * FPS // 1000):
         pagina.evaluate(f"window.seek({i * 1000 / FPS})")
-        pagina.screenshot(path=str(fotogrammi / f"{i:04d}.png"))
+        pagina.screenshot(path=str(fotogrammi / f"{i:04d}.jpg"), type="jpeg", quality=92)
     pagina.close()
     post = cartella / "post.mp4"
-    cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.png", "-c:v", "libx264", "-preset", "veryfast",
+    cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.jpg", "-c:v", "libx264", "-preset", "veryfast",
           "-crf", "18", "-pix_fmt", "yuv420p", post)
     copertina = cartella / "copertina.jpg"
     cs.ff("-i", sorted(fotogrammi.iterdir())[-1], "-q:v", "2", copertina)
     shutil.rmtree(fotogrammi, ignore_errors=True)
-    return post, copertina
+    audio = audio_post(voci, totale, cartella)
+    return post, audio, copertina
 
 
 def musica():
@@ -254,27 +348,53 @@ def musica():
     return brani[(n + date.today().toordinal()) % len(brani)]
 
 
-def monta(post, s, destinazione, verticale):
-    """apertura + post (con musica) + chiusura, in 4:5 oppure 9:16"""
+def audio_post(voci, totale_ms, cartella):
+    """musica bassa sotto la voce, ogni frase all'inizio della sua scena"""
+    dur = totale_ms / 1000
+    brano = musica()
+    ingressi = (["-stream_loop", "-1", "-ss", "3", "-i", brano] if brano
+                else ["-f", "lavfi", "-t", str(dur), "-i", "anullsrc=r=48000:cl=stereo"])
+    vol = 0.16 if voci else 0.6
+    filtro = (f"[0:a]atrim=0:{dur},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,"
+              f"volume={vol},afade=t=in:d=0.5,afade=t=out:st={max(0, dur - 1.2):.2f}:d=1.2[m]")
+    pezzi = []
+    for k, (mp3, ms) in enumerate(voci):
+        ingressi += ["-i", mp3]
+        filtro += f";[{k + 1}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={ms}|{ms},volume=1.6[p{k}]"
+        pezzi.append(f"[p{k}]")
+    filtro += (f";[m]{''.join(pezzi)}amix=inputs={len(pezzi) + 1}:duration=first:normalize=0[a]" if pezzi
+               else ";[m]anull[a]")
+    out = cartella / "audio.m4a"
+    cs.ff(*ingressi, "-filter_complex", filtro, "-map", "[a]", "-t", f"{dur:.2f}",
+          "-c:a", "aac", "-b:a", "160k", "-ar", "48000", out)
+    return out
+
+
+def apertura_breve():
+    """la sigla di apertura accelerata (circa 3 secondi), creata una volta sola"""
+    out = cs.USCITA / "apertura-breve.mp4"
+    if not out.exists():
+        v = 1 / APERTURA_VELOCITA
+        cs.ff("-i", cs.SIGLE / "apertura.mp4", "-filter_complex",
+              f"[0:v]setpts={v:.4f}*PTS[v];[0:a]atempo=2,atempo={APERTURA_VELOCITA / 2:.4f}[a]",
+              "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+              "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "48000", out)
+    return out
+
+
+def monta(post, audio, s, destinazione, verticale):
+    """apertura breve + annuncio (voce e musica) + chiusura con i contatti, in 4:5 oppure 9:16"""
     sfondo = SFONDO[s["tipo"]]
     alto = 1920 if verticale else H
-    sigla = (f"scale={W}:1920,crop={W}:{alto},setsar=1,fps={FPS},format=yuv420p")
+    sigla = f"scale={W}:1920,crop={W}:{alto},setsar=1,fps={FPS},format=yuv420p"
     corpo = (f"pad={W}:{alto}:0:(oh-ih)/2:color={sfondo},setsar=1,fps={FPS},format=yuv420p" if verticale
              else f"setsar=1,fps={FPS},format=yuv420p")
-    ingressi = ["-i", cs.SIGLE / "apertura.mp4", "-i", post, "-i", cs.SIGLE / "chiusura.mp4"]
-    brano = musica()
-    dur = POST_MS / 1000
-    if brano:
-        ingressi += ["-ss", "3", "-t", str(dur), "-i", brano]
-        audio_post = f"[3:a]atrim=0:{dur},asetpts=PTS-STARTPTS,volume=0.6,afade=t=in:d=0.6,afade=t=out:st={dur - 1}:d=1,aresample=48000,aformat=channel_layouts=stereo[ap]"
-    else:
-        ingressi += ["-f", "lavfi", "-t", str(dur), "-i", "anullsrc=r=48000:cl=stereo"]
-        audio_post = "[3:a]anull[ap]"
-    filtro = (f"[0:v]{sigla}[v0];[1:v]{corpo}[v1];[2:v]{sigla}[v2];"
-              f"[0:a]aresample=48000,aformat=channel_layouts=stereo[a0];{audio_post};"
-              f"[2:a]aresample=48000,aformat=channel_layouts=stereo[a2];"
-              f"[v0][a0][v1][ap][v2][a2]concat=n=3:v=1:a=1[v][a]")
-    cs.ff(*ingressi, "-filter_complex", filtro, "-map", "[v]", "-map", "[a]",
+    stereo = "aresample=48000,aformat=sample_rates=48000:channel_layouts=stereo"
+    filtro = (f"[0:v]{sigla}[v0];[1:v]{corpo}[v1];[3:v]{sigla}[v2];"
+              f"[0:a]{stereo}[a0];[2:a]{stereo}[a1];[3:a]{stereo}[a2];"
+              f"[v0][a0][v1][a1][v2][a2]concat=n=3:v=1:a=1[v][a]")
+    cs.ff("-i", apertura_breve(), "-i", post, "-i", audio, "-i", cs.SIGLE / "chiusura.mp4",
+          "-filter_complex", filtro, "-map", "[v]", "-map", "[a]",
           "-c:v", "libx264", "-profile:v", "main", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
           "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", "-movflags", "+faststart", destinazione)
     return destinazione
@@ -312,7 +432,7 @@ def testo(s, social):
 # ---------------------------------------------------------------- pubblicazione
 def pubblica_instagram_reel(video, testo_ig):
     """come cs.pubblica_instagram, ma con la copertina sul post (non sul primo fotogramma della sigla)"""
-    offset = int((durata(cs.SIGLE / "apertura.mp4") * 1000) + COPERTINA_MS + 400)
+    offset = int((durata(apertura_breve()) * 1000) + COPERTINA_MS + 400)
     originale = cs.HTTP.post
 
     def post_con_copertina(url, *a, **kw):
@@ -354,9 +474,9 @@ def main():
         for s in scelte:
             cartella = Path(tempfile.mkdtemp())
             try:
-                post, copertina = video_post(browser, s, cartella)
-                v45 = monta(post, s, cs.USCITA / f"{s['slot']}.mp4", verticale=False)
-                v916 = monta(post, s, cs.USCITA / f"{s['slot']}-reel.mp4", verticale=True)
+                post, audio, copertina = video_post(browser, s, cartella)
+                v45 = monta(post, audio, s, cs.USCITA / f"{s['slot']}.mp4", verticale=False)
+                v916 = monta(post, audio, s, cs.USCITA / f"{s['slot']}-reel.mp4", verticale=True)
                 shutil.copy(copertina, cs.USCITA / f"{s['slot']}.jpg")
                 for nome in social:
                     (cs.USCITA / f"{s['slot']}-{nome}.txt").write_text(testo(s, nome), encoding="utf-8")
@@ -385,6 +505,7 @@ def main():
                     ris = cs.PUBBLICA[nome](v916, testo(s, nome))
                 if ris is not None:
                     voce["social"].append(nome)
+                    voce[f"{nome}_id"] = str(ris)
             except Exception as e:
                 errori += 1
                 cs.log(f"{nome}: ERRORE", s["slot"], e, (getattr(getattr(e, "response", None), "text", "") or "")[:500])
