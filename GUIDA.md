@@ -5,10 +5,12 @@
 - Instagram: profilo "Cercocasa Dove&Come Umbria" (deve essere Business e collegato alla Pagina Facebook qui sopra)
 - TikTok: @cercocasa2020
 
-**Ogni mattina 6 post** (dal 27/10/2026), su Instagram e TikTok (Facebook no):
+**Ogni mattina 6 post** (dal 27/10/2026), su Facebook, Instagram e TikTok:
 vendita Terni, vendita Perugia, affitto Terni, affitto Perugia, asta Terni, asta Perugia.
 Ogni video: apertura Cercocasa → post con le foto dell'annuncio (grafica nella cartella `grafica/`) → chiusura con i contatti.
-Video verticale 1080x1920 (Instagram Reel e TikTok, che arriva come bozza da confermare nell'app). Per aggiungere Facebook (video 4:5): variabile `SOCIAL_SEI` = `facebook,instagram,tiktok`.
+Video verticale 1080x1920 per Instagram Reel e TikTok, quadrato 1080x1080 per Facebook. TikTok arriva come bozza nella Posta in arrivo dell'app sul telefono (Notifiche di sistema), da pubblicare scegliendo "Tutti".
+
+**TikTok (28/10/2026):** app "Cercocasa Social" su developers.tiktok.com, per ora in Sandbox (account di prova @cercocasa2020). In Sandbox TikTok non rinnova la chiave: dura 24 ore, poi va rifatta l'autorizzazione (workflow "Collega TikTok"). Quando l'app viene approvata in Produzione, mettere in GitHub le chiavi di Produzione (`TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`) e ricollegare una volta. Per ripubblicare su un altro social gli annunci già usciti oggi: "Run workflow" con social = es. `tiktok` e "Ripubblica gli annunci di oggi" spuntato.
 Il programma è `sei_post.py`; pubblica un post ogni 3 minuti (variabile `PAUSA_MINUTI`).
 - Pubblicare a mano: Actions → Video giornaliero Cercocasa → Run workflow → togli "Solo prova" e scegli quanti post (1–6).
 - Tornare al vecchio sistema (1 annuncio al giorno delle agenzie della rivista, anche su TikTok): crea la variabile `MODO_GIORNALIERO` = `uno`.
