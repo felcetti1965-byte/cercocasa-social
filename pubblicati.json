@@ -692,6 +692,90 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=4687",
    "facebook_id": "28130873713253505",
    "instagram_id": "18129497177494201"
+  },
+  {
+   "id": 5268,
+   "sei": "vendita-terni",
+   "social": [
+    "instagram"
+   ],
+   "data": "2026-10-28T07:20",
+   "titolo": "APPARTAMENTO VIA E. CHIESA",
+   "prezzo": "€ 75.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5268/copertina-c034cd517e.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5268",
+   "instagram_id": "18080142017409622"
+  },
+  {
+   "id": 5313,
+   "sei": "vendita-perugia",
+   "social": [
+    "instagram"
+   ],
+   "data": "2026-10-28T07:24",
+   "titolo": "Vendesi due appartamenti adiacenti primo piano centro storico Perugia",
+   "prezzo": "€ 160.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5313/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5313",
+   "instagram_id": "18105278216572845"
+  },
+  {
+   "id": 4966,
+   "sei": "affitto-terni",
+   "social": [
+    "instagram"
+   ],
+   "data": "2026-10-28T07:28",
+   "titolo": "APPARTAMENTO AFFITTO TERNI",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4966/copertina-c83680a3aa.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4966",
+   "instagram_id": "18416387467085357"
+  },
+  {
+   "id": 5058,
+   "sei": "affitto-perugia",
+   "social": [
+    "instagram"
+   ],
+   "data": "2026-10-28T07:32",
+   "titolo": "AFFITTO PORTA SOLE PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5058/copertina-3c9b4e6f62.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5058",
+   "instagram_id": "18063852689526632"
+  },
+  {
+   "id": 4684,
+   "sei": "asta-terni",
+   "social": [
+    "instagram"
+   ],
+   "data": "2026-10-28T07:36",
+   "titolo": "Appartamento all’asta a Terni, Via Narni 99/E – piano 1",
+   "prezzo": "€ 52.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4684/foto-ufficiale-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4684",
+   "instagram_id": "18149922397520530"
+  },
+  {
+   "id": 5302,
+   "sei": "asta-perugia",
+   "social": [
+    "instagram"
+   ],
+   "data": "2026-10-28T07:40",
+   "titolo": "Castello all’asta a Massa Martana, Vocabolo Rocchette",
+   "prezzo": "€ 357.750",
+   "comune": "Massa Martana",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5302/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5302",
+   "instagram_id": "17899334004608747"
   }
  ],
  "versione": 7
