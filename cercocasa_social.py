@@ -1668,6 +1668,12 @@ def main():
         r = HTTP.post("https://open.tiktokapis.com/v2/post/publish/creator_info/query/", timeout=30,
                       headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json; charset=UTF-8"})
         log("TikTok creator info:", r.status_code, r.text[:400])
+        for p in carica_stato()["pubblicati"][-12:]:
+            if p.get("tiktok_id"):
+                r = HTTP.post("https://open.tiktokapis.com/v2/post/publish/status/fetch/", timeout=30,
+                              json={"publish_id": p["tiktok_id"]},
+                              headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json; charset=UTF-8"})
+                log("TikTok stato", p.get("sei"), r.status_code, r.text[:300])
         return
 
     stato = carica_stato()
