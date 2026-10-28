@@ -1380,7 +1380,10 @@ def collega_tiktok(indirizzo):
     if not r.ok or not d.get("refresh_token"):
         raise RuntimeError(f"TikTok non ha dato la chiave: {str(d)[:300]}")
     salva_refresh_tiktok(d["refresh_token"])
-    log("TikTok collegato: chiave salvata in", TIKTOK_TOKEN_FILE.name, "| permessi:", d.get("scope"))
+    log("TikTok collegato: chiave salvata in", TIKTOK_TOKEN_FILE.name, "| permessi:", d.get("scope"),
+        "| scade tra giorni:", int(d.get("refresh_expires_in", 0)) // 86400, "| lunghezza:", len(d["refresh_token"]))
+    letto = leggi_refresh_tiktok()
+    log("TikTok: chiave riletta uguale:", letto == d["refresh_token"])
 
 
 def token_tiktok():
