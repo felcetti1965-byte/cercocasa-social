@@ -1350,17 +1350,27 @@ def _cifratore():
     return Fernet(base64.urlsafe_b64encode(hashlib.sha256(("cercocasa:" + segreto).encode()).digest()))
 
 
-def salva_refresh_tiktok(rt):
-    TIKTOK_TOKEN_FILE.write_bytes(_cifratore().encrypt(rt.encode()))
+def salva_refresh_tiktok(rt, at=None, scade=0):
+    dati = json.dumps({"rt": rt, "at": at, "scade": scade}) if at else rt
+    TIKTOK_TOKEN_FILE.write_bytes(_cifratore().encrypt(dati.encode()))
+
+
+def _dati_tiktok():
+    """(chiave di rinnovo, chiave di accesso, scadenza) dal file cifrato"""
+    if TIKTOK_TOKEN_FILE.exists() and os.environ.get("TIKTOK_CLIENT_SECRET"):
+        try:
+            t = _cifratore().decrypt(TIKTOK_TOKEN_FILE.read_bytes()).decode()
+            if t.startswith("{"):
+                d = json.loads(t)
+                return d.get("rt"), d.get("at"), d.get("scade", 0)
+            return t, None, 0
+        except Exception as e:
+            log("TikTok: chiave salvata non leggibile:", e)
+    return os.environ.get("TIKTOK_REFRESH_TOKEN"), None, 0
 
 
 def leggi_refresh_tiktok():
-    if TIKTOK_TOKEN_FILE.exists() and os.environ.get("TIKTOK_CLIENT_SECRET"):
-        try:
-            return _cifratore().decrypt(TIKTOK_TOKEN_FILE.read_bytes()).decode()
-        except Exception as e:
-            log("TikTok: chiave salvata non leggibile:", e)
-    return os.environ.get("TIKTOK_REFRESH_TOKEN")
+    return _dati_tiktok()[0]
 
 
 def tiktok_configurato():
@@ -1379,13 +1389,13 @@ def collega_tiktok(indirizzo):
     d = r.json()
     if not r.ok or not d.get("refresh_token"):
         raise RuntimeError(f"TikTok non ha dato la chiave: {str(d)[:300]}")
-    salva_refresh_tiktok(d["refresh_token"])
+    salva_refresh_tiktok(d["refresh_token"], d.get("access_token"), int(time.time()) + int(d.get("expires_in", 0)))
     log("TikTok collegato: chiave salvata in", TIKTOK_TOKEN_FILE.name, "| permessi:", d.get("scope"),
         "| scade tra giorni:", int(d.get("refresh_expires_in", 0)) // 86400, "| lunghezza:", len(d["refresh_token"]))
     letto = leggi_refresh_tiktok()
     log("TikTok: chiave riletta uguale:", letto == d["refresh_token"])
     # prova subito la chiave di accesso appena ricevuta
-    r = HTTP.get("https://open.tiktokapis.com/v2/user/info/?fields=display_name,username", timeout=30,
+    r = HTTP.get("https://open.tiktokapis.com/v2/user/info/?fields=display_name", timeout=30,
                  headers={"Authorization": f"Bearer {d['access_token']}"})
     log("TikTok account (chiave appena ricevuta):", r.status_code, r.text[:200])
 
@@ -1415,12 +1425,13 @@ def _rinnova_tiktok(rt):
 
 
 def token_tiktok():
-    rt = leggi_refresh_tiktok()
+    rt, at, scade = _dati_tiktok()
+    if at and scade > time.time() + 900:
+        return at                                       # la chiave di accesso vale ancora
     if not rt:
         return os.environ.get("TIKTOK_TOKEN")
     d = _rinnova_tiktok(rt)
-    if d.get("refresh_token") and d["refresh_token"] != rt and TIKTOK_TOKEN_FILE.exists():
-        salva_refresh_tiktok(d["refresh_token"])       # TikTok a volte rinnova la chiave: la aggiorno
+    salva_refresh_tiktok(d.get("refresh_token") or rt, d["access_token"], int(time.time()) + int(d.get("expires_in", 0)))
     return d["access_token"]
 
 
@@ -1651,7 +1662,7 @@ def main():
         return
     if args.verifica_tiktok:
         token = token_tiktok()
-        r = HTTP.get("https://open.tiktokapis.com/v2/user/info/?fields=display_name,username", timeout=30,
+        r = HTTP.get("https://open.tiktokapis.com/v2/user/info/?fields=display_name", timeout=30,
                      headers={"Authorization": f"Bearer {token}"})
         log("TikTok account:", r.status_code, r.text[:300])
         r = HTTP.post("https://open.tiktokapis.com/v2/post/publish/creator_info/query/", timeout=30,
