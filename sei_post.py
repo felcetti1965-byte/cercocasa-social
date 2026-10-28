@@ -515,7 +515,7 @@ def main():
     ap.add_argument("--slot", default="", help="un post in più di questo tipo, es. vendita-perugia (prova a mano)")
     args = ap.parse_args()
 
-    social = [x.strip() for x in os.environ.get("SOCIAL_SEI", "instagram,tiktok").split(",") if x.strip()]
+    social = [x.strip() for x in os.environ.get("SOCIAL_SEI", "facebook,instagram,tiktok").split(",") if x.strip()]
     pausa = int(os.environ.get("PAUSA_MINUTI", "3") or 3) * 60
     stato = cs.carica_stato()
     cs.USCITA.mkdir(exist_ok=True)
