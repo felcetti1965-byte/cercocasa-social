@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       indirizzo:
-        description: "Incolla l'indirizzo completo della pagina su cui arrivi dopo aver autorizzato l'app TikTok"
-        required: true
+        description: "Incolla l'indirizzo completo della pagina su cui arrivi dopo aver autorizzato l'app TikTok (vuoto = solo controllo)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -21,11 +22,14 @@ jobs:
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
           INDIRIZZO: ${{ inputs.indirizzo }}
-        run: python cercocasa_social.py --collega-tiktok "$INDIRIZZO"
+        run: |
+          if [ -n "$INDIRIZZO" ]; then python cercocasa_social.py --collega-tiktok "$INDIRIZZO"; fi
+          python cercocasa_social.py --verifica-tiktok
       - name: Memorizza
         run: |
           git config user.name "cercocasa-bot"
           git config user.email "bot@cercocasaumbria.it"
           git add tiktok-token.enc
+          git diff --cached --quiet && exit 0
           git commit -m "Collegato TikTok"
           git push
