@@ -529,7 +529,8 @@ def main():
     oggi = date.today().isoformat()
     fatti_oggi = [p for p in stato["pubblicati"] if p.get("sei") and str(p.get("data", "")).startswith(oggi)]
     if args.rifai_oggi:
-        solo = {p["sei"]: p["id"] for p in fatti_oggi}
+        # solo quelli che non sono ancora usciti su tutti i social richiesti
+        solo = {p["sei"]: p["id"] for p in fatti_oggi if not set(social) <= set(p.get("social", []))}
         lista = [x for x in candidati(stato, solo) if x[3]]
         cs.log("Ripubblico gli annunci di oggi:", solo, "trovati:", [x[0] for x in lista])
     elif args.slot:      # un post in più del tipo scelto (annuncio mai pubblicato)
