@@ -86,6 +86,7 @@ jobs:
           git config user.name "cercocasa-bot"
           git config user.email "bot@cercocasaumbria.it"
           git add pubblicati.json
+          [ -f tiktok-descrizioni.md ] && git add tiktok-descrizioni.md || true
           [ -f tiktok-token.enc ] && git add tiktok-token.enc || true
           git diff --cached --quiet || git commit -m "Pubblicato video del $(date +%F)"
           git push

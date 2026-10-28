@@ -560,6 +560,7 @@ def main():
         return
 
     errori = 0
+    descrizioni_tiktok = []
     for k, (s, v45, v916, copertina) in enumerate(pronti):
         if k:
             time.sleep(pausa)
@@ -576,6 +577,8 @@ def main():
                     ris = pubblica_instagram_reel(v916, cs.testo_post(a, nome))
                 else:
                     ris = cs.PUBBLICA[nome](v916, cs.testo_post(a, nome))
+                    if nome == "tiktok" and ris is not None:
+                        descrizioni_tiktok.append((s["slot"], cs.testo_post(a, nome)))
                 if ris is not None:
                     voce["social"].append(nome)
                     voce[f"{nome}_id"] = str(ris)
@@ -591,6 +594,13 @@ def main():
             stato["pubblicati"].append(voce)
             cs.STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
         cs.log("Pubblicato", s["slot"], "su:", ", ".join(voce["social"]) or "nessuno")
+    if descrizioni_tiktok:
+        # TikTok non riceve il testo insieme alla bozza: lo metto in un file da copiare dal telefono
+        righe = [f"# Descrizioni TikTok del {date.today().strftime('%d/%m/%Y')}", "",
+                 "Apri la bozza su TikTok, tieni premuto sul testo qui sotto, copia e incolla nella descrizione.", ""]
+        for slot, testo in descrizioni_tiktok:
+            righe += [f"## {slot.replace('-', ' ').title()}", "", "```", testo, "```", ""]
+        (QUI / "tiktok-descrizioni.md").write_text("\n".join(righe), encoding="utf-8")
     if pronti and errori >= len(pronti) * len(social):
         raise SystemExit(1)
 
