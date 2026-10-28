@@ -21,6 +21,10 @@ on:
         description: "Un post in più di questo tipo (es. vendita-perugia). Vuoto = i 6 del giorno"
         type: string
         default: ""
+      rifai_oggi:
+        description: "Ripubblica gli annunci di oggi (sui social indicati sopra)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -64,6 +68,7 @@ jobs:
             # 6 post: vendita, affitto e asta a Terni e Perugia, con la grafica nuova
             SLOT_ARG=""
             [ -n "${{ inputs.slot }}" ] && SLOT_ARG="--slot ${{ inputs.slot }}"
+            [ "${{ inputs.rifai_oggi }}" = "true" ] && SLOT_ARG="$SLOT_ARG --rifai-oggi"
             python sei_post.py $PROVA --quanti "${{ inputs.quanti || 6 }}" $SLOT_ARG
           fi
 

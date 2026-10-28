@@ -143,13 +143,18 @@ def scheda_valida(tipo, s, usati):
     return True
 
 
-def candidati(stato):
-    """per ogni tipo e città: (nome, tipo, città, schede in ordine di preferenza, prima le case)"""
-    usati = {p.get("id") for p in stato["pubblicati"]}
+def candidati(stato, solo=None):
+    """per ogni tipo e città: (nome, tipo, città, schede in ordine di preferenza, prima le case).
+    solo = {slot: id}: ripropone proprio quegli annunci (già pubblicati oggi, per un altro social)"""
+    usati = {p.get("id") for p in stato["pubblicati"]} - set((solo or {}).values())
     out = []
     for nome, tipo, citta, pagina in SLOT:
         try:
+            if solo is not None and nome not in solo:
+                continue
             schede = [x for x in leggi_elenco(tipo, pagina) if scheda_valida(tipo, x, usati)]
+            if solo is not None:
+                schede = [x for x in schede if x["id"] == solo[nome]]
         except Exception as e:
             cs.log("  elenco non leggibile", pagina, e)
             schede = []
@@ -513,6 +518,8 @@ def main():
     ap.add_argument("--prova", action="store_true", help="crea video e testi senza pubblicare")
     ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "6") or 6))
     ap.add_argument("--slot", default="", help="un post in più di questo tipo, es. vendita-perugia (prova a mano)")
+    ap.add_argument("--rifai-oggi", action="store_true",
+                    help="ripubblica gli annunci già usciti oggi sui social indicati (es. solo facebook)")
     args = ap.parse_args()
 
     social = [x.strip() for x in os.environ.get("SOCIAL_SEI", "facebook,instagram,tiktok").split(",") if x.strip()]
@@ -521,7 +528,11 @@ def main():
     cs.USCITA.mkdir(exist_ok=True)
     oggi = date.today().isoformat()
     fatti_oggi = [p for p in stato["pubblicati"] if p.get("sei") and str(p.get("data", "")).startswith(oggi)]
-    if args.slot:      # un post in più del tipo scelto (annuncio mai pubblicato)
+    if args.rifai_oggi:
+        solo = {p["sei"]: p["id"] for p in fatti_oggi}
+        lista = [x for x in candidati(stato, solo) if x[3]]
+        cs.log("Ripubblico gli annunci di oggi:", solo, "trovati:", [x[0] for x in lista])
+    elif args.slot:      # un post in più del tipo scelto (annuncio mai pubblicato)
         lista = [x for x in candidati(stato) if x[0] == args.slot and x[3]][:1]
     else:
         da_fare = max(0, args.quanti - (0 if args.prova else len(fatti_oggi)))
@@ -571,7 +582,12 @@ def main():
             except Exception as e:
                 errori += 1
                 cs.log(f"{nome}: ERRORE", s["slot"], e, (getattr(getattr(e, "response", None), "text", "") or "")[:500])
-        if voce["social"]:
+        vecchia = next((p for p in fatti_oggi if args.rifai_oggi and p.get("id") == s["id"]), None)
+        if voce["social"] and vecchia:
+            vecchia["social"] = sorted(set(vecchia.get("social", [])) | set(voce["social"]))
+            vecchia.update({k: v for k, v in voce.items() if k.endswith("_id")})
+            cs.STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
+        elif voce["social"]:
             stato["pubblicati"].append(voce)
             cs.STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
         cs.log("Pubblicato", s["slot"], "su:", ", ".join(voce["social"]) or "nessuno")
