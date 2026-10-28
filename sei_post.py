@@ -457,9 +457,14 @@ def testo(s, social):
 
 
 # ---------------------------------------------------------------- pubblicazione
+def tempo_copertina():
+    """millisecondo del video in cui c'è la copertina dell'annuncio (dopo la sigla iniziale)"""
+    return int((durata(apertura_breve()) * 1000) + COPERTINA_MS + 400)
+
+
 def pubblica_instagram_reel(video, testo_ig):
     """come cs.pubblica_instagram, ma con la copertina sul post (non sul primo fotogramma della sigla)"""
-    offset = int((durata(apertura_breve()) * 1000) + COPERTINA_MS + 400)
+    offset = tempo_copertina()
     originale = cs.HTTP.post
 
     def post_con_copertina(url, *a, **kw):
@@ -544,6 +549,7 @@ def main():
         lista = [x for x in candidati(stato) if x[3] and (args.prova or x[0] not in gia)][:da_fare]
 
     apertura_breve()
+    os.environ["TIKTOK_COPERTINA_MS"] = str(tempo_copertina())   # copertina TikTok = foto dell'annuncio, non la sigla
     pronti = []
     from concurrent.futures import ProcessPoolExecutor
     with ProcessPoolExecutor(max_workers=int(os.environ.get("VIDEO_IN_PARALLELO", "3") or 3)) as pool:

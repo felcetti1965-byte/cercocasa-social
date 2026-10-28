@@ -1461,7 +1461,8 @@ def pubblica_tiktok(video, testo):
     if modo == "diretto":
         url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
         corpo = {"post_info": {"title": testo[:2200], "privacy_level": privacy_tiktok(token),
-                               "disable_comment": False, "video_cover_timestamp_ms": 0}, "source_info": sorgente}
+                               "disable_comment": False,
+                               "video_cover_timestamp_ms": int(os.environ.get("TIKTOK_COPERTINA_MS", "0") or 0)}, "source_info": sorgente}
     else:
         url = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/"
         corpo = {"source_info": sorgente}
