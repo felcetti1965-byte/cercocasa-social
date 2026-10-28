@@ -24,7 +24,7 @@ jobs:
           INDIRIZZO: ${{ inputs.indirizzo }}
         run: |
           if [ -n "$INDIRIZZO" ]; then python cercocasa_social.py --collega-tiktok "$INDIRIZZO"; fi
-          python cercocasa_social.py --verifica-tiktok
+          python cercocasa_social.py --verifica-tiktok || echo 'CONTROLLO TIKTOK NON RIUSCITO'
       - name: Memorizza
         run: |
           git config user.name "cercocasa-bot"

@@ -1384,18 +1384,41 @@ def collega_tiktok(indirizzo):
         "| scade tra giorni:", int(d.get("refresh_expires_in", 0)) // 86400, "| lunghezza:", len(d["refresh_token"]))
     letto = leggi_refresh_tiktok()
     log("TikTok: chiave riletta uguale:", letto == d["refresh_token"])
+    # prova subito la chiave di accesso appena ricevuta
+    r = HTTP.get("https://open.tiktokapis.com/v2/user/info/?fields=display_name,username", timeout=30,
+                 headers={"Authorization": f"Bearer {d['access_token']}"})
+    log("TikTok account (chiave appena ricevuta):", r.status_code, r.text[:200])
+
+
+def _rinnova_tiktok(rt):
+    """chiede a TikTok una nuova chiave di accesso; prova alcuni modi di inviare la richiesta"""
+    from urllib.parse import quote
+    base = {"client_key": os.environ["TIKTOK_CLIENT_KEY"].strip(),
+            "client_secret": os.environ["TIKTOK_CLIENT_SECRET"].strip(),
+            "grant_type": "refresh_token", "refresh_token": rt.strip()}
+    intest = {"Content-Type": "application/x-www-form-urlencoded", "Cache-Control": "no-cache"}
+    modi = [("standard", lambda: requests.post("https://open.tiktokapis.com/v2/oauth/token/", data=base,
+                                               headers={"Cache-Control": "no-cache"}, timeout=30)),
+            ("grezzo", lambda: requests.post("https://open.tiktokapis.com/v2/oauth/token/", headers=intest, timeout=30,
+                                             data="&".join(f"{k}={quote(v, safe='*!.-_~')}" for k, v in base.items())))]
+    ultimo = None
+    for nome, chiama in modi:
+        r = chiama()
+        d = r.json()
+        if r.ok and d.get("access_token"):
+            if nome != "standard":
+                log("TikTok: chiave rinnovata con il modo", nome)
+            return d
+        ultimo = f"(HTTP {r.status_code}, modo {nome}): {str(d)[:300]}"
+        log("TikTok: rinnovo non riuscito", ultimo)
+    raise RuntimeError("TikTok non rinnova la chiave " + ultimo)
 
 
 def token_tiktok():
     rt = leggi_refresh_tiktok()
     if not rt:
         return os.environ.get("TIKTOK_TOKEN")
-    r = HTTP.post("https://open.tiktokapis.com/v2/oauth/token/", data={
-        "client_key": os.environ["TIKTOK_CLIENT_KEY"], "client_secret": os.environ["TIKTOK_CLIENT_SECRET"],
-        "grant_type": "refresh_token", "refresh_token": rt}, timeout=30)
-    d = r.json()
-    if not r.ok or not d.get("access_token"):
-        raise RuntimeError(f"TikTok non rinnova la chiave (HTTP {r.status_code}): {str(d)[:300]}")
+    d = _rinnova_tiktok(rt)
     if d.get("refresh_token") and d["refresh_token"] != rt and TIKTOK_TOKEN_FILE.exists():
         salva_refresh_tiktok(d["refresh_token"])       # TikTok a volte rinnova la chiave: la aggiorno
     return d["access_token"]
