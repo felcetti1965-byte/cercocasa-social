@@ -1,0 +1,45 @@
+name: TikTok recupero (manda i post di oggi non ancora arrivati)
+
+on:
+  schedule:
+    - cron: "50 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recupero:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installa programmi
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q -r requirements.txt
+          python -m playwright install --with-deps chromium > /dev/null
+          mkdir -p font
+          [ -f font/Montserrat.ttf ] || curl -sSL -o font/Montserrat.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf"
+
+      - name: Manda a TikTok i post di oggi mancanti
+        env:
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
+          SOCIAL_SEI: tiktok
+          PAUSA_MINUTI: "1"
+        run: python sei_post.py --quanti 6 --rifai-oggi
+
+      - name: Ricorda gli annunci gia pubblicati
+        run: |
+          git config user.name "cercocasa-bot"
+          git config user.email "bot@cercocasaumbria.it"
+          git add pubblicati.json
+          [ -f tiktok-descrizioni.md ] && git add tiktok-descrizioni.md || true
+          [ -f tiktok-token.enc ] && git add tiktok-token.enc || true
+          git diff --cached --quiet && exit 0
+          git commit -m "TikTok recupero del $(date +%F)"
+          git pull -q --rebase
+          git push
