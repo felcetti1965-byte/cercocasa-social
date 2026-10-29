@@ -404,6 +404,22 @@ def apertura_breve():
     return out
 
 
+def con_copertina_iniziale(video, immagine):
+    """video per TikTok: la bozza prende come copertina il primo fotogramma, quindi metto all'inizio
+    mezzo secondo con la copertina dell'annuncio (foto, prezzo, titolo) prima della sigla"""
+    uscita = Path(video).with_name(Path(video).stem + "-tiktok.mp4")
+    cs.ff("-loop", "1", "-t", "0.5", "-i", immagine, "-f", "lavfi", "-t", "0.5",
+          "-i", "anullsrc=channel_layout=stereo:sample_rate=48000", "-i", video,
+          "-filter_complex",
+          f"[0:v]scale={W}:1920,setsar=1,fps={FPS},format=yuv420p[c];"
+          f"[2:v]scale={W}:1920,setsar=1,fps={FPS},format=yuv420p[v];"
+          "[2:a]aresample=48000,aformat=sample_rates=48000:channel_layouts=stereo[a];"
+          "[c][1:a][v][a]concat=n=2:v=1:a=1[vo][ao]",
+          "-map", "[vo]", "-map", "[ao]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+          "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", uscita)
+    return uscita
+
+
 def monta(post, audio, s, destinazione, verticale):
     """apertura breve + annuncio (voce e musica) + chiusura con i contatti:
     9:16 (Instagram, TikTok) oppure quadrato 1080x1080 (Facebook), mai deformato"""
@@ -584,10 +600,19 @@ def main():
                     ris = cs.pubblica_facebook_quadrato(v45, cs.testo_post(a, nome), copertina)
                 elif nome == "instagram":
                     ris = pubblica_instagram_reel(v916, cs.testo_post(a, nome))
+                elif nome == "tiktok":
+                    vt = v916
+                    cop_reel = v916.with_suffix(".jpg")
+                    if cop_reel.exists():
+                        try:
+                            vt = con_copertina_iniziale(v916, cop_reel)
+                        except Exception as e:
+                            cs.log("  TikTok: copertina iniziale non aggiunta:", e)
+                    ris = cs.PUBBLICA[nome](vt, cs.testo_post(a, nome))
+                    if ris is not None:
+                        descrizioni_tiktok.append((s["slot"], cs.testo_post(a, nome)))
                 else:
                     ris = cs.PUBBLICA[nome](v916, cs.testo_post(a, nome))
-                    if nome == "tiktok" and ris is not None:
-                        descrizioni_tiktok.append((s["slot"], cs.testo_post(a, nome)))
                 if ris is not None:
                     voce["social"].append(nome)
                     voce[f"{nome}_id"] = str(ris)
