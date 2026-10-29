@@ -52,7 +52,7 @@ jobs:
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
           TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
-          TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'diretto' }}
+          TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
           MODO_POST: ${{ vars.MODO_POST || 'diversi' }}
           SOCIAL: ${{ vars.SOCIAL || 'facebook,instagram,tiktok' }}
           SOCIAL_SEI: ${{ inputs.social || 'facebook,instagram,tiktok' }}

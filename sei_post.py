@@ -134,6 +134,8 @@ def leggi_elenco(tipo, pagina):
 def scheda_valida(tipo, s, usati):
     if not s["id"] or s["id"] in usati or not s["foto"] or s["prezzo"] <= 0 or "mappa" in s["foto"].lower():
         return False
+    if tipo != "asta" and re.search(r"all.asta|\basta\b", s.get("titolo", ""), re.I):
+        return False          # le aste stanno nel loro post, non tra vendita e affitto
     if tipo == "asta" and s.get("data_asta"):
         try:
             if datetime.strptime(s["data_asta"], "%d/%m/%Y").date() <= date.today() + timedelta(days=2):
