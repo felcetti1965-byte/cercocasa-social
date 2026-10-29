@@ -212,9 +212,11 @@ def tipo_bello(t):
     return "Immobile" if t.lower() in GENERICI else t[0].upper() + t[1:]
 
 
-def colore_del_giorno():
-    """lo stesso colore del giorno del sistema di prima (cercocasa_social.COLORE), con il testo leggibile sopra"""
-    r, g, b = cs.COLORE
+def colore_del_giorno(slot=None):
+    """un colore diverso per ognuno dei 6 post del giorno (e diverso da un giorno all'altro), con il testo leggibile"""
+    nomi = [x[0] for x in SLOT]
+    passo = nomi.index(slot) if slot in nomi else 0
+    r, g, b = cs.COLORI_GIORNO[(datetime.now().timetuple().tm_yday + passo) % len(cs.COLORI_GIORNO)]
     lum = lambda c: (c / 255 / 12.92) if c <= 10 else (((c / 255) + 0.055) / 1.055) ** 2.4
     L = 0.2126 * lum(r) + 0.7152 * lum(g) + 0.0722 * lum(b)
     sul_bianco = 1.05 / (L + 0.05)
@@ -350,7 +352,7 @@ def video_post(browser, s, cartella, foto, con_facebook=True):
     scene, didascalie, voci, totale = scene_e_voce(s, foto, cartella)
     dati = dati_post(s, [x["photo"] for x in scene])
     dati.update(scenes=scene, captions=didascalie, total=totale)
-    dati["accent"], dati["onAccent"] = colore_del_giorno()
+    dati["accent"], dati["onAccent"] = colore_del_giorno(s.get("slot"))
     # ultima scena: QR che apre direttamente l'annuncio + codice da cercare sul sito
     import qrcode
     qr = cartella / "qr.png"
