@@ -1,48 +1,58 @@
-# Descrizioni TikTok del 28/10/2026
+# Descrizioni TikTok del 29/10/2026
 
 Apri la bozza su TikTok, tieni premuto sul testo qui sotto, copia e incolla nella descrizione.
 
 ## Vendita Terni
 
 ```
-👀 Casa a Terni sotto i 100.000 €: € 75.000
-Appartamento in Via E. Chiesa
-👉 Link in bio per foto e contatti (codice 5268)
-#terni #umbria #casainvendita #case #immobiliare #cercocasaumbria
+🏠 Nuova in vendita a Terni: € 105.000
+ZONA CENTRO
+4 locali · 2 bagni
+Annuncio di IMMOBILIARE CERCOCASA
+👉 Link in bio per foto e contatti (codice 5321)
+#terni #umbria #casainvendita #case #immobiliare
 ```
 
 ## Vendita Perugia
 
 ```
-🏠 Nuova in vendita a Perugia: € 160.000
-Due appartamenti adiacenti al primo piano, centro storico di Perugia
-👉 Link in bio per foto e contatti (codice 5313)
-#perugia #umbria #casainvendita #centrostorico #immobiliare #cercocasaumbria
+⚖️ All'asta a Perugia: si parte € 18.664!
+Appartamento all’asta a Perugia – piano 2, 5 locali
+5 locali · 40 m²
+Annuncio di DIMORAMA PERUGIA
+👉 Link in bio per foto e contatti (codice 5326)
+#perugia #umbria #asteimmobiliari #case #immobiliare
 ```
 
 ## Affitto Terni
 
 ```
-🔑 In affitto a Terni
-Appartamento in affitto a Terni
-👉 Link in bio per foto e contatti (codice 4966)
-#terni #umbria #casainaffitto #affitto #immobiliare #cercocasaumbria
+🔑 In affitto a Terni: 
+LOCALE COMMERCIALE AFFITTO TERNI
+39 m²
+Annuncio di FUTURO IMMOBILIARE
+👉 Link in bio per foto e contatti (codice 5073)
+#terni #umbria #casainaffitto #case #immobiliare
 ```
 
 ## Affitto Perugia
 
 ```
-🔑 In affitto a Perugia, zona Porta Sole
-Appartamento in affitto a Porta Sole, Perugia
-👉 Link in bio per foto e contatti (codice 5058)
-#perugia #umbria #casainaffitto #affitto #immobiliare #cercocasaumbria
+🏠 Nuova in vendita a Perugia: 
+San Marco appartamento tre camere con giardino
+5 locali · 2 bagni · 40 m²
+Annuncio di SINERGIE IMMOBILIARE
+👉 Link in bio per foto e contatti (codice 5027)
+#perugia #umbria #casainvendita #case #immobiliare
 ```
 
-## Asta Terni
+## Asta Perugia
 
 ```
-⚖️ All'asta a Terni: si parte da € 52.000!
-Appartamento all'asta a Terni, Via Narni – piano 1
-👉 Link in bio per foto e contatti (codice 4684)
-#terni #umbria #asteimmobiliari #asta #immobiliare #cercocasaumbria
+⚖️ All'asta a Gualdo Cattaneo: si parte € 138.000!
+Palazzo all’asta a Gualdo Cattaneo, Via Torino – 16 locali
+16 locali · 383 m²
+Annuncio di AFFARI IN ASTA TERNI
+👉 Link in bio per foto e contatti (codice 5334)
+#gualdocattaneo #umbria #asteimmobiliari #perugia #case
 ```
