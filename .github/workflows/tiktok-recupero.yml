@@ -15,10 +15,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/huggingface
+          key: clip-v1
+
       - name: Installa programmi
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           pip install -q -r requirements.txt
+          # riconoscimento delle foto (bagno, cucina, camera...) per abbinarle alle frasi
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q open_clip_torch
           python -m playwright install --with-deps chromium > /dev/null
           mkdir -p font
           [ -f font/Montserrat.ttf ] || curl -sSL -o font/Montserrat.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf"

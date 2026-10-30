@@ -26,6 +26,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 import cercocasa_social as cs
+import foto_stanze
 
 QUI = Path(__file__).resolve().parent
 GRAFICA = QUI / "grafica"
@@ -274,9 +275,12 @@ def scene_e_voce(s, foto, cartella):
     per ogni foto (dati e caratteristiche dell'annuncio), poi si torna alla foto principale (= copertina)"""
     a = s["dettaglio"]
     frasi = cs.frasi_video(a)[:min(MAX_FRASI, len(foto) - 1)]
+    # ogni frase sulla foto che mostra proprio quella cosa (bagno sul bagno, cucina sulla cucina...);
+    # se l'annuncio non ha quella foto: pagina neutra con il logo, mai una foto che dice altro
+    abbinate = foto_stanze.abbina(frasi, foto, cartella, colore_del_giorno(s.get("slot"))[0], log=cs.log)
     pezzi = [(foto[0], "", cs.voce_apertura(a))]
-    for i, f in enumerate(frasi):
-        pezzi.append((foto[1 + i], f, parlato(f)))
+    for f, fp in zip(frasi, abbinate):
+        pezzi.append((fp, f, parlato(f)))
     pezzi.append((foto[0], "", cs.voce_finale(a)))
 
     scene, didascalie, audio, t = [], [], [], 0
