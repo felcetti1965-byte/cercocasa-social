@@ -866,6 +866,90 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5334",
    "facebook_id": "1202701098987587",
    "instagram_id": "18022351538929172"
+  },
+  {
+   "id": 5319,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-10-30T07:31",
+   "titolo": "Città Giardino",
+   "prezzo": "€ 108.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5319/copertina-84c3a5f0a1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5319",
+   "facebook_id": "39543561978620782",
+   "instagram_id": "18343437337253949",
+   "tiktok_id": "v_inbox_file~v2.7702360490290481174"
+  },
+  {
+   "id": 5255,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-10-30T07:36",
+   "titolo": "APPARTAMENTO RISTRUTTURATO PONTE SAN GIOVANNI",
+   "prezzo": "€ 125.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5255/copertina-a46d883f7e.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5255",
+   "facebook_id": "2247846899114298",
+   "instagram_id": "18071641529762179",
+   "tiktok_id": "v_inbox_file~v2.7702361921135364099"
+  },
+  {
+   "id": 4954,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-30T07:41",
+   "titolo": "AFFITTO MONOLOCALE VIA FARINI TERNI",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4954/copertina-f869482d04.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4954",
+   "facebook_id": "2281925045931266",
+   "instagram_id": "17940318204400835"
+  },
+  {
+   "id": 5000,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-30T07:46",
+   "titolo": "APPARTAMENTO AFFITTO CENTRO STORICO PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5000/copertina-adc89b6e94.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5000",
+   "facebook_id": "2673941823026566",
+   "instagram_id": "18078235190425295"
+  },
+  {
+   "id": 5344,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-30T07:52",
+   "titolo": "Appartamento all’asta a Foligno, Via Lago di Bracciano – 10 locali",
+   "prezzo": "€ 119.250",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5344/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5344",
+   "facebook_id": "4425008164483540",
+   "instagram_id": "17952799215051217"
   }
  ],
  "versione": 7
