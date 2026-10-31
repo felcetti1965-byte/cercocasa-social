@@ -950,6 +950,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5344",
    "facebook_id": "4425008164483540",
    "instagram_id": "17952799215051217"
+  },
+  {
+   "id": 5318,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-31T07:24",
+   "titolo": "Città Giardino",
+   "prezzo": "€ 108.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5318/copertina-51b01da254.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5318",
+   "facebook_id": "1409809921140638",
+   "instagram_id": "17983536816003641"
+  },
+  {
+   "id": 5349,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-31T07:29",
+   "titolo": "Elegante palazzo in costruzione",
+   "prezzo": "€ 301.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5349/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5349",
+   "facebook_id": "880467311758019",
+   "instagram_id": "18119958640786097"
+  },
+  {
+   "id": 4953,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-31T07:34",
+   "titolo": "AFFITTO BILOCALE TERNI",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4953/copertina-07e5581a82.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4953",
+   "facebook_id": "1160060646593967",
+   "instagram_id": "17908709553663617"
+  },
+  {
+   "id": 4984,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-31T07:39",
+   "titolo": "MANSARDA AFFITTO CENTRO PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4984/copertina-2e365e974c.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4984",
+   "facebook_id": "1145609081744012",
+   "instagram_id": "18385589302227171"
+  },
+  {
+   "id": 5353,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-10-31T07:43",
+   "titolo": "Casa indipendente all’asta a Bevagna, Via Alarico Palmieri – 7 locali",
+   "prezzo": "€ 91.800",
+   "comune": "Bevagna",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5353/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5353",
+   "facebook_id": "1111882721556508",
+   "instagram_id": "18639740302051255"
   }
  ],
  "versione": 7
