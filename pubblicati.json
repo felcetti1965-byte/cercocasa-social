@@ -1030,6 +1030,84 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5353",
    "facebook_id": "1111882721556508",
    "instagram_id": "18639740302051255"
+  },
+  {
+   "id": 5317,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-01T07:35",
+   "titolo": "Appartamento in vendita a Terni",
+   "prezzo": "€ 50.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5317/copertina-02b077b38f.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5317",
+   "facebook_id": "3249866308735931",
+   "instagram_id": "18034172576677259"
+  },
+  {
+   "id": 5348,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-01T07:40",
+   "titolo": "Palazzo di nuova costruzione",
+   "prezzo": "€ 210.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5348/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5348",
+   "facebook_id": "1808469380472665",
+   "instagram_id": "18131075740851290"
+  },
+  {
+   "id": 2558,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook"
+   ],
+   "data": "2026-11-01T07:45",
+   "titolo": "STANZA AFFITTO TERNI CESURE VALENZA",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/2558/foto-alta-risoluzione-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=2558",
+   "facebook_id": "1009681328829340"
+  },
+  {
+   "id": 4803,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-01T07:50",
+   "titolo": "Appartamento per studenti",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4803/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4803",
+   "facebook_id": "1823226792329249",
+   "instagram_id": "18170535646469803"
+  },
+  {
+   "id": 5303,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-01T07:55",
+   "titolo": "Appartamento all’asta a Spoleto, Frazione Santa Croce – 4 locali",
+   "prezzo": "€ 17.250",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5303/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5303",
+   "facebook_id": "1130354966520459",
+   "instagram_id": "18642035092003632"
   }
  ],
  "versione": 7
