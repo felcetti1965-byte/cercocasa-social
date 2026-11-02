@@ -99,3 +99,9 @@ Pubblica ogni mattina verso le 8 (ora italiana). Per cambiarlo, modifica la riga
 - Il file `pubblicati.json` è la memoria degli annunci già usati: non cancellarlo.
 - Controlla che nelle condizioni del portale le agenzie accettino la promozione dei loro annunci sui social.
 - Per pubblicare un annuncio preciso: `python cercocasa_social.py --id 4586`.
+
+**TikTok – REQUISITI FISSI (decisi da Felice il 02/11/2026, da rispettare sempre):**
+- Il collegamento TikTok deve essere **permanente**: niente ricollegamenti a mano ogni giorno. L'unica strada è l'app in **Produzione** (in Sandbox TikTok non rinnova la chiave).
+- Ogni annuncio su TikTok deve avere **la sua descrizione** (prezzo, zona, locali, agenzia, codice, hashtag della città) e **la sua copertina** (la foto/copertina dell'annuncio, non la sigla). Mai la stessa descrizione o la stessa copertina per annunci diversi.
+- Descrizione e copertina automatiche funzionano solo con `TIKTOK_MODO=diretto` (variabile del repository). In modo `bozza` TikTok non accetta né testo né copertina via API: per questo esiste `tiktok-descrizioni.md`. Appena l'app è approvata: mettere `TIKTOK_MODO=diretto`.
+- Se la chiave scade (errore `invalid_grant`): lanciare "Collega TikTok" senza indirizzo, scaricare il reperto `link-tiktok`, autorizzare, poi rilanciare "Collega TikTok" con l'indirizzo `https://www.cercocasaumbria.it/?code=...`.
