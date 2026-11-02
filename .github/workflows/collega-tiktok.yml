@@ -17,6 +17,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install -q -r requirements.txt
+      - name: Prepara il link di autorizzazione
+        if: inputs.indirizzo == ''
+        env:
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+        run: |
+          python - <<'PY' > link-tiktok.txt
+          import os, urllib.parse
+          q = {"client_key": os.environ["TIKTOK_CLIENT_KEY"], "response_type": "code",
+               "scope": "user.info.basic,video.upload,video.publish",
+               "redirect_uri": "https://www.cercocasaumbria.it/", "state": "cercocasa"}
+          print("https://www.tiktok.com/v2/auth/authorize/?" + urllib.parse.urlencode(q))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: inputs.indirizzo == ''
+        with:
+          name: link-tiktok
+          path: link-tiktok.txt
+          retention-days: 1
       - name: Salva la chiave TikTok (cifrata)
         env:
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
