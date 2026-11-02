@@ -7,6 +7,10 @@ on:
         description: "Incolla l'indirizzo completo della pagina su cui arrivi dopo aver autorizzato l'app TikTok (vuoto = solo controllo)"
         required: false
         default: ""
+      stato:
+        description: "Codici publish_id TikTok da controllare (separati da spazio)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -35,6 +39,21 @@ jobs:
           name: link-tiktok
           path: link-tiktok.txt
           retention-days: 1
+      - name: Controlla lo stato dei video inviati
+        if: inputs.stato != ''
+        env:
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          STATO: ${{ inputs.stato }}
+        run: |
+          python - <<'PY'
+          import os, cercocasa_social as cs
+          t = cs.token_tiktok()
+          for pid in os.environ["STATO"].split():
+              r = cs.HTTP.post("https://open.tiktokapis.com/v2/post/publish/status/fetch/", json={"publish_id": pid}, timeout=30,
+                               headers={"Authorization": f"Bearer {t}", "Content-Type": "application/json; charset=UTF-8"})
+              print("STATO", pid, r.status_code, r.text[:400])
+          PY
       - name: Salva la chiave TikTok (cifrata)
         env:
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
