@@ -1198,6 +1198,86 @@
    "facebook_id": "1097483336420745",
    "instagram_id": "18111641650907426",
    "tiktok_id": "v_inbox_file~v2.7703574257732732950"
+  },
+  {
+   "id": 5267,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-03T07:39",
+   "titolo": "APPARTAMENTO CAMPOMICCIOLO TERNI",
+   "prezzo": "€ 64.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5267/copertina-bd7f6b4ed9.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5267",
+   "facebook_id": "1047674178292363",
+   "instagram_id": "18635962531063300"
+  },
+  {
+   "id": 5346,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-03T07:44",
+   "titolo": "Appartamento in vendita in Oropesa del Mar/Cabanes,",
+   "prezzo": "€ 383.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5346/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5346",
+   "facebook_id": "1141717905013890",
+   "instagram_id": "18221657215359108"
+  },
+  {
+   "id": 1408,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-03T07:49",
+   "titolo": "NEGOZIO AFFITTO TERNI",
+   "prezzo": "€ 2.001/mese",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/1408/foto-logo-110722-6d8c96ab.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=1408",
+   "facebook_id": "1157942050245952",
+   "instagram_id": "17954842536331086"
+  },
+  {
+   "id": 3268,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-03T07:54",
+   "titolo": "APPARTAMENTO AFFITTO PERUGIA CASE BRUCIATE",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/3268/copertina-f73954574c.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=3268",
+   "facebook_id": "1553886800117762",
+   "instagram_id": "18353344126253670"
+  },
+  {
+   "id": 5305,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-03T07:59",
+   "titolo": "Appartamento all’asta a Spoleto, Frazione Bazzano Superiore – 5 locali",
+   "prezzo": "€ 65.898",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5305/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5305",
+   "facebook_id": "1848517262832576",
+   "instagram_id": "18353474251281347"
   }
  ],
  "versione": 7
