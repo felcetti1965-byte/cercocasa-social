@@ -1278,6 +1278,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5305",
    "facebook_id": "1848517262832576",
    "instagram_id": "18353474251281347"
+  },
+  {
+   "id": 5266,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-04T07:44",
+   "titolo": "APPARTAMENTO PIEDILUCO",
+   "prezzo": "€ 130.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5266/copertina-90b912b80a.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5266",
+   "facebook_id": "4543684392586978",
+   "instagram_id": "18136239484774361"
+  },
+  {
+   "id": 5369,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-04T07:49",
+   "titolo": "Appartamento all’asta a Perugia, Via Mario Angeloni – piano 4, 5 locali",
+   "prezzo": "€ 69.609",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5369/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5369",
+   "facebook_id": "3251873701670543",
+   "instagram_id": "18120476164756628"
+  },
+  {
+   "id": 1269,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-04T07:54",
+   "titolo": "BILOCALE AFFITTO TERNI CESURE VALENZA",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/1269/foto-logo-110023-81c6ae29.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=1269",
+   "facebook_id": "1814692739764547",
+   "instagram_id": "17867737203675597"
+  },
+  {
+   "id": 3014,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-04T07:59",
+   "titolo": "AFFITTO APPARTAMENTO FARNETO PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/3014/copertina-5836adcc41.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=3014",
+   "facebook_id": "1835727037648451",
+   "instagram_id": "18133265428741680"
+  },
+  {
+   "id": 5295,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-04T08:04",
+   "titolo": "Appartamento all’asta a Cannara, Via Amedeo di Savoia – 3 locali",
+   "prezzo": "€ 38.884",
+   "comune": "Cannara",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5295/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5295",
+   "facebook_id": "1777005643561850",
+   "instagram_id": "18092822741232489"
   }
  ],
  "versione": 7
