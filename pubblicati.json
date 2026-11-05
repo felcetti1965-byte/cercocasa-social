@@ -1358,6 +1358,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5295",
    "facebook_id": "1777005643561850",
    "instagram_id": "18092822741232489"
+  },
+  {
+   "id": 5402,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-05T07:48",
+   "titolo": "APPARTAMENTO VICINO AL TRIBUNALE TERNI",
+   "prezzo": "€ 65.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5402/copertina-c9a8da74d5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5402",
+   "facebook_id": "2326728288178516",
+   "instagram_id": "17935903614142174"
+  },
+  {
+   "id": 5396,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-05T07:53",
+   "titolo": "MADONNA ALTA, APPARTAMENTO PANORAMICO CON 2 TERRAZZI",
+   "prezzo": "€ 215.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5396/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5396",
+   "facebook_id": "4925712471051609",
+   "instagram_id": "17955645990336820"
+  },
+  {
+   "id": 1265,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-05T07:58",
+   "titolo": "NEGOZIO AFFITTO TERNI BORGO RIVO",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/1265/foto-logo-110001-1707b497.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=1265",
+   "facebook_id": "1601273864518577",
+   "instagram_id": "18128090569900216"
+  },
+  {
+   "id": 5388,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-05T08:03",
+   "titolo": "APPARTAMENTO AFFITTO PONTE SAN GIOVANNI",
+   "prezzo": "€ 1.000/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5388/copertina-b32e699ccf.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5388",
+   "facebook_id": "2542233242941279",
+   "instagram_id": "17923071105451828"
+  },
+  {
+   "id": 5401,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-05T08:09",
+   "titolo": "Appartamento all’asta a Foligno, Via Fiamenga – 2 locali",
+   "prezzo": "€ 75.723",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5401/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5401",
+   "facebook_id": "1892088968823211",
+   "instagram_id": "17904116736372927"
   }
  ],
  "versione": 7
