@@ -1438,6 +1438,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5401",
    "facebook_id": "1892088968823211",
    "instagram_id": "17904116736372927"
+  },
+  {
+   "id": 5413,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-06T07:45",
+   "titolo": "APPARTAMENTO VENDITA TERNI PAPIGNO",
+   "prezzo": "€ 60.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5413/copertina-19440f6ea7.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5413",
+   "facebook_id": "1447650397477617",
+   "instagram_id": "18221253118346605"
+  },
+  {
+   "id": 5425,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-06T07:51",
+   "titolo": "PERUGIA - FONTIGNANO - APPARTAMENTO AL PIANO 1",
+   "prezzo": "€ 120.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5425/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5425",
+   "facebook_id": "2905796023146686",
+   "instagram_id": "17907883176598594"
+  },
+  {
+   "id": 5419,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-06T07:56",
+   "titolo": "AFFITTO APPARTAMENTO ARREDATO TERNI",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5419/copertina-14bb7fed17.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5419",
+   "facebook_id": "2308789339913256",
+   "instagram_id": "18100934438096130"
+  },
+  {
+   "id": 5420,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-06T08:01",
+   "titolo": "AFFITTO PERUGIA CENTRO STORICO",
+   "prezzo": "€ 1.400/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5420/copertina-ad626434e5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5420",
+   "facebook_id": "1101200179541269",
+   "instagram_id": "18085599920336060"
+  },
+  {
+   "id": 5296,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-06T08:06",
+   "titolo": "Appartamento all’asta a Collazzone, Via Acquasanta – piano 2, 3 locali",
+   "prezzo": "€ 21.060",
+   "comune": "Collazzone",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5296/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5296",
+   "facebook_id": "1118485857776794",
+   "instagram_id": "18000545054822918"
   }
  ],
  "versione": 7
