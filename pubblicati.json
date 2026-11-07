@@ -1518,6 +1518,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5296",
    "facebook_id": "1118485857776794",
    "instagram_id": "18000545054822918"
+  },
+  {
+   "id": 5426,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-07T07:32",
+   "titolo": "APPARTAMENTO VENDITA TERNI CENTRO",
+   "prezzo": "€ 149.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5426/copertina-b5ce689c9c.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5426",
+   "facebook_id": "1013219978472941",
+   "instagram_id": "18140682535624314"
+  },
+  {
+   "id": 5429,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-07T07:38",
+   "titolo": "VILLA PANORAMICA IN POSIZIONE ESCLUSIVA – PREPO, PERUGIA",
+   "prezzo": "€ 370.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5429/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5429",
+   "facebook_id": "2052950901891493",
+   "instagram_id": "18072599858780674"
+  },
+  {
+   "id": 1159,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-07T07:43",
+   "titolo": "UFFICIO AFFITTO TERNI CITTÀ GIARDINO",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/1159/foto-logo-109270-6af39211.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=1159",
+   "facebook_id": "1637307068092558",
+   "instagram_id": "17930286468185147"
+  },
+  {
+   "id": 5428,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-07T07:48",
+   "titolo": "BILOCALE AFFITTO VIA PINTURICCHIO",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5428/copertina-15371e268e.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5428",
+   "facebook_id": "996418999535138",
+   "instagram_id": "17900881569609849"
+  },
+  {
+   "id": 5443,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-07T07:53",
+   "titolo": "Appartamento all’asta a Marsciano, Località Papiano, Vocabolo Casenove – 6 locali",
+   "prezzo": "€ 29.236",
+   "comune": "Marsciano",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5443/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5443",
+   "facebook_id": "1734369141477964",
+   "instagram_id": "17877017343587575"
   }
  ],
  "versione": 7
