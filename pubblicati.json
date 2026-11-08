@@ -1598,6 +1598,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5443",
    "facebook_id": "1734369141477964",
    "instagram_id": "17877017343587575"
+  },
+  {
+   "id": 5411,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-08T07:31",
+   "titolo": "CASA INDIPENDENTE",
+   "prezzo": "€ 330.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5411/copertina-8a52f9537f.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5411",
+   "facebook_id": "1583052603553711",
+   "instagram_id": "18119561843000693"
+  },
+  {
+   "id": 5454,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-08T07:36",
+   "titolo": "PERUGIA – NUOVA REALIZZAZIONE RESIDENZIALE IN CLASSE A4",
+   "prezzo": "€ 301.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5454/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5454",
+   "facebook_id": "1445215697750239",
+   "instagram_id": "18112900043217770"
+  },
+  {
+   "id": 993,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-08T07:40",
+   "titolo": "NEGOZIO AFFITTO TERNI SEMICENTRO",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/993/foto-logo-107940-c569c711.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=993",
+   "facebook_id": "975783292271818",
+   "instagram_id": "18100635428390575"
+  },
+  {
+   "id": 5380,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-08T07:45",
+   "titolo": "BILOCALE AFFITTO PONTE FELCINO",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5380/copertina-47882c9d03.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5380",
+   "facebook_id": "1123917667159174",
+   "instagram_id": "18139924225725820"
+  },
+  {
+   "id": 5446,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-08T07:50",
+   "titolo": "Appartamento all’asta a Spoleto, Frazione Ancaiano – 5 locali",
+   "prezzo": "€ 16.200",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5446/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5446",
+   "facebook_id": "1627601198862389",
+   "instagram_id": "18435179467198165"
   }
  ],
  "versione": 7
