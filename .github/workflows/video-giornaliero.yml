@@ -90,6 +90,16 @@ jobs:
           path: video/
           retention-days: 14
 
+      - name: Anteprima (solo prova)
+        if: ${{ inputs.prova == true }}
+        run: |
+          mkdir -p /tmp/ant && cp video/*-reel.mp4 /tmp/ant/ 2>/dev/null || true
+          cd /tmp/ant && git init -q && git checkout -q -b anteprima
+          git config user.name "cercocasa-bot" && git config user.email "bot@cercocasaumbria.it"
+          git add . && git commit -q -m "anteprima" || exit 0
+          AUTH=$(git -C "$GITHUB_WORKSPACE" config --get http.https://github.com/.extraheader)
+          git -c http.https://github.com/.extraheader="$AUTH" push -q -f https://github.com/${{ github.repository }} anteprima
+
       - name: Ricorda gli annunci gia pubblicati
         if: ${{ inputs.prova != true }}
         run: |
