@@ -452,10 +452,10 @@ def voce_apertura(a):
     dove = a["citta"] or "Umbria"
     p = prezzo_voce(a)
     if a["operazione"] == "ALL'ASTA":
-        return f"{tipo} all'asta a {dove}, a partire da {p}." if p else f"{tipo} all'asta a {dove}."
+        return f"{tipo} all'asta {dove}, a partire da {p}." if p else f"{tipo} all'asta {dove}."
     if a["operazione"] == "IN AFFITTO":
-        return f"{tipo} in affitto a {dove}, {p} al mese." if p else f"{tipo} in affitto a {dove}."  # canone
-    return f"{tipo} in vendita a {dove}, a {p}." if p else f"{tipo} in vendita a {dove}."
+        return f"{tipo} in affitto {dove}, {p} al mese." if p else f"{tipo} in affitto {dove}."  # canone
+    return f"{tipo} in vendita {dove}, a {p}." if p else f"{tipo} in vendita {dove}."
 
 
 def voce_finale(a):
@@ -1078,32 +1078,95 @@ def gancio(a):
 
 
 def hashtags(a, quanti):
+    """al massimo 5 (limite di Instagram): città, zona, tipo, operazione, umbria"""
     op = {"IN VENDITA": "#casainvendita", "IN AFFITTO": "#casainaffitto", "ALL'ASTA": "#asteimmobiliari"}[a["operazione"]]
-    prov = "#perugia" if a.get("provincia") == "PG" or a.get("rivista") == "Perugia" else (
-        "#terni" if a.get("provincia") == "TR" or a.get("rivista") == "Terni" else "")
-    tag = [hashtag(a["citta"]), "#umbria", op, prov, "#case", "#immobiliare", "#cercocasaumbria",
-           "#casa", "#casedavendere", "#immobili", "#umbriahouse", "#italianhome", "#realestateitaly"]
-    return " ".join(list(dict.fromkeys(t for t in tag if t))[:quanti])
+    zona = (a.get("zona") or "").split(",")[0]
+    tipo = tipo_parola(a)
+    tag = [hashtag(a["citta"]), hashtag(zona) if zona and len(zona) <= 22 and zona.lower().strip() not in ZONE_GENERICHE else "",
+           hashtag(tipo) if tipo not in ("immobile", "casa") else "", op, "#umbria", "#cercocasaumbria"]
+    return " ".join(list(dict.fromkeys(t for t in tag if t and t != "#"))[:min(quanti, 5)])
+
+
+DOMANDE_POST = {
+    "IN VENDITA": ["Lo compreresti? Scrivi SÌ o NO nei commenti.",
+                   "Secondo te il prezzo è giusto? Dimmelo nei commenti.",
+                   "Ci andresti a vivere? Rispondi qui sotto.",
+                   "Quanto offriresti? Scrivilo nei commenti."],
+    "IN AFFITTO": ["Ci vivresti? Scrivi SÌ o NO nei commenti.",
+                   "Il canone ti sembra giusto? Dimmelo qui sotto.",
+                   "Lo prenderesti? Rispondi nei commenti."],
+    "ALL'ASTA": ["Affare o no? Scrivilo nei commenti.",
+                 "Ci faresti un'offerta? Rispondi qui sotto.",
+                 "Avevi mai pensato di comprare all'asta? Dimmelo nei commenti."],
+}
+INVITI = ["Mandalo a chi cerca casa a {c}.",
+          "Conosci qualcuno che cerca casa a {c}? Mandagli questo video.",
+          "Inoltralo a chi sta cercando in zona {c}."]
+
+
+ZONE_GENERICHE = ("centro", "centro storico", "semicentro", "periferia", "zona centrale")
+
+
+def _a(luogo):
+    return ("ad " if luogo[:1].lower() == "a" else "a ") + luogo
+
+
+def agenzia_bella(nome):
+    nome = re.sub(r"\b(s\.?r\.?l\.?s?|s\.?a\.?s\.?|s\.?n\.?c\.?|s\.?p\.?a\.?)(?=\s|$)", "", nome or "", flags=re.I)
+    nome = re.sub(r"^affiliato\s+", "", nome, flags=re.I).replace(":", "").strip(" ,.-")
+    if nome.isupper():
+        nome = " ".join(w if (w.isalpha() and not re.search(r"[AEIOU]", w)) else
+                        "'".join(x[:1].upper() + x[1:].lower() for x in w.split("'")) for w in nome.split())
+        nome = re.sub(r"(?<=\s)(In|Di|Del|Della|E|A|Da)(?=\s)", lambda m: m.group(1).lower(), nome)
+        nome = nome.replace("Citta'", "Città")
+    return nome
+
+
+def luogo_bello(t):
+    """'san venanzo' -> 'San Venanzo', 'citta della pieve' -> 'Città della Pieve'"""
+    piccole = {"di", "del", "della", "dei", "in", "sul", "sulla", "e", "d'"}
+    w = (t or "").strip().split()
+    return " ".join(x if (i and x.lower() in piccole) else x[:1].upper() + x[1:] for i, x in enumerate(w))
+
+
+def frase_iniziale(a):
+    """prima riga del post: cosa, dove, dati e prezzo, detto in modo semplice"""
+    tipo = tipo_parola(a)
+    tipo = "Immobile" if tipo == "immobile" else tipo.capitalize()
+    zona, citta = luogo_bello((a.get("zona") or "").split(",")[0].lower()), luogo_bello(a["citta"]) or "Umbria"
+    if zona.lower() in ZONE_GENERICHE:
+        dove = _a(f"{citta} {zona.lower()}")
+    elif zona and zona.lower() != citta.lower():
+        dove = _a(f"{zona} ({citta})")
+    else:
+        dove = _a(citta)
+    car = caratteristiche(a).replace("  ·  ", ", ").replace(" · ", ", ")
+    dati = f": {car}" if car else ""
+    if a["operazione"] == "ALL'ASTA":
+        prezzo = a["prezzo"].replace("da ", "").strip()
+        return f"{tipo} all'asta {dove}{dati}. Si parte da {prezzo}."
+    if a["operazione"] == "IN AFFITTO":
+        return f"{tipo} in affitto {dove}{dati}. {a['prezzo']}." if a["prezzo"] else f"{tipo} in affitto {dove}{dati}."
+    return f"{tipo} in vendita {dove}{dati}. {a['prezzo']}." if a["prezzo"] else f"{tipo} in vendita {dove}{dati}."
 
 
 def testo_post(a, social="instagram"):
-    car = caratteristiche(a).replace("  ·  ", " · ")
-    scheda = [x for x in (f"📍 {a['comune']}" if a["comune"] else "", f"💶 {a['prezzo']}",
-                          f"📐 {car}" if car else "") if x]
-    agenzia = f"Annuncio di {a['agenzia']}" if a["agenzia"] else ""
-    domanda = "Che ne pensi del prezzo? Scrivilo nei commenti 👇"
+    n = int(a.get("id") or 0)
+    domande = DOMANDE_POST[a["operazione"]]
+    domanda = domande[n % len(domande)]
+    invito = INVITI[(n // 3) % len(INVITI)].format(c=luogo_bello(a["citta"]) or "Umbria")
+    agenzia = f"Annuncio di {agenzia_bella(a['agenzia'])}." if a["agenzia"] else ""
+    data_asta = next((f for f in frasi_video(a) if f.startswith("Asta il")), "") if a["operazione"] == "ALL'ASTA" else ""
 
     if social == "facebook":
-        righe = [gancio(a), "", a["titolo"], "", *scheda, ""]
-        righe += [agenzia, "", f"👉 Tutte le foto e i contatti: {a['url']}", "", domanda, "", hashtags(a, 4)]
+        righe = [frase_iniziale(a), data_asta + ("." if data_asta else ""), "", domanda, invito, "",
+                 agenzia, f"Foto e contatti: {a['url']}", "", hashtags(a, 4)]
     elif social == "tiktok":
-        righe = [gancio(a), f"{a['titolo']}", f"{car}" if car else "", agenzia,
-                 f"👉 Link in bio per foto e contatti (codice {a['id']})", hashtags(a, 5)]
+        righe = [frase_iniziale(a), domanda, f"Foto e contatti: link in bio, codice {a['id']}.", hashtags(a, 5)]
     else:  # instagram
-        righe = [gancio(a), "", a["titolo"], "", *scheda, "", agenzia, "",
-                 f"👉 Tutte le foto e i contatti: link in bio oppure {a['url'].replace('https://', '')}",
-                 "", domanda, "", "📌 Salva il post e condividilo con chi cerca casa in Umbria", "", hashtags(a, 12)]
-    out = "\n".join(righe)
+        righe = [frase_iniziale(a), data_asta + ("." if data_asta else ""), "", domanda, invito, "",
+                 agenzia, f"Foto e contatti: link in bio, codice {a['id']}.", "", hashtags(a, 5)]
+    out = "\n".join(r for r in righe if r is not None)
     return re.sub(r"\n{3,}", "\n\n", out).strip()
 
 

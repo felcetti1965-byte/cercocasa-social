@@ -34,6 +34,9 @@ FPS, W, H = 30, 1080, 1350
 COPERTINA_MS = 2600          # da qui il post è completo (serve per la copertina di Instagram)
 MAX_FOTO = 9                 # foto dell'annuncio scaricate
 MIN_FOTO = 3                 # sotto questo numero l'annuncio viene saltato
+MIN_FOTO_ASTA = 1            # le aste di Terni hanno spesso una foto sola: il video si fa lo stesso
+GANCIO_MS = 2300             # quanto resta sullo schermo la frase grande iniziale
+CHIUSURA_VELOCITA = 2.5      # la sigla finale (10 s) dura circa 4 s
 MAX_FRASI = 8                # frasi dette dalla voce (una foto per frase)
 APERTURA_VELOCITA = 2.5      # la sigla di apertura (8 s) dura circa 3 s
 CANDIDATI = 6                # annunci di riserva per ogni tipo
@@ -262,6 +265,26 @@ def dati_post(s, foto):
     return d
 
 
+DOMANDE = {"vendita": ["Lo compreresti?", "Prezzo giusto?", "Ci vivresti?", "Affare o no?"],
+           "affitto": ["Ci vivresti?", "Prezzo giusto?", "Lo prenderesti?"],
+           "asta": ["Affare o no?", "Ci faresti un'offerta?", "Lo compreresti?"]}
+
+
+def gancio_video(s):
+    """frase grande sulla prima foto: tipo, zona e prezzo, poi una domanda (cambia da un annuncio all'altro)"""
+    tipo = tipo_bello(s["tipo_imm"])
+    dove = (s.get("zona") or s["citta"]).split(",")[0].strip().title()
+    prezzo = euro(s["prezzo"]) + (" al mese" if s["tipo"] == "affitto" else "")
+    if s["tipo"] == "asta":
+        testo = f"{tipo} all'asta a {dove}<br>da {prezzo}"
+    elif s["tipo"] == "affitto":
+        testo = f"{tipo} in affitto a {dove}<br>{prezzo}"
+    else:
+        testo = f"{tipo} a {dove}<br>{prezzo}"
+    domande = DOMANDE[s["tipo"]]
+    return {"text": testo, "ask": domande[s["id"] % len(domande)], "dur": GANCIO_MS}
+
+
 def parlato(frase):
     """la frase come la dice la voce (date per esteso, niente sigle)"""
     f = re.sub(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b",
@@ -274,7 +297,8 @@ def scene_e_voce(s, foto, cartella):
     """come i video di prima: l'agenzia presenta l'annuncio sulla foto principale, poi una frase breve
     per ogni foto (dati e caratteristiche dell'annuncio), poi si torna alla foto principale (= copertina)"""
     a = s["dettaglio"]
-    frasi = cs.frasi_video(a)[:min(MAX_FRASI, len(foto) - 1)]
+    quante = min(MAX_FRASI, len(foto) - 1) if len(foto) >= MIN_FOTO else 4
+    frasi = cs.frasi_video(a)[:quante]
     # ogni frase sulla foto che mostra proprio quella cosa (bagno sul bagno, cucina sulla cucina...);
     # se l'annuncio non ha quella foto: pagina neutra con il logo, mai una foto che dice altro
     abbinate = foto_stanze.abbina(frasi, foto, cartella, colore_del_giorno(s.get("slot"))[0], log=cs.log)
@@ -357,6 +381,7 @@ def video_post(browser, s, cartella, foto, con_facebook=True):
     dati = dati_post(s, [x["photo"] for x in scene])
     dati.update(scenes=scene, captions=didascalie, total=totale)
     dati["accent"], dati["onAccent"] = colore_del_giorno(s.get("slot"))
+    dati["hook"] = gancio_video(s)
     # ultima scena: QR che apre direttamente l'annuncio + codice da cercare sul sito
     import qrcode
     qr = cartella / "qr.png"
@@ -410,6 +435,18 @@ def apertura_breve():
     return out
 
 
+def chiusura_breve():
+    """la sigla finale accelerata (circa 4 secondi), creata una volta sola"""
+    out = cs.USCITA / "chiusura-breve.mp4"
+    if not out.exists():
+        v = 1 / CHIUSURA_VELOCITA
+        cs.ff("-i", cs.SIGLE / "chiusura.mp4", "-filter_complex",
+              f"[0:v]setpts={v:.4f}*PTS[v];[0:a]atempo=2,atempo={CHIUSURA_VELOCITA / 2:.4f}[a]",
+              "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+              "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "48000", out)
+    return out
+
+
 def con_copertina_iniziale(video, immagine):
     """video per TikTok: la bozza prende come copertina il primo fotogramma, quindi metto all'inizio
     mezzo secondo con la copertina dell'annuncio (foto, prezzo, titolo) prima della sigla"""
@@ -427,24 +464,22 @@ def con_copertina_iniziale(video, immagine):
 
 
 def monta(post, audio, s, destinazione, verticale):
-    """apertura breve + annuncio (voce e musica) + chiusura con i contatti:
-    9:16 (Instagram, TikTok) oppure quadrato 1080x1080 (Facebook), mai deformato"""
+    """annuncio (voce e musica) dal primo fotogramma + chiusura breve con i contatti:
+    9:16 (Instagram, TikTok) oppure quadrato 1080x1080 (Facebook), mai deformato.
+    La sigla di apertura non c'è più: chi scorre deve vedere subito la casa."""
     stereo = "aresample=48000,aformat=sample_rates=48000:channel_layouts=stereo"
     fine = f"setsar=1,fps={FPS},format=yuv420p"
     if verticale:
-        apertura = f"scale={W}:1920,{fine}"
         corpo = f"scale={W}:1920,{fine}"
-        chiusura = f"[3:v]scale={W}:1920,{fine}[v2]"
+        chiusura = f"[2:v]scale={W}:1920,{fine}[v2]"
     else:
-        # come il video quadrato di prima: apertura ritagliata al centro, chiusura rimpicciolita sul fondo
-        apertura = f"scale={W}:1920,crop={W}:{W}:0:420,{fine}"
         corpo = f"scale={W}:{W},{fine}"
-        chiusura = (f"[3:v]scale={W}:1920,split[ca][cb];[ca]crop={W}:{W}:0:300[cbg];"
+        chiusura = (f"[2:v]scale={W}:1920,split[ca][cb];[ca]crop={W}:{W}:0:300[cbg];"
                     f"[cb]scale=918:1632,crop=918:{W}:0:270[cfg];[cbg][cfg]overlay=81:0,{fine}[v2]")
-    filtro = (f"[0:v]{apertura}[v0];[1:v]{corpo}[v1];{chiusura};"
-              f"[0:a]{stereo}[a0];[2:a]{stereo}[a1];[3:a]{stereo}[a2];"
-              f"[v0][a0][v1][a1][v2][a2]concat=n=3:v=1:a=1[v][a]")
-    cs.ff("-i", apertura_breve(), "-i", post, "-i", audio, "-i", cs.SIGLE / "chiusura.mp4",
+    filtro = (f"[0:v]{corpo}[v1];{chiusura};"
+              f"[1:a]{stereo}[a1];[2:a]{stereo}[a2];"
+              f"[v1][a1][v2][a2]concat=n=2:v=1:a=1[v][a]")
+    cs.ff("-i", post, "-i", audio, "-i", chiusura_breve(),
           "-filter_complex", filtro, "-map", "[v]", "-map", "[a]",
           "-c:v", "libx264", "-profile:v", "main", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
           "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2", "-movflags", "+faststart", destinazione)
@@ -483,7 +518,7 @@ def testo(s, social):
 # ---------------------------------------------------------------- pubblicazione
 def tempo_copertina():
     """millisecondo del video in cui c'è la copertina dell'annuncio (dopo la sigla iniziale)"""
-    return int((durata(apertura_breve()) * 1000) + COPERTINA_MS + 400)
+    return int(max(COPERTINA_MS, GANCIO_MS) + 600)
 
 
 def pubblica_instagram_reel(video, testo_ig):
@@ -512,8 +547,13 @@ def produci(nome, tipo, citta, schede, social):
         try:
             s = dict(scheda, slot=nome, tipo=tipo, citta=citta)
             s["dettaglio"] = cs.leggi_annuncio(s["id"])
+            tipo_titolo = cs.tipo_parola(s["dettaglio"])
+            if tipo_titolo not in ("immobile", "casa") or s["tipo_imm"].lower() in GENERICI:
+                s["tipo_imm"] = tipo_titolo          # es. "Casale" al posto di "Appartamento" se il titolo dice casale
+            s["dettaglio"]["zona"] = s.get("zona", "")
+            s["dettaglio"]["tipo_slot"] = tipo
             foto = foto_annuncio(s, cartella)
-            if len(foto) < MIN_FOTO:
+            if len(foto) < (MIN_FOTO_ASTA if tipo == "asta" else MIN_FOTO):
                 cs.log(f"  {nome}: annuncio {s['id']} con {len(foto)} foto, passo al successivo")
                 continue
             a = s["dettaglio"]
@@ -572,7 +612,7 @@ def main():
         gia = {p.get("sei") for p in fatti_oggi}
         lista = [x for x in candidati(stato) if x[3] and (args.prova or x[0] not in gia)][:da_fare]
 
-    apertura_breve()
+    chiusura_breve()
     os.environ["TIKTOK_COPERTINA_MS"] = str(tempo_copertina())   # copertina TikTok = foto dell'annuncio, non la sigla
     pronti = []
     from concurrent.futures import ProcessPoolExecutor
