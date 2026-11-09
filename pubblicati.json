@@ -1678,6 +1678,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5446",
    "facebook_id": "1627601198862389",
    "instagram_id": "18435179467198165"
+  },
+  {
+   "id": 5410,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-09T07:55",
+   "titolo": "APPARTAMENTO ZONA OSPEDALE TERNI",
+   "prezzo": "€ 139.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5410/copertina-871cd497ad.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5410",
+   "facebook_id": "1535590645079074",
+   "instagram_id": "18164623585520608"
+  },
+  {
+   "id": 5456,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-09T08:00",
+   "titolo": "APPARTAMENTO VENDITA MONTELUCE PERUGIA",
+   "prezzo": "€ 165.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5456/copertina-46ab823687.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5456",
+   "facebook_id": "1464686672464833",
+   "instagram_id": "18097984247655582"
+  },
+  {
+   "id": 992,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-09T08:05",
+   "titolo": "CAPANNONE AFFITTO TERNI COLLESCIPOLI",
+   "prezzo": "€ 2.700/mese",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/992/foto-logo-107932-e2ffb6c7.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=992",
+   "facebook_id": "1136302205614673",
+   "instagram_id": "17944134792367355"
+  },
+  {
+   "id": 4983,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-09T08:10",
+   "titolo": "BILOCALE AFFITTO PERUGIA CENTRO",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4983/copertina-bdf2f60353.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4983",
+   "facebook_id": "1866979194439003",
+   "instagram_id": "18475334002187423"
+  },
+  {
+   "id": 5297,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-09T08:15",
+   "titolo": "Appartamento all’asta a Foligno, Frazione Annifo – 6 locali",
+   "prezzo": "€ 34.425",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5297/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5297",
+   "facebook_id": "1651834793107775",
+   "instagram_id": "18121933015978591"
   }
  ],
  "versione": 7
