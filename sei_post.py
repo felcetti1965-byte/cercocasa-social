@@ -35,6 +35,7 @@ COPERTINA_MS = 2600          # da qui il post è completo (serve per la copertin
 MAX_FOTO = 9                 # foto dell'annuncio scaricate
 MIN_FOTO = 3                 # sotto questo numero l'annuncio viene saltato
 MIN_FOTO_ASTA = 1            # le aste di Terni hanno spesso una foto sola: il video si fa lo stesso
+COPERTINA_COME_GANCIO_MS = 2300   # fotogramma usato come copertina (scritta grande già tutta visibile)
 GANCIO_MS = 2300             # quanto resta sullo schermo la frase grande iniziale
 CHIUSURA_VELOCITA = 2.5      # la sigla finale (10 s) dura circa 4 s
 MAX_FRASI = 8                # frasi dette dalla voce (una foto per frase)
@@ -200,7 +201,7 @@ def voce_apertura(a):
 
 def voce_finale(a):
     """a fine video: come arrivare all'annuncio (QR sullo schermo o codice da cercare sul sito)"""
-    return "Tutte le foto e i contatti: apri il link nella bio."
+    return "Foto e contatti: link nella bio."
 
 
 cs.voce_apertura, cs.voce_finale = voce_apertura, voce_finale
@@ -302,10 +303,15 @@ def scene_e_voce(s, foto, cartella):
     # ogni frase sulla foto che mostra proprio quella cosa (bagno sul bagno, cucina sulla cucina...);
     # se l'annuncio non ha quella foto: pagina neutra con il logo, mai una foto che dice altro
     abbinate = foto_stanze.abbina(frasi, foto, cartella, colore_del_giorno(s.get("slot"))[0], log=cs.log)
-    pezzi = [(foto[0], "", cs.voce_apertura(a))]
+    # la voce legge esattamente quello che è scritto sullo schermo
+    g = gancio_video(s)
+    detto_gancio = re.sub(r"<br>", ", ", g["text"]).replace("€ ", "") + " euro. " + g["ask"]
+    detto_gancio = detto_gancio.replace(" al mese euro.", " euro al mese.")
+    pezzi = [(foto[0], "", detto_gancio)]
     for f, fp in zip(frasi, abbinate):
         pezzi.append((fp, f, parlato(f)))
-    pezzi.append((foto[0], "", cs.voce_finale(a)))
+    finale = cs.voce_finale(a)
+    pezzi.append((foto[0], finale, finale))
 
     scene, didascalie, audio, t = [], [], [], 0
     for k, (fp, scritta, detto) in enumerate(pezzi):
@@ -319,6 +325,7 @@ def scene_e_voce(s, foto, cartella):
         if d:
             audio.append((mp3, t + 300))
         t += dur
+    s["gancio_ms"] = scene[0]["dur"] - 250          # la scritta grande resta finché la voce la legge
     cs.log(f"  voce: {len(audio)} frasi, {len(scene)} foto, {t / 1000:.1f} s")
     return scene, didascalie, audio, t
 
@@ -370,7 +377,8 @@ def render(browser, dati, totale, cartella, formato):
     cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.jpg", "-c:v", "libx264", "-preset", "veryfast",
           "-crf", "18", "-pix_fmt", "yuv420p", video)
     copertina = cartella / f"copertina-{formato}.jpg"
-    cs.ff("-i", sorted(fotogrammi.iterdir())[-1], "-q:v", "2", copertina)
+    tutti = sorted(fotogrammi.iterdir())
+    cs.ff("-i", tutti[min(len(tutti) - 1, COPERTINA_COME_GANCIO_MS * FPS // 1000)], "-q:v", "2", copertina)
     shutil.rmtree(fotogrammi, ignore_errors=True)
     return video, copertina
 
@@ -381,7 +389,7 @@ def video_post(browser, s, cartella, foto, con_facebook=True):
     dati = dati_post(s, [x["photo"] for x in scene])
     dati.update(scenes=scene, captions=didascalie, total=totale)
     dati["accent"], dati["onAccent"] = colore_del_giorno(s.get("slot"))
-    dati["hook"] = gancio_video(s)
+    dati["hook"] = dict(gancio_video(s), dur=s.get("gancio_ms", GANCIO_MS))
     # ultima scena: QR che apre direttamente l'annuncio + codice da cercare sul sito
     import qrcode
     qr = cartella / "qr.png"
@@ -518,7 +526,7 @@ def testo(s, social):
 # ---------------------------------------------------------------- pubblicazione
 def tempo_copertina():
     """millisecondo del video in cui c'è la copertina dell'annuncio (dopo la sigla iniziale)"""
-    return int(max(COPERTINA_MS, GANCIO_MS) + 600)
+    return COPERTINA_COME_GANCIO_MS       # copertina = foto con la scritta grande e il prezzo
 
 
 def pubblica_instagram_reel(video, testo_ig):
