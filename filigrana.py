@@ -39,7 +39,7 @@ def trova_maschera(immagini, cv2):
     diff = np.stack([_differenza(im, cv2)[0] for im in immagini])
     chiaro = np.median(diff, axis=0)                      # positivo dove tutte le foto sono più chiare
     quota = (diff > 6).mean(axis=0)                       # in quante foto quel punto è "più chiaro"
-    m = ((chiaro > 7) & (quota >= 0.75)).astype(np.uint8) * 255
+    m = ((chiaro > 4) & (quota >= 0.6)).astype(np.uint8) * 255
     # niente puntini isolati: la filigrana è fatta di tratti
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
     n, etichette, stat, _ = cv2.connectedComponentsWithStats(m)
@@ -98,7 +98,10 @@ def _ritocco_lama():
 def ritocca(orig, maschera, cv2):
     """ricostruisce la foto dove c'è la filigrana (maschera allargata un po')"""
     lama = _ritocco_lama()
-    larga = cv2.dilate(maschera, np.ones((7, 7), np.uint8))
+    # la scritta diventa un blocco pieno (lettere comprese) e un po' più largo: LaMa ricostruisce tutto
+    k = max(9, orig.shape[1] // 60)
+    larga = cv2.morphologyEx(maschera, cv2.MORPH_CLOSE, np.ones((k, k), np.uint8))
+    larga = cv2.dilate(larga, np.ones((9, 9), np.uint8))
     if lama is None:
         return None
     from PIL import Image
