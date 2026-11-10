@@ -24,7 +24,7 @@ jobs:
           import shutil, tempfile
           from pathlib import Path
           import cercocasa_social as cs, sei_post as sp, filigrana
-          a = cs.leggi_annuncio(f"{cs.SITO}/immobile.php?id=${{ inputs.id }}")
+          a = cs.leggi_annuncio(${{ inputs.id }})
           out = Path("prova-filigrana"); out.mkdir(exist_ok=True)
           c = Path(tempfile.mkdtemp())
           foto = sp.foto_annuncio({"dettaglio": a, "foto": ""}, c) if False else []
