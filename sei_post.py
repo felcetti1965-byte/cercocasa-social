@@ -361,6 +361,48 @@ def foto_annuncio(s, cartella):
     return file
 
 
+TOGLI_LOGHI = os.environ.get("TOGLI_LOGHI", "si") != "no"   # le agenzie hanno dato l'OK (10/11/2026)
+
+
+def foto_altre_dell_agenzia(s, cartella, quante=30):
+    """qualche foto di altri annunci della stessa agenzia: servono solo a riconoscere meglio il suo logo"""
+    try:
+        pag = cs.scarica_testo(f"{cs.SITO}/immobile.php?id={s['id']}")
+        ag = re.search(r"agenzia\.php\?id=(\d+)", pag)
+        if not ag:
+            return []
+        ids = sorted({int(i) for i in re.findall(r"immobile\.php\?id=(\d+)", cs.scarica_testo(f"{cs.SITO}/agenzia.php?id={ag.group(1)}"))}
+                     - {s["id"]}, reverse=True)[:12]
+        dest = cartella / "agenzia"
+        dest.mkdir(exist_ok=True)
+        file = []
+        for i in ids:
+            try:
+                for u in cs.leggi_annuncio(i)["foto"][:3]:
+                    if len(file) >= quante or re.search(r"mappa|planimetr|piantin", u, re.I):
+                        continue
+                    f = dest / f"a{len(file)}.jpg"
+                    f.write_bytes(cs.HTTP.get(u, timeout=60).content)
+                    file.append(f)
+            except Exception:
+                pass
+        return file
+    except Exception as e:
+        cs.log("  loghi: foto dell'agenzia non lette", e)
+        return []
+
+
+def togli_loghi(s, foto, cartella):
+    """toglie dalle foto il logo che l'agenzia stampa sopra; se qualcosa va storto restano le foto originali"""
+    if not TOGLI_LOGHI or not foto:
+        return
+    try:
+        import loghi
+        loghi.pulisci(foto, foto_altre_dell_agenzia(s, cartella), log=cs.log)
+    except Exception as e:
+        cs.log("  loghi: non tolti", e)
+
+
 FORMATI = {"reel": (1920, {"vertical": True}), "quadrato": (1080, {"square": True})}
 
 
@@ -570,6 +612,7 @@ def produci(nome, tipo, citta, schede, social):
             if len(foto) < (MIN_FOTO_ASTA if tipo == "asta" else MIN_FOTO):
                 cs.log(f"  {nome}: annuncio {s['id']} con {len(foto)} foto, passo al successivo")
                 continue
+            togli_loghi(s, foto, cartella)
             a = s["dettaglio"]
             cs.log(f"{nome}: {s['id']} – {a['titolo']} – {a['prezzo']} – {a['agenzia']}")
             with sync_playwright() as p:

@@ -50,6 +50,8 @@ jobs:
           # riconoscimento delle foto (bagno, cucina, camera...) per abbinarle alle frasi
           pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -q open_clip_torch
+          # toglie i loghi delle agenzie dalle foto (ricostruzione con il modello LaMa, gira sul processore)
+          pip install -q opencv-python-headless fire && pip install -q --no-deps simple-lama-inpainting
           python -m playwright install --with-deps chromium > /dev/null
           mkdir -p font
           [ -f font/Montserrat.ttf ] || curl -sSL -o font/Montserrat.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf"
