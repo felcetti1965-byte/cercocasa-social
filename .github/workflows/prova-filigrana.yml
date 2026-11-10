@@ -1,0 +1,43 @@
+name: Prova filigrana (foto prima/dopo di un annuncio)
+
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: "Codice annuncio"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  prova:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q -r requirements.txt
+      - name: Prima e dopo
+        run: |
+          python - <<'PY'
+          import shutil, tempfile
+          from pathlib import Path
+          import cercocasa_social as cs, sei_post as sp, filigrana
+          a = cs.leggi_annuncio(f"{cs.SITO}/immobile.php?id=${{ inputs.id }}")
+          out = Path("prova-filigrana"); out.mkdir(exist_ok=True)
+          c = Path(tempfile.mkdtemp())
+          foto = sp.foto_annuncio({"dettaglio": a, "foto": ""}, c) if False else []
+          from urllib.parse import urljoin
+          file = []
+          for i, u in enumerate(a.get("foto", [])[:6]):
+              r = cs.HTTP.get(u, timeout=60); g = c / f"g{i}"; g.write_bytes(r.content)
+              j = c / f"f{i}.jpg"; cs.ff("-i", g, "-vf", "scale='min(1600,iw)':-2", "-q:v", "3", j); file.append(j)
+              shutil.copy(j, out / f"prima{i}.jpg")
+          print("pulite:", filigrana.pulisci_foto(file))
+          for i, j in enumerate(file):
+              shutil.copy(j, out / f"dopo{i}.jpg")
+          PY
+          git config user.name "cercocasa-bot"; git config user.email "bot@cercocasaumbria.it"
+          git checkout -b prova-filigrana
+          git add -f prova-filigrana && git commit -qm "prova filigrana ${{ inputs.id }}" && git push -f origin prova-filigrana

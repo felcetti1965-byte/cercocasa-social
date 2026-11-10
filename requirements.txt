@@ -5,3 +5,5 @@ cryptography
 beautifulsoup4
 playwright
 qrcode
+opencv-python-headless
+numpy

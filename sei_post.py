@@ -27,6 +27,7 @@ from bs4 import BeautifulSoup
 
 import cercocasa_social as cs
 import foto_stanze
+import filigrana
 
 QUI = Path(__file__).resolve().parent
 GRAFICA = QUI / "grafica"
@@ -321,6 +322,10 @@ def foto_annuncio(s, cartella):
             file.append(jpg)
         except Exception as e:
             cs.log("  foto saltata", u, e)
+    try:      # via la filigrana dell'agenzia (es. TEMPOCASA al centro delle foto)
+        filigrana.pulisci_foto(file, log=cs.log)
+    except Exception as e:
+        cs.log("  filigrana non tolta:", e)
     return file
 
 
