@@ -14,10 +14,10 @@ def mappa(imgs, size):
         X.append(cv2.Sobel(g, cv2.CV_32F, 1, 0, ksize=3)); Y.append(cv2.Sobel(g, cv2.CV_32F, 0, 1, ksize=3))
     return np.hypot(np.median(np.stack(X), 0), np.median(np.stack(Y), 0))
 
-def maschera(imgs, size):
+def maschera(imgs, size, severita=8):
     m = mappa(imgs, size)
     med = np.median(m); mad = np.median(np.abs(m - med)) + 1e-3
-    b = (m > max(med + 8 * mad, 14)).astype(np.uint8) * 255
+    b = (m > max(med + severita * mad, 14 + severita - 8)).astype(np.uint8) * 255
     b = cv2.morphologyEx(b, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
     n, lab, st, _ = cv2.connectedComponentsWithStats(cv2.dilate(b, np.ones((9, 9), np.uint8)))
     out = np.zeros_like(b)
@@ -34,24 +34,42 @@ def maschera(imgs, size):
         cv2.drawContours(piena, [cv2.convexHull(c)], -1, 255, -1)
     return cv2.dilate(piena, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
 
+LAMA_URL = "https://github.com/enesmsahin/simple-lama-inpainting/releases/download/v0.1.0/big-lama.pt"
 _lama = None
+
+
 def _carica_lama():
+    """modello LaMa (circa 200 MB), scaricato una volta e tenuto nella cache di torch"""
     import torch
-    from simple_lama_inpainting.models.model import LAMA_MODEL_URL
-    from simple_lama_inpainting.utils import download_model
-    m = torch.jit.load(download_model(LAMA_MODEL_URL), map_location="cpu")
+    from torch.hub import download_url_to_file, get_dir
+    cartella = Path(get_dir()) / "checkpoints"
+    cartella.mkdir(parents=True, exist_ok=True)
+    f = cartella / "big-lama.pt"
+    if not f.exists():
+        download_url_to_file(LAMA_URL, str(f), progress=False)
+    m = torch.jit.load(str(f), map_location="cpu")
     m.eval()
     return m
+
+
+def _tensore(a, mod=8):
+    """immagine (h,w,c) o maschera (h,w) -> tensore 1,c,H,W con lati multipli di 8"""
+    import torch
+    a = a.astype(np.float32) / 255
+    a = a[None] if a.ndim == 2 else np.transpose(a, (2, 0, 1))
+    h, w = a.shape[1:]
+    a = np.pad(a, ((0, 0), (0, (-h) % mod), (0, (-w) % mod)), mode="symmetric")
+    return torch.from_numpy(a).unsqueeze(0)
+
 
 def ricostruisci(img, m):
     global _lama
     try:
         import torch
-        from PIL import Image
-        from simple_lama_inpainting.utils import prepare_img_and_mask
         if _lama is None:
             _lama = _carica_lama()
-        x, k = prepare_img_and_mask(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)), Image.fromarray(m), torch.device("cpu"))
+        x = _tensore(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        k = (_tensore(m) > 0).float()
         with torch.inference_mode():
             r = _lama(x, k)[0].permute(1, 2, 0).numpy()
         r = cv2.cvtColor(np.clip(r * 255, 0, 255).astype(np.uint8), cv2.COLOR_RGB2BGR)[:img.shape[0], :img.shape[1]]
@@ -73,16 +91,27 @@ def pulisci(files, extra=(), log=print):
         gruppo = [f for f, i in imgs.items() if (i.shape[1] >= i.shape[0]) == land]
         if not gruppo:
             continue
-        campione = [imgs[f] for f in gruppo] + [i for i in altre.values() if (i.shape[1] >= i.shape[0]) == land]
-        if len(campione) < MIN_FOTO:
-            log(f"  loghi: troppe poche foto {'orizzontali' if land else 'verticali'} per riconoscerli ({len(campione)})")
-            continue
         size = (1024, 768) if land else (768, 1024)
-        m = maschera(campione, size)
-        quota = m.mean() / 255
-        if quota < 0.001 or quota > 0.14:
-            log(f"  loghi: niente di sicuro da togliere ({quota:.1%})")
+        # due prove: solo le foto dell'annuncio (logo messo su quell'annuncio) e insieme alle altre
+        # dell'agenzia (logo fisso dell'agenzia, riconosciuto meglio). Si toglie quello che trovano.
+        prove = [[imgs[f] for f in gruppo]]
+        altre_g = [i for i in altre.values() if (i.shape[1] >= i.shape[0]) == land]
+        if altre_g:
+            prove.append(prove[0] + altre_g)
+        m = None
+        for campione in prove:
+            if len(campione) < (3 if campione is prove[0] else MIN_FOTO):
+                continue
+            for severita in (8, 11, 15, 20):          # se la zona trovata è troppo grande, si è più severi
+                mm = maschera(campione, size, severita)
+                if mm.mean() / 255 <= 0.12:
+                    break
+            if 0.001 <= mm.mean() / 255 <= 0.12:
+                m = mm if m is None else cv2.bitwise_or(m, mm)
+        if m is None:
+            log(f"  loghi: niente di sicuro da togliere ({'orizzontali' if land else 'verticali'})")
             continue
+        quota = m.mean() / 255
         for f in gruppo:
             im = imgs[f]
             mm = cv2.resize(m, (im.shape[1], im.shape[0]), interpolation=cv2.INTER_NEAREST)
