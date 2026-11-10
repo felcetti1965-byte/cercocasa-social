@@ -274,7 +274,13 @@ DOMANDE = {"vendita": ["Lo compreresti?", "Prezzo giusto?", "Ci vivresti?", "Aff
 def gancio_video(s):
     """frase grande sulla prima foto: tipo, zona e prezzo, poi una domanda (cambia da un annuncio all'altro)"""
     tipo = tipo_bello(s["tipo_imm"])
-    dove = (s.get("zona") or s["citta"]).split(",")[0].strip().title()
+    citta = s["citta"].strip().title()
+    zona = (s.get("zona") or "").split(",")[0].strip().title()
+    # "Appartamento a Terni, zona Stazione" (non "a Stazione"); frazioni e paesi restano col loro nome
+    if zona and zona.lower() != citta.lower() and citta.lower() in ("perugia", "terni"):
+        dove = f"{citta}, zona {zona}"
+    else:
+        dove = zona or citta
     prezzo = euro(s["prezzo"]) + (" al mese" if s["tipo"] == "affitto" else "")
     if s["tipo"] == "asta":
         testo = f"{tipo} all'asta a {dove}<br>da {prezzo}"

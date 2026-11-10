@@ -34,11 +34,11 @@ CORNICE = QUI / "cornice.png"   # grafica con barre in alto e in basso (centro t
 LOGO_TONDO = QUI / "tondo-annuncio.png"   # logo tondo mostrato in alto nelle scene dell'annuncio
 LOGO = next(iter(sorted(QUI.glob("logo*.png")) + sorted(QUI.glob("Logo*.png"))), QUI / "logo.png")
 # voci SOLO italiane (quelle "Multilingual" a volte leggono le frasi corte in inglese)
-VOCE = os.environ.get("VOCE", "it-IT-DiegoNeural")          # voce maschile profonda
+VOCE = os.environ.get("VOCE", "it-IT-IsabellaNeural")
 VOCI_PROVA = ["it-IT-IsabellaNeural", "it-IT-ElsaNeural", "it-IT-DiegoNeural"]
 VERSIONE = 7   # quando cambia, la settimana già preparata viene rifatta con la grafica nuova
-VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-8%")   # calma, da spot
-VOCE_TONO = os.environ.get("VOCE_TONO", "-3Hz")      # tono naturale (abbassarlo rende la voce metallica)
+VOCE_VELOCITA = os.environ.get("VOCE_VELOCITA", "-6%")
+VOCE_TONO = os.environ.get("VOCE_TONO", "+0Hz")      # tono naturale (abbassarlo rende la voce metallica)
 STATO = QUI / "pubblicati.json"
 USCITA = QUI / "video"
 
