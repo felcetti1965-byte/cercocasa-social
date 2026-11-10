@@ -1474,7 +1474,62 @@ def pubblica_tiktok_uploadpost(video, testo):
     return (ris.get("publish_id") or ris.get("request_id") or d.get("request_id") or "ok") if isinstance(ris, dict) else "ok"
 
 
+ZERNIO = "https://zernio.com/api/v1"
+
+
+def _zernio_account(chiave):
+    """id dell'account TikTok collegato su Zernio (o quello indicato in ZERNIO_TIKTOK_ACCOUNT)"""
+    if os.environ.get("ZERNIO_TIKTOK_ACCOUNT"):
+        return os.environ["ZERNIO_TIKTOK_ACCOUNT"].strip()
+    r = HTTP.get(f"{ZERNIO}/accounts", timeout=60, headers={"Authorization": f"Bearer {chiave}"})
+    r.raise_for_status()
+    d = r.json()
+    conti = d.get("accounts") if isinstance(d, dict) else d
+    for c in conti or []:
+        if str(c.get("platform", "")).lower() == "tiktok":
+            return c.get("_id") or c.get("id") or c.get("accountId")
+    raise RuntimeError(f"Zernio: nessun account TikTok collegato ({str(d)[:200]})")
+
+
+def pubblica_tiktok_zernio(video, testo):
+    """TikTok tramite Zernio (gratis per 2 account, servizio approvato da TikTok):
+    collegamento permanente, pubblicazione diretta pubblica con descrizione e copertina dell'annuncio"""
+    chiave = os.environ["ZERNIO_KEY"].strip()
+    auth = {"Authorization": f"Bearer {chiave}"}
+    dim = Path(video).stat().st_size
+    r = HTTP.post(f"{ZERNIO}/media/presign", timeout=60, headers=auth,
+                  json={"filename": Path(video).name, "contentType": "video/mp4", "size": dim})
+    r.raise_for_status()
+    p = r.json()
+    with open(video, "rb") as f:
+        up = requests.put(p["uploadUrl"], data=f, timeout=600, headers={"Content-Type": "video/mp4"})
+    up.raise_for_status()
+    copertina = int(os.environ.get("TIKTOK_COPERTINA_MS", "1000") or 1000)
+    corpo = {
+        "content": testo[:2200],
+        "mediaItems": [{"type": "video", "url": p["publicUrl"]}],
+        "platforms": [{"platform": "tiktok", "accountId": _zernio_account(chiave),
+                       "platformSpecificData": {"videoCoverTimestampMs": copertina}}],
+        "tiktokSettings": {"privacy_level": os.environ.get("TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE"),
+                           "allow_comment": True, "allow_duet": True, "allow_stitch": True,
+                           "content_preview_confirmed": True, "express_consent_given": True},
+        "publishNow": True,
+    }
+    r = HTTP.post(f"{ZERNIO}/posts", timeout=120, headers=auth, json=corpo)
+    try:
+        d = r.json()
+    except ValueError:
+        d = {"testo": r.text[:300]}
+    if not r.ok:
+        raise RuntimeError(f"Zernio TikTok non riuscito (HTTP {r.status_code}): {str(d)[:400]}")
+    post = d.get("post", d) if isinstance(d, dict) else {}
+    log("TikTok (Zernio): pubblicato", str(post)[:200])
+    return post.get("_id") or post.get("id") or "ok"
+
+
 def pubblica_tiktok(video, testo):
+    if os.environ.get("ZERNIO_KEY"):
+        return pubblica_tiktok_zernio(video, testo)
     if os.environ.get("UPLOADPOST_KEY") and os.environ.get("UPLOADPOST_USER"):
         return pubblica_tiktok_uploadpost(video, testo)
     token = token_tiktok()

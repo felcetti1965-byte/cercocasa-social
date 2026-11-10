@@ -609,7 +609,7 @@ def main():
                 elif nome == "tiktok":
                     vt = v916
                     cop_reel = v916.with_suffix(".jpg")
-                    if cop_reel.exists() and not os.environ.get("UPLOADPOST_KEY"):   # con Upload-Post la copertina la sceglie cover_timestamp
+                    if cop_reel.exists() and not (os.environ.get("UPLOADPOST_KEY") or os.environ.get("ZERNIO_KEY")):   # con Upload-Post la copertina la sceglie cover_timestamp
                         try:
                             vt = con_copertina_iniziale(v916, cop_reel)
                         except Exception as e:
