@@ -277,7 +277,7 @@ def gancio_video(s):
     citta = s["citta"].strip().title()
     zona = (s.get("zona") or "").split(",")[0].strip().title()
     # "Appartamento a Terni, zona Stazione" (non "a Stazione"); frazioni e paesi restano col loro nome
-    if zona and zona.lower() != citta.lower() and citta.lower() in ("perugia", "terni"):
+    if s["tipo"] != "asta" and zona and zona.lower() != citta.lower() and citta.lower() in ("perugia", "terni"):
         dove = f"{citta}, zona {zona}"
     else:
         dove = zona or citta
