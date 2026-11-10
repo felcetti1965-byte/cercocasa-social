@@ -95,29 +95,29 @@ def _ritocco_lama():
     return _lama or None
 
 
-def ritocca(orig, maschera, cv2):
-    """ricostruisce la foto dove c'è la filigrana (maschera allargata un po')"""
-    lama = _ritocco_lama()
-    # la scritta diventa un blocco pieno (lettere comprese) e un po' più largo: LaMa ricostruisce tutto
-    # pezzi vicini della filigrana (cerchio, scritta, cornice) uniti in un'unica forma piena
-    k = max(15, orig.shape[1] // 25)
+def zona_piena(maschera, cv2):
+    """i pezzi vicini della filigrana (cerchio, scritta, cornice) uniti in un'unica forma piena"""
+    k = max(15, maschera.shape[1] // 25)
     unita = cv2.morphologyEx(maschera, cv2.MORPH_CLOSE, np.ones((k, k), np.uint8))
-    larga = np.zeros_like(unita)
+    piena = np.zeros_like(unita)
     cont, _ = cv2.findContours(unita, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for c in cont:
         if cv2.contourArea(c) > 0.0005 * unita.size:
-            cv2.drawContours(larga, [cv2.convexHull(c)], -1, 255, -1)
-    larga = cv2.dilate(larga, np.ones((11, 11), np.uint8))
+            cv2.drawContours(piena, [cv2.convexHull(c)], -1, 255, -1)
+    return cv2.dilate(piena, np.ones((11, 11), np.uint8))
+
+
+def fondo_lama(orig, zona, cv2):
+    """come sarebbe la foto senza niente nella zona (ricostruita da LaMa); None se LaMa non c'è"""
+    lama = _ritocco_lama()
     if lama is None:
         return None
     from PIL import Image
     rgb = Image.fromarray(cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
-    out = np.array(lama(rgb, Image.fromarray(larga).convert("L")))
-    out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
+    out = cv2.cvtColor(np.array(lama(rgb, Image.fromarray(zona).convert("L"))), cv2.COLOR_RGB2BGR)
     if out.shape[:2] != orig.shape[:2]:
         out = cv2.resize(out, (orig.shape[1], orig.shape[0]))
-    sfuma = cv2.GaussianBlur(larga, (9, 9), 0).astype(np.float32)[..., None] / 255
-    return (out * sfuma + orig * (1 - sfuma)).astype(np.uint8)
+    return out
 
 
 def pulisci_foto(foto, log=print):
@@ -141,16 +141,30 @@ def pulisci_foto(foto, log=print):
         if maschera is None:
             continue
         log(f"  filigrana trovata su {len(elenco)} foto ({maschera.mean() / 255:.1%} dell'immagine): la tolgo")
-        alfa = stima_alfa([im for _, im in elenco], maschera, cv2)
-        for f, _ in elenco:
-            orig = cv2.imread(str(f), cv2.IMREAD_COLOR)
-            H, W = orig.shape[:2]
-            a = cv2.resize(alfa, (W, H), interpolation=cv2.INTER_LINEAR)
-            m = cv2.resize(maschera, (W, H), interpolation=cv2.INTER_NEAREST)
-            pulita = ritocca(orig, m, cv2)
-            if pulita is None:
-                pulita = togli(orig, a, m, cv2)
-            cv2.imwrite(str(f), pulita, [cv2.IMWRITE_JPEG_QUALITY, 92])
+        originali = [cv2.imread(str(f), cv2.IMREAD_COLOR) for f, _ in elenco]
+        H, W = originali[0].shape[:2]
+        m = cv2.resize(maschera, (W, H), interpolation=cv2.INTER_NEAREST)
+        zona = zona_piena(m, cv2)
+        # trasparenza della filigrana: uguale in tutte le foto -> mediana di (I - fondo) / (255 - fondo),
+        # con il fondo ricostruito da LaMa (o, senza LaMa, dalla stima semplice)
+        stime = []
+        for o in originali:
+            o = cv2.resize(o, (W, H))
+            fondo = fondo_lama(o, zona, cv2)
+            if fondo is None:
+                break
+            f32 = fondo.astype(np.float32)
+            stime.append(((o.astype(np.float32) - f32) / np.maximum(255 - f32, 15)).mean(axis=2))
+        if len(stime) == len(originali):
+            alfa = np.clip(np.median(np.stack(stime), axis=0), 0, 0.9)
+            alfa[zona == 0] = 0
+            alfa[alfa < 0.05] = 0
+            alfa = cv2.GaussianBlur(alfa, (3, 3), 0)
+        else:
+            alfa = cv2.resize(stima_alfa([im for _, im in elenco], maschera, cv2), (W, H))
+        for (f, _), o in zip(elenco, originali):
+            o = cv2.resize(o, (W, H))
+            cv2.imwrite(str(f), togli(o, alfa, m, cv2), [cv2.IMWRITE_JPEG_QUALITY, 92])
             pulite += 1
     return pulite
 
