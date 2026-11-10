@@ -1450,7 +1450,33 @@ def privacy_tiktok(token):
     return voluta
 
 
+def pubblica_tiktok_uploadpost(video, testo):
+    """TikTok tramite Upload-Post (servizio già approvato da TikTok): collegamento permanente,
+    pubblicazione diretta con descrizione e copertina dell'annuncio"""
+    dati = {"user": os.environ["UPLOADPOST_USER"].strip(), "platform[]": "tiktok",
+            "tiktok_title": testo[:2200], "post_mode": "DIRECT_POST",
+            "privacy_level": os.environ.get("TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE"),
+            "cover_timestamp": os.environ.get("TIKTOK_COPERTINA_MS", "1000") or "1000"}
+    with open(video, "rb") as f:
+        r = HTTP.post("https://api.upload-post.com/api/upload", data=dati, timeout=600,
+                      headers={"Authorization": f"Apikey {os.environ['UPLOADPOST_KEY'].strip()}"},
+                      files={"video": (Path(video).name, f, "video/mp4")})
+    try:
+        d = r.json()
+    except ValueError:
+        d = {"testo": r.text[:300]}
+    if not r.ok or d.get("success") is False:
+        raise RuntimeError(f"Upload-Post TikTok non riuscito (HTTP {r.status_code}): {str(d)[:400]}")
+    ris = (d.get("results") or {}).get("tiktok") or d
+    if isinstance(ris, dict) and ris.get("success") is False:
+        raise RuntimeError(f"Upload-Post TikTok non riuscito: {str(ris)[:400]}")
+    log("TikTok (Upload-Post): pubblicato", str(ris)[:200])
+    return (ris.get("publish_id") or ris.get("request_id") or d.get("request_id") or "ok") if isinstance(ris, dict) else "ok"
+
+
 def pubblica_tiktok(video, testo):
+    if os.environ.get("UPLOADPOST_KEY") and os.environ.get("UPLOADPOST_USER"):
+        return pubblica_tiktok_uploadpost(video, testo)
     token = token_tiktok()
     if not token:
         log("TikTok: chiavi non configurate, salto")

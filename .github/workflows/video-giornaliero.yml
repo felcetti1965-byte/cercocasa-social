@@ -61,6 +61,8 @@ jobs:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          UPLOADPOST_KEY: ${{ secrets.UPLOADPOST_KEY }}
+          UPLOADPOST_USER: ${{ secrets.UPLOADPOST_USER }}
           TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
           TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
           MODO_POST: ${{ vars.MODO_POST || 'diversi' }}

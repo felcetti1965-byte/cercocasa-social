@@ -37,6 +37,8 @@ jobs:
         env:
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          UPLOADPOST_KEY: ${{ secrets.UPLOADPOST_KEY }}
+          UPLOADPOST_USER: ${{ secrets.UPLOADPOST_USER }}
           TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
           SOCIAL_SEI: tiktok
           PAUSA_MINUTI: "1"
