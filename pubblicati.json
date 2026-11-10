@@ -1758,6 +1758,86 @@
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5297",
    "facebook_id": "1651834793107775",
    "instagram_id": "18121933015978591"
+  },
+  {
+   "id": 5469,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-10T07:41",
+   "titolo": "APPARTAMENTO VENDITA TERNI",
+   "prezzo": "€ 90.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5469/copertina-8aa8c2cf37.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5469",
+   "facebook_id": "1455107979286716",
+   "instagram_id": "18110207723186339"
+  },
+  {
+   "id": 5468,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-10T07:46",
+   "titolo": "CASALE DA RISTRUTTURARE PONTE FELCINO",
+   "prezzo": "€ 170.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5468/copertina-0a6fb1a4bb.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5468",
+   "facebook_id": "892823740519722",
+   "instagram_id": "18185492737426148"
+  },
+  {
+   "id": 5470,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-10T07:51",
+   "titolo": "AFFITTO APPARTAMENTO IN VILLA A TERNI",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5470/copertina-a7151ba309.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5470",
+   "facebook_id": "2242306652994483",
+   "instagram_id": "18086243681335356"
+  },
+  {
+   "id": 5472,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-10T07:56",
+   "titolo": "APPARTAMENTO AFFITTO FONTIVEGGE",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5472/copertina-cea04619ee.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5472",
+   "facebook_id": "1713557940339515",
+   "instagram_id": "18645774256023561"
+  },
+  {
+   "id": 5494,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-10T08:02",
+   "titolo": "Casa indipendente all’asta a Spoleto, Via Triponzo – 2 locali",
+   "prezzo": "€ 62.000",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5494/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5494",
+   "facebook_id": "2496403954221279",
+   "instagram_id": "17980964979138677"
   }
  ],
  "versione": 7
