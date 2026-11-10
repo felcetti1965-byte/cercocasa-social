@@ -39,7 +39,7 @@ def trova_maschera(immagini, cv2):
     diff = np.stack([_differenza(im, cv2)[0] for im in immagini])
     chiaro = np.median(diff, axis=0)                      # positivo dove tutte le foto sono più chiare
     quota = (diff > 6).mean(axis=0)                       # in quante foto quel punto è "più chiaro"
-    m = ((chiaro > 3) & (quota >= 0.6)).astype(np.uint8) * 255
+    m = ((chiaro > 2.5) & (quota >= 0.5)).astype(np.uint8) * 255
     # niente puntini isolati: la filigrana è fatta di tratti
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
     n, etichette, stat, _ = cv2.connectedComponentsWithStats(m)
@@ -97,14 +97,9 @@ def _ritocco_lama():
 
 def zona_piena(maschera, cv2):
     """i pezzi vicini della filigrana (cerchio, scritta, cornice) uniti in un'unica forma piena"""
-    k = max(15, maschera.shape[1] // 25)
+    k = max(9, maschera.shape[1] // 70)
     unita = cv2.morphologyEx(maschera, cv2.MORPH_CLOSE, np.ones((k, k), np.uint8))
-    piena = np.zeros_like(unita)
-    cont, _ = cv2.findContours(unita, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    for c in cont:
-        if cv2.contourArea(c) > 0.0005 * unita.size:
-            cv2.drawContours(piena, [cv2.convexHull(c)], -1, 255, -1)
-    return cv2.dilate(piena, np.ones((11, 11), np.uint8))
+    return cv2.dilate(unita, np.ones((13, 13), np.uint8))
 
 
 def fondo_lama(orig, zona, cv2):
@@ -148,14 +143,14 @@ def pulisci_foto(foto, log=print):
         # trasparenza della filigrana: uguale in tutte le foto -> mediana di (I - fondo) / (255 - fondo),
         # con il fondo ricostruito da LaMa (o, senza LaMa, dalla stima semplice)
         stime = []
-        for o in originali:
+        for o in ([] if _ritocco_lama() else originali):
             o = cv2.resize(o, (W, H))
             fondo = fondo_lama(o, zona, cv2)
             if fondo is None:
                 break
             f32 = fondo.astype(np.float32)
             stime.append(((o.astype(np.float32) - f32) / np.maximum(255 - f32, 15)).mean(axis=2))
-        if len(stime) == len(originali):
+        if stime and len(stime) == len(originali):
             alfa = np.clip(np.median(np.stack(stime), axis=0), 0, 0.9)
             alfa[zona == 0] = 0
             alfa[alfa < 0.05] = 0
@@ -164,7 +159,13 @@ def pulisci_foto(foto, log=print):
             alfa = cv2.resize(stima_alfa([im for _, im in elenco], maschera, cv2), (W, H))
         for (f, _), o in zip(elenco, originali):
             o = cv2.resize(o, (W, H))
-            cv2.imwrite(str(f), togli(o, alfa, m, cv2), [cv2.IMWRITE_JPEG_QUALITY, 92])
+            fondo = fondo_lama(o, zona, cv2)
+            if fondo is None:
+                pulita = togli(o, alfa, m, cv2)
+            else:
+                sfuma = cv2.GaussianBlur(zona, (7, 7), 0).astype(np.float32)[..., None] / 255
+                pulita = (fondo * sfuma + o * (1 - sfuma)).astype(np.uint8)
+            cv2.imwrite(str(f), pulita, [cv2.IMWRITE_JPEG_QUALITY, 92])
             pulite += 1
     return pulite
 
