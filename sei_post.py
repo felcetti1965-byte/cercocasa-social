@@ -322,8 +322,9 @@ def foto_annuncio(s, cartella):
             file.append(jpg)
         except Exception as e:
             cs.log("  foto saltata", u, e)
-    try:      # via la filigrana dell'agenzia (es. TEMPOCASA al centro delle foto)
-        filigrana.pulisci_foto(file, log=cs.log)
+    try:      # via la filigrana dell'agenzia (es. TEMPOCASA al centro delle foto): attiva solo con FILIGRANA=togli
+        if os.environ.get("FILIGRANA", "") == "togli":
+            filigrana.pulisci_foto(file, log=cs.log)
     except Exception as e:
         cs.log("  filigrana non tolta:", e)
     return file
