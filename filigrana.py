@@ -39,7 +39,7 @@ def trova_maschera(immagini, cv2):
     diff = np.stack([_differenza(im, cv2)[0] for im in immagini])
     chiaro = np.median(diff, axis=0)                      # positivo dove tutte le foto sono più chiare
     quota = (diff > 6).mean(axis=0)                       # in quante foto quel punto è "più chiaro"
-    m = ((chiaro > 4) & (quota >= 0.6)).astype(np.uint8) * 255
+    m = ((chiaro > 3) & (quota >= 0.6)).astype(np.uint8) * 255
     # niente puntini isolati: la filigrana è fatta di tratti
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
     n, etichette, stat, _ = cv2.connectedComponentsWithStats(m)
@@ -99,9 +99,15 @@ def ritocca(orig, maschera, cv2):
     """ricostruisce la foto dove c'è la filigrana (maschera allargata un po')"""
     lama = _ritocco_lama()
     # la scritta diventa un blocco pieno (lettere comprese) e un po' più largo: LaMa ricostruisce tutto
-    k = max(9, orig.shape[1] // 60)
-    larga = cv2.morphologyEx(maschera, cv2.MORPH_CLOSE, np.ones((k, k), np.uint8))
-    larga = cv2.dilate(larga, np.ones((9, 9), np.uint8))
+    # pezzi vicini della filigrana (cerchio, scritta, cornice) uniti in un'unica forma piena
+    k = max(15, orig.shape[1] // 25)
+    unita = cv2.morphologyEx(maschera, cv2.MORPH_CLOSE, np.ones((k, k), np.uint8))
+    larga = np.zeros_like(unita)
+    cont, _ = cv2.findContours(unita, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for c in cont:
+        if cv2.contourArea(c) > 0.0005 * unita.size:
+            cv2.drawContours(larga, [cv2.convexHull(c)], -1, 255, -1)
+    larga = cv2.dilate(larga, np.ones((11, 11), np.uint8))
     if lama is None:
         return None
     from PIL import Image
