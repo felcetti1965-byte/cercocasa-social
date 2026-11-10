@@ -79,6 +79,38 @@ def togli(im, alfa, maschera, cv2):
     return pulita
 
 
+_lama = None
+
+
+def _ritocco_lama():
+    """modello LaMa (aperto) per ricostruire la foto sotto la filigrana; None se non disponibile"""
+    global _lama
+    if _lama is None:
+        try:
+            from simple_lama_inpainting import SimpleLama
+            _lama = SimpleLama()
+        except Exception as e:
+            print("  filigrana: LaMa non disponibile, uso il metodo semplice:", e, flush=True)
+            _lama = False
+    return _lama or None
+
+
+def ritocca(orig, maschera, cv2):
+    """ricostruisce la foto dove c'è la filigrana (maschera allargata un po')"""
+    lama = _ritocco_lama()
+    larga = cv2.dilate(maschera, np.ones((7, 7), np.uint8))
+    if lama is None:
+        return None
+    from PIL import Image
+    rgb = Image.fromarray(cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
+    out = np.array(lama(rgb, Image.fromarray(larga).convert("L")))
+    out = cv2.cvtColor(out, cv2.COLOR_RGB2BGR)
+    if out.shape[:2] != orig.shape[:2]:
+        out = cv2.resize(out, (orig.shape[1], orig.shape[0]))
+    sfuma = cv2.GaussianBlur(larga, (9, 9), 0).astype(np.float32)[..., None] / 255
+    return (out * sfuma + orig * (1 - sfuma)).astype(np.uint8)
+
+
 def pulisci_foto(foto, log=print):
     """toglie la filigrana dalle foto (file jpg) dello stesso annuncio, sovrascrivendole.
     Lavora per gruppi di foto con le stesse proporzioni. Restituisce quante foto ha pulito."""
@@ -106,7 +138,10 @@ def pulisci_foto(foto, log=print):
             H, W = orig.shape[:2]
             a = cv2.resize(alfa, (W, H), interpolation=cv2.INTER_LINEAR)
             m = cv2.resize(maschera, (W, H), interpolation=cv2.INTER_NEAREST)
-            cv2.imwrite(str(f), togli(orig, a, m, cv2), [cv2.IMWRITE_JPEG_QUALITY, 92])
+            pulita = ritocca(orig, m, cv2)
+            if pulita is None:
+                pulita = togli(orig, a, m, cv2)
+            cv2.imwrite(str(f), pulita, [cv2.IMWRITE_JPEG_QUALITY, 92])
             pulite += 1
     return pulite
 
