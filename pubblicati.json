@@ -1852,6 +1852,96 @@
    "foto": "https://www.cercocasaumbria.it/uploads/properties/5495/copertina-e56bf1529f.webp",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5495",
    "tiktok_id": "6af2fd364347ff17a3d9f144"
+  },
+  {
+   "id": 5462,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-11T07:41",
+   "titolo": "CASA ZONA POSCARGANO",
+   "prezzo": "€ 139.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5462/copertina-e8246a4776.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5462",
+   "facebook_id": "2144521640271891",
+   "instagram_id": "18184301017427170",
+   "tiktok_id": "6af41c76dcd7df5a61d48edc"
+  },
+  {
+   "id": 5517,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-11T07:46",
+   "titolo": "APPARTAMENTO VENDITA ZONA MONTELUCE",
+   "prezzo": "€ 108.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5517/copertina-e7e6288bfd.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5517",
+   "facebook_id": "1146773297716032",
+   "instagram_id": "18087211757651294",
+   "tiktok_id": "6af41da4fb31ab099938dc82"
+  },
+  {
+   "id": 5463,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-11T07:51",
+   "titolo": "AFFITTO LOCALE COMMERCIALE TERNI CENTRO",
+   "prezzo": "€ 1.200/mese",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5463/copertina-a77c80c142.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5463",
+   "facebook_id": "2638635829908175",
+   "instagram_id": "18359672557175829",
+   "tiktok_id": "6af41ec6679f43409176ee78"
+  },
+  {
+   "id": 5516,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-11T07:55",
+   "titolo": "AFFITTO APPARTAMENTO MONTELUCE PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5516/copertina-2bf75b992a.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5516",
+   "facebook_id": "1746568589775155",
+   "instagram_id": "17883851775627597",
+   "tiktok_id": "6af41fe1c8867493f01fd99e"
+  },
+  {
+   "id": 5522,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-11T08:00",
+   "titolo": "Appartamento all’asta a Marsciano, Via Carlo Pisacane – piano 1, 5 locali",
+   "prezzo": "€ 102.000",
+   "comune": "Marsciano",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5522/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5522",
+   "facebook_id": "1156041063611042",
+   "instagram_id": "18123586474939149",
+   "tiktok_id": "6af420f98ba0fa36c708ec47"
   }
  ],
  "versione": 7
