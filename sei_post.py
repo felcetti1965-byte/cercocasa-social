@@ -37,7 +37,7 @@ MAX_FOTO = 9                 # foto dell'annuncio scaricate
 MIN_FOTO = 3                 # sotto questo numero l'annuncio viene saltato
 MAX_FRASI = 8                # frasi dette dalla voce (una foto per frase)
 APERTURA_VELOCITA = 2.5      # la sigla di apertura (8 s) dura circa 3 s
-CANDIDATI = 6                # annunci di riserva per ogni tipo
+CANDIDATI = 15               # annunci di riserva per ogni tipo
 
 SLOT = [  # (nome, tipo, città, pagina del sito)
     ("vendita-terni", "vendita", "terni", "/case-vendita/terni/"),
@@ -275,7 +275,7 @@ def scene_e_voce(s, foto, cartella):
     """come i video di prima: l'agenzia presenta l'annuncio sulla foto principale, poi una frase breve
     per ogni foto (dati e caratteristiche dell'annuncio), poi si torna alla foto principale (= copertina)"""
     a = s["dettaglio"]
-    frasi = cs.frasi_video(a)[:min(MAX_FRASI, len(foto) - 1)]
+    frasi = cs.frasi_video(a)[:min(MAX_FRASI, max(len(foto) - 1, 4))]   # con poche foto le frasi usano copertina e pagina col logo
     # ogni frase sulla foto che mostra proprio quella cosa (bagno sul bagno, cucina sulla cucina...);
     # se l'annuncio non ha quella foto: pagina neutra con il logo, mai una foto che dice altro
     abbinate = foto_stanze.abbina(frasi, foto, cartella, colore_del_giorno(s.get("slot"))[0], log=cs.log)
@@ -511,16 +511,28 @@ def pubblica_instagram_reel(video, testo_ig):
 
 
 def produci(nome, tipo, citta, schede, social):
-    """prova gli annunci in ordine finché uno ha almeno 3 foto; crea i due video, copertina e testi"""
+    """prova gli annunci in ordine finché uno ha almeno 3 foto; se nessuno ce l'ha, usa quello con più foto
+    (i 6 post devono uscire sempre). Crea i due video, copertina e testi"""
     from playwright.sync_api import sync_playwright
-    for scheda in schede:
+    pochi = []                                  # (numero di foto, scheda) degli annunci con meno di 3 foto
+    giro = list(schede)
+    secondo = False
+    while giro:
+        scheda = giro.pop(0)
         cartella = Path(tempfile.mkdtemp())
         try:
             s = dict(scheda, slot=nome, tipo=tipo, citta=citta)
             s["dettaglio"] = cs.leggi_annuncio(s["id"])
             foto = foto_annuncio(s, cartella)
-            if len(foto) < MIN_FOTO:
+            if not foto or (len(foto) < MIN_FOTO and not secondo):
                 cs.log(f"  {nome}: annuncio {s['id']} con {len(foto)} foto, passo al successivo")
+                if foto:
+                    pochi.append((len(foto), scheda))
+                if not giro and pochi and not secondo:
+                    # nessuno con 3 foto: riprovo con quello che ne ha di più (le frasi senza foto vanno sulla pagina col logo)
+                    secondo = True
+                    giro = [x for _, x in sorted(pochi, key=lambda t: -t[0])]
+                    cs.log(f"  {nome}: nessun annuncio con {MIN_FOTO} foto, uso quello con più foto")
                 continue
             a = s["dettaglio"]
             cs.log(f"{nome}: {s['id']} – {a['titolo']} – {a['prezzo']} – {a['agenzia']}")
