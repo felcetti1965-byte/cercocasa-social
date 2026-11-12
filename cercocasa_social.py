@@ -46,7 +46,8 @@ W, H, FPS = 1080, 1920, 30
 BLU = (8, 127, 174)          # colore del sito #087fae
 ORO = (190, 145, 40)         # colori del logo
 # colore del giorno: cambia ogni mattina (copertina, etichetta, barra delle frasi, pulsante finale)
-COLORI_GIORNO = [(190, 145, 40), (8, 127, 174), (150, 32, 52), (28, 122, 84), (212, 104, 18), (98, 58, 146), (0, 112, 122)]
+COLORI_GIORNO = [(190, 145, 40), (8, 127, 174), (150, 32, 52), (28, 122, 84), (212, 104, 18), (98, 58, 146), (0, 112, 122),
+                 (176, 38, 108), (104, 118, 28), (36, 52, 120)]   # 10 colori: uno diverso per ognuno dei 10 post
 MESI_LUNGHI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto",
                "settembre", "ottobre", "novembre", "dicembre"]
 COLORE = COLORI_GIORNO[datetime.now().timetuple().tm_yday % len(COLORI_GIORNO)]
