@@ -1942,6 +1942,78 @@
    "facebook_id": "1156041063611042",
    "instagram_id": "18123586474939149",
    "tiktok_id": "6af420f98ba0fa36c708ec47"
+  },
+  {
+   "id": 5534,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-12T07:49",
+   "titolo": "APPARTAMENTO VENDITA CAMPITELLO",
+   "prezzo": "€ 79.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5534/copertina-283fc13e57.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5534",
+   "facebook_id": "1133346976272877",
+   "instagram_id": "18077943974753848",
+   "tiktok_id": "6af570081f0d232993ccdd82"
+  },
+  {
+   "id": 5523,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-12T07:54",
+   "titolo": "APPARTAMENTO VENDITA PERUGIA SEMICENTRO",
+   "prezzo": "€ 250.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5523/copertina-c2347bb345.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5523",
+   "facebook_id": "1134382102476174",
+   "instagram_id": "18158676337519014",
+   "tiktok_id": "6af57148f83bf778827e6ec9"
+  },
+  {
+   "id": 5539,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-12T08:00",
+   "titolo": "AFFITTO APPARTAMENTO VIALE ROMA PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5539/copertina-ef11f9d137.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5539",
+   "facebook_id": "1166304952738774",
+   "instagram_id": "18125124452515569",
+   "tiktok_id": "6af5727f96da98172e3121dc"
+  },
+  {
+   "id": 5205,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-12T08:05",
+   "titolo": "Rustico - casale all’asta a Nocera Umbra, Colsaino, Vocabolo Serpigliano – 10 locali",
+   "prezzo": "€ 58.320",
+   "comune": "Nocera Umbra",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5205/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5205",
+   "facebook_id": "1018075598006490",
+   "instagram_id": "18134817328706378",
+   "tiktok_id": "6af573b717d46be8b5fc43cd"
   }
  ],
  "versione": 7
