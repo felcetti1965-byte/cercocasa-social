@@ -43,7 +43,7 @@ jobs:
           TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
           SOCIAL_SEI: tiktok
           PAUSA_MINUTI: "1"
-        run: python sei_post.py --quanti 6 --rifai-oggi
+        run: python sei_post.py --quanti 10 --rifai-oggi
 
       - name: Ricorda gli annunci gia pubblicati
         run: |

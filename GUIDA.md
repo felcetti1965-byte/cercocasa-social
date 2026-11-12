@@ -5,7 +5,7 @@
 - Instagram: profilo "Cercocasa Dove&Come Umbria" (deve essere Business e collegato alla Pagina Facebook qui sopra)
 - TikTok: @cercocasa2020
 
-**Ogni mattina 6 post** (dal 27/10/2026), su Facebook, Instagram e TikTok:
+**Ogni mattina 10 post** (dal 13/11/2026: i 6 di base + un secondo post per vendita Terni, vendita Perugia, affitto Perugia, asta Perugia; 10 è il limite sicuro per TikTok) (dal 27/10/2026), su Facebook, Instagram e TikTok:
 vendita Terni, vendita Perugia, affitto Terni, affitto Perugia, asta Terni, asta Perugia.
 Ogni video: apertura Cercocasa → post con le foto dell'annuncio (grafica nella cartella `grafica/`) → chiusura con i contatti.
 Video verticale 1080x1920 per Instagram Reel e TikTok, quadrato 1080x1080 per Facebook. TikTok arriva come bozza nella Posta in arrivo dell'app sul telefono (Notifiche di sistema), da pubblicare scegliendo "Tutti".

@@ -10,9 +10,9 @@ on:
         type: boolean
         default: true
       quanti:
-        description: "Quanti post (1-6): vendita, affitto, asta a Terni e Perugia"
+        description: "Quanti post (1-10): vendita, affitto, asta a Terni e Perugia + 4 in più"
         type: number
-        default: 6
+        default: 10
       social:
         description: "Solo questi social (es. instagram). Vuoto = quelli di sempre"
         type: string
@@ -82,7 +82,7 @@ jobs:
             SLOT_ARG=""
             [ -n "${{ inputs.slot }}" ] && SLOT_ARG="--slot ${{ inputs.slot }}"
             [ "${{ inputs.rifai_oggi }}" = "true" ] && SLOT_ARG="$SLOT_ARG --rifai-oggi"
-            python sei_post.py $PROVA --quanti "${{ inputs.quanti || 6 }}" $SLOT_ARG
+            python sei_post.py $PROVA --quanti "${{ inputs.quanti || 10 }}" $SLOT_ARG
           fi
 
       - name: Salva il video

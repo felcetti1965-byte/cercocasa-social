@@ -46,6 +46,11 @@ SLOT = [  # (nome, tipo, città, pagina del sito)
     ("affitto-perugia", "affitto", "perugia", "/case-affitto/perugia/"),
     ("asta-terni", "asta", "terni", "/aste-immobiliari/terni/"),
     ("asta-perugia", "asta", "perugia", "/aste-immobiliari/perugia/"),
+    # secondo post nelle categorie con più annunci (10 al giorno: limite sicuro per TikTok)
+    ("vendita-terni-2", "vendita", "terni", "/case-vendita/terni/"),
+    ("vendita-perugia-2", "vendita", "perugia", "/case-vendita/perugia/"),
+    ("affitto-perugia-2", "affitto", "perugia", "/case-affitto/perugia/"),
+    ("asta-perugia-2", "asta", "perugia", "/aste-immobiliari/perugia/"),
 ]
 SFONDO = {"vendita": "#DB9C12", "affitto": "#F4F2ED", "asta": "#262626"}   # colore dei bordi nel 9:16
 GENERICI = {"residenziale", "commerciale", "immobile", ""}
@@ -152,11 +157,17 @@ def candidati(stato, solo=None):
     solo = {slot: id}: ripropone proprio quegli annunci (già pubblicati oggi, per un altro social)"""
     usati = {p.get("id") for p in stato["pubblicati"]} - set((solo or {}).values())
     out = []
+    elenchi = {}
+    stessa = {}                        # più post dalla stessa pagina: si dividono gli annunci a turno
+    for nome, tipo, citta, pagina in SLOT:
+        stessa.setdefault(pagina, []).append(nome)
     for nome, tipo, citta, pagina in SLOT:
         try:
             if solo is not None and nome not in solo:
                 continue
-            schede = [x for x in leggi_elenco(tipo, pagina) if scheda_valida(tipo, x, usati)]
+            if pagina not in elenchi:
+                elenchi[pagina] = leggi_elenco(tipo, pagina)
+            schede = [x for x in elenchi[pagina] if scheda_valida(tipo, x, usati)]
             if solo is not None:
                 schede = [x for x in schede if x["id"] == solo[nome]]
         except Exception as e:
@@ -168,6 +179,9 @@ def candidati(stato, solo=None):
             if x["id"] not in visti:
                 visti.add(x["id"])
                 ordine.append(x)
+        gruppo = stessa[pagina]
+        if solo is None and len(gruppo) > 1:
+            ordine = ordine[gruppo.index(nome)::len(gruppo)]
         out.append((nome, tipo, citta, ordine[:CANDIDATI]))
     return out
 
@@ -563,7 +577,7 @@ def produci(nome, tipo, citta, schede, social):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prova", action="store_true", help="crea video e testi senza pubblicare")
-    ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "6") or 6))
+    ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "10") or 10))
     ap.add_argument("--slot", default="", help="un post in più di questo tipo, es. vendita-perugia (prova a mano)")
     ap.add_argument("--rifai-oggi", action="store_true",
                     help="ripubblica gli annunci già usciti oggi sui social indicati (es. solo facebook)")
