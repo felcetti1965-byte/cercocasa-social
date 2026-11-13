@@ -2014,6 +2014,186 @@
    "facebook_id": "1018075598006490",
    "instagram_id": "18134817328706378",
    "tiktok_id": "6af573b717d46be8b5fc43cd"
+  },
+  {
+   "id": 5554,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T07:59",
+   "titolo": "IN VENDITA – APPARTAMENTO IN ZONA VIA TURATI",
+   "prezzo": "€ 70.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5554/copertina-100a7a498a.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5554",
+   "facebook_id": "2377314439703882",
+   "instagram_id": "17955676941335325",
+   "tiktok_id": "6af6c400dea11d9cd8945335"
+  },
+  {
+   "id": 5586,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:05",
+   "titolo": "CASA INDIPENDENTE",
+   "prezzo": "€ 80.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5586/copertina-7202699a00.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5586",
+   "facebook_id": "4903038519925240",
+   "instagram_id": "18650703766008818",
+   "tiktok_id": "6af6c53459303fffa99d2687"
+  },
+  {
+   "id": 5552,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:10",
+   "titolo": "AFFITTO LOCALE COMMERCIALE TERNI",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5552/copertina-ce8e3981bc.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5552",
+   "facebook_id": "1760893864984775",
+   "instagram_id": "18436463698149972",
+   "tiktok_id": "6af6c666dbb5a7b446efee26"
+  },
+  {
+   "id": 5560,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:15",
+   "titolo": "APPARTAMENTO AFFITTO SAN SISTO",
+   "prezzo": "€ 1.000/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5560/copertina-3c4cb92be0.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5560",
+   "facebook_id": "1125012543758737",
+   "instagram_id": "18032860043764139",
+   "tiktok_id": "6af6c7cedbb5a7b446eff602"
+  },
+  {
+   "id": 4656,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:21",
+   "titolo": "Immobile all’asta a Terni, Via Romagna, 4a",
+   "prezzo": "€ 59.775",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4656/foto-ufficiale-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4656",
+   "facebook_id": "1491185972933116",
+   "instagram_id": "18139789624636548",
+   "tiktok_id": "6af6c915e89f8bfb6be024b9"
+  },
+  {
+   "id": 5577,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:27",
+   "titolo": "Appartamento all’asta a Bevagna, Via Flaminia – 6 locali",
+   "prezzo": "€ 148.500",
+   "comune": "Bevagna",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5577/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5577",
+   "facebook_id": "2327418641383847",
+   "instagram_id": "17920727136462974",
+   "tiktok_id": "6af6ca33a17891c281367c00"
+  },
+  {
+   "id": 5551,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:31",
+   "titolo": "APPARTAMENTO VENDITA VIA XX SETTEMBRE TERNI",
+   "prezzo": "€ 48.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5551/copertina-ce02981fa5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5551",
+   "facebook_id": "1494375209209795",
+   "instagram_id": "17948757378360442",
+   "tiktok_id": "6af6cb6df4b1aa978291d424"
+  },
+  {
+   "id": 5571,
+   "sei": "vendita-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:37",
+   "titolo": "Appartamento all’asta a Perugia, Str. Tiberina Nord – piano 1, 4 locali",
+   "prezzo": "€ 51.363",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5571/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5571",
+   "facebook_id": "1454430743423122",
+   "instagram_id": "17912016393665682",
+   "tiktok_id": "6af6cca7b9ad992d4ca1fbf9"
+  },
+  {
+   "id": 5559,
+   "sei": "affitto-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:42",
+   "titolo": "AFFITTO CENTRO STORICO PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5559/copertina-dcf254926b.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5559",
+   "facebook_id": "1833817244182507",
+   "instagram_id": "18131515115307707",
+   "tiktok_id": "6af6cdd169aa5920a81c875d"
+  },
+  {
+   "id": 5578,
+   "sei": "asta-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-13T08:47",
+   "titolo": "Appartamento all’asta a Bevagna, Via Flaminia – 2 locali",
+   "prezzo": "€ 24.750",
+   "comune": "Bevagna",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5578/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5578",
+   "facebook_id": "1025875927197506",
+   "instagram_id": "17865932640694992",
+   "tiktok_id": "6af6cf05566b0868d57fccc6"
   }
  ],
  "versione": 7
