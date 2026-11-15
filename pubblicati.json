@@ -2194,6 +2194,184 @@
    "facebook_id": "1025875927197506",
    "instagram_id": "17865932640694992",
    "tiktok_id": "6af6cf05566b0868d57fccc6"
+  },
+  {
+   "id": 5590,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "tiktok"
+   ],
+   "data": "2026-11-15T14:31",
+   "titolo": "ZONA COSPEA SAN GIOVANNI",
+   "prezzo": "€ 80.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5590/copertina-9072098f9b.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5590",
+   "facebook_id": "2606157276519748",
+   "tiktok_id": "6af9c2ba979f601dbe26cb4e"
+  },
+  {
+   "id": 5589,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T14:36",
+   "titolo": "APPARTAMENTO VENDITA VILLA PITIGNANO",
+   "prezzo": "€ 65.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5589/copertina-da5a47e1c5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5589",
+   "facebook_id": "2583606188813903",
+   "instagram_id": "18103765922541685",
+   "tiktok_id": "6af9c3f8a56c293b48bc471e"
+  },
+  {
+   "id": 1144,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T14:42",
+   "titolo": "UFFICIO AFFITTO TERNI CITTÀ GIARDINO",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/1144/foto-logo-109189-882a2a9f.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=1144",
+   "facebook_id": "1289605193350758",
+   "instagram_id": "18085038230396998",
+   "tiktok_id": "6af9c540615d6b707b81a31a"
+  },
+  {
+   "id": 5555,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T14:47",
+   "titolo": "APPARTAMENTO PRESTIGIOSO IN AFFITTO ELCE",
+   "prezzo": "€ 2.150/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5555/copertina-cbb9590f5f.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5555",
+   "facebook_id": "2247995419143844",
+   "instagram_id": "17967851388234937",
+   "tiktok_id": "6af9c67fb258ae1cc89988d1"
+  },
+  {
+   "id": 4648,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T14:52",
+   "titolo": "Appartamento all’asta a Terni, Via Mentana, 46 – piano 16",
+   "prezzo": "€ 69.225",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4648/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4648",
+   "facebook_id": "1664910951752833",
+   "instagram_id": "18110177594257005",
+   "tiktok_id": "6af9c7c7895b26365ae6a114"
+  },
+  {
+   "id": 5579,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T14:58",
+   "titolo": "Casa indipendente all’asta a Bevagna, Via Alarico Palmieri – 7 locali",
+   "prezzo": "€ 91.800",
+   "comune": "Bevagna",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5579/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5579",
+   "facebook_id": "1809292067035494",
+   "instagram_id": "18136235704708554",
+   "tiktok_id": "6af9c90d895b26365ae6a726"
+  },
+  {
+   "id": 5457,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T15:04",
+   "titolo": "APPARTAMENTO VENDITA ZONA COSPEA",
+   "prezzo": "€ 75.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5457/copertina-0e0efd9955.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5457",
+   "facebook_id": "3107708719571686",
+   "instagram_id": "18093764555237660",
+   "tiktok_id": "6af9ca5cffb72ffd7a9cd177"
+  },
+  {
+   "id": 5569,
+   "sei": "vendita-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T15:09",
+   "titolo": "Appartamento all’asta a Perugia, Fraz. La Bruna, Strada La Bruna - Palazzetta – 5 locali",
+   "prezzo": "€ 26.650",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5569/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5569",
+   "facebook_id": "2341183223282977",
+   "instagram_id": "18103234013551701",
+   "tiktok_id": "6af9cbae0647a1f869def6eb"
+  },
+  {
+   "id": 5553,
+   "sei": "affitto-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T15:14",
+   "titolo": "Appartamento in affitto a Centro Storico",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5553/copertina-82d14db49a.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5553",
+   "facebook_id": "2112107329503596",
+   "instagram_id": "17968036689230255",
+   "tiktok_id": "6af9cce4c153a5e3ac3fca34"
+  },
+  {
+   "id": 5580,
+   "sei": "asta-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-15T15:20",
+   "titolo": "Appartamento all’asta a Collazzone, Frazione Collepepe, Via Tiberina – piano 1, 3 locali",
+   "prezzo": "€ 51.230",
+   "comune": "Collazzone",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5580/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5580",
+   "facebook_id": "1139960588891913",
+   "instagram_id": "18093636173221502",
+   "tiktok_id": "6af9ce19f354bd89ed6a0918"
   }
  ],
  "versione": 7
