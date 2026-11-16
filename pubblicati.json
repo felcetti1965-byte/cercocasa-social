@@ -2372,6 +2372,186 @@
    "facebook_id": "1139960588891913",
    "instagram_id": "18093636173221502",
    "tiktok_id": "6af9ce19f354bd89ed6a0918"
+  },
+  {
+   "id": 5610,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:15",
+   "titolo": "APPARTAMENTO VENDITA CENTRO STORICO TERNI",
+   "prezzo": "€ 295.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5610/copertina-363b3559d8.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5610",
+   "facebook_id": "2478076752682617",
+   "instagram_id": "18474225937143583",
+   "tiktok_id": "6afb2c88715142555d9fc1b5"
+  },
+  {
+   "id": 5592,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:20",
+   "titolo": "VILLA VENDITA CENERENTE",
+   "prezzo": "€ 435.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5592/copertina-e0d3c79837.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5592",
+   "facebook_id": "1446902186974499",
+   "instagram_id": "18138569716637618",
+   "tiktok_id": "6afb2dbfca9734bbd40e0839"
+  },
+  {
+   "id": 5600,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:25",
+   "titolo": "APPARTAMENTO ARREDATO AFFITTO ZONA STAZIONE",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5600/copertina-da497c6542.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5600",
+   "facebook_id": "1420089879883756",
+   "instagram_id": "17878159647635976",
+   "tiktok_id": "6afb2f18adbb1b9f3daeac22"
+  },
+  {
+   "id": 5529,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:31",
+   "titolo": "AFFITTO APPARTAMENTO VIA BARTOLO PERUGIA",
+   "prezzo": "€ 1.000/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5529/copertina-665906cfe5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5529",
+   "facebook_id": "1901910670803212",
+   "instagram_id": "18140066941641590",
+   "tiktok_id": "6afb30487d6f217d2dbfe1f0"
+  },
+  {
+   "id": 4658,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:36",
+   "titolo": "Immobile all’asta a San Venanzo, Località/Frazione Po Fortunato, Strada Provinciale n. 373",
+   "prezzo": "€ 229.219",
+   "comune": "San venanzo",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4658/foto-ufficiale-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4658",
+   "facebook_id": "1163596816302465",
+   "instagram_id": "18169711660421128",
+   "tiktok_id": "6afb31793e83d2c305f6ff9d"
+  },
+  {
+   "id": 5581,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:41",
+   "titolo": "Appartamento all’asta a Collazzone, Frazione Collepepe, Via Tiberina – piano 2, 3 locali",
+   "prezzo": "€ 55.468",
+   "comune": "Collazzone",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5581/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5581",
+   "facebook_id": "1114404498249796",
+   "instagram_id": "18106134422529857",
+   "tiktok_id": "6afb32acdad314406ea502d3"
+  },
+  {
+   "id": 5598,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:47",
+   "titolo": "APPARTAMENTO VENDITA PIAZZA SOLFERINO TERNI",
+   "prezzo": "€ 295.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5598/copertina-b081becda5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5598",
+   "facebook_id": "1488668286473785",
+   "instagram_id": "18499123105109793",
+   "tiktok_id": "6afb3407de9b380035ccebfe"
+  },
+  {
+   "id": 5593,
+   "sei": "vendita-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:52",
+   "titolo": "SEMINDIPENDENTE PIEVE DI CAMPO PERUGIA",
+   "prezzo": "€ 149.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5593/copertina-3a3d388661.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5593",
+   "facebook_id": "1569343468553945",
+   "instagram_id": "18136150264683460",
+   "tiktok_id": "6afb354cbb2c85ef21dc3640"
+  },
+  {
+   "id": 5594,
+   "sei": "affitto-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T16:58",
+   "titolo": "AFFITTO APPARTAMENTO MONTELUCE",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5594/copertina-c096b8c1f9.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5594",
+   "facebook_id": "985867961269360",
+   "instagram_id": "18131819551882348",
+   "tiktok_id": "6afb36b8845a5dc2d133a4eb"
+  },
+  {
+   "id": 5583,
+   "sei": "asta-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-16T17:03",
+   "titolo": "Appartamento all’asta a Deruta, Via alle Barche – 5 locali",
+   "prezzo": "€ 50.000",
+   "comune": "Deruta",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5583/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5583",
+   "facebook_id": "1129800149910585",
+   "instagram_id": "17957402022037855",
+   "tiktok_id": "6afb37f16c12da0aa26c8c9e"
   }
  ],
  "versione": 7
