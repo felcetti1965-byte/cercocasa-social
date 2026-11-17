@@ -2552,6 +2552,186 @@
    "facebook_id": "1129800149910585",
    "instagram_id": "17957402022037855",
    "tiktok_id": "6afb37f16c12da0aa26c8c9e"
+  },
+  {
+   "id": 5629,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T16:38",
+   "titolo": "VENDITA VILLA UNIFAMILIARE PIEDIMONTE TERNI",
+   "prezzo": "€ 420.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5629/copertina-34e82f5a19.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5629",
+   "facebook_id": "1170818711960189",
+   "instagram_id": "18202724719376782",
+   "tiktok_id": "6afc8383601b2e6ac30ba0db"
+  },
+  {
+   "id": 5631,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T16:43",
+   "titolo": "VENDITA SOLUZIONE INDIPENDENTE MONTELAGUARDIA",
+   "prezzo": "€ 380.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5631/copertina-e99ab325eb.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5631",
+   "facebook_id": "4079413075685893",
+   "instagram_id": "18117735059138354",
+   "tiktok_id": "6afc84c508bdbbf7c5a0025e"
+  },
+  {
+   "id": 977,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T16:49",
+   "titolo": "UFFICIO AFFITTO TERNI CENTRO STORICO",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/977/foto-logo-107788-5c366d09.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=977",
+   "facebook_id": "960876466849293",
+   "instagram_id": "17994925902112377",
+   "tiktok_id": "6afc85e37b7e6d1dccc267c7"
+  },
+  {
+   "id": 5533,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T16:53",
+   "titolo": "AFFITTO CENTRO STORICO PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5533/copertina-cf668520a2.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5533",
+   "facebook_id": "1182059081055071",
+   "instagram_id": "18101969381206193",
+   "tiktok_id": "6afc8708c7742bbda9705f7c"
+  },
+  {
+   "id": 4680,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T16:58",
+   "titolo": "Appartamento all’asta a San Venanzo, via Monte Peia (Voc. Ospedaletto)",
+   "prezzo": "€ 18.510",
+   "comune": "San venanzo",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4680/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4680",
+   "facebook_id": "4509102746071405",
+   "instagram_id": "18060106181574492",
+   "tiktok_id": "6afc887bdf4a7095b3823bd7"
+  },
+  {
+   "id": 5618,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T17:05",
+   "titolo": "Appartamento all’asta a Marsciano, Vicolo Chiuso – piano 1, 7 locali",
+   "prezzo": "€ 51.975",
+   "comune": "Marsciano",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5618/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5618",
+   "facebook_id": "1557777922775290",
+   "instagram_id": "17891581755687400",
+   "tiktok_id": "6afc89a15531ad913fd212f9"
+  },
+  {
+   "id": 5627,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T17:09",
+   "titolo": "VENDITA APPARTAMENTO VILLAGGIO CAMPOMAGGIO TERNI",
+   "prezzo": "€ 49.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5627/copertina-ca2e494a9c.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5627",
+   "facebook_id": "1630329205801663",
+   "instagram_id": "18094846679690891",
+   "tiktok_id": "6afc8ae57b5417097289ff13"
+  },
+  {
+   "id": 5622,
+   "sei": "vendita-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T17:15",
+   "titolo": "VENDITA ATTICO CON 2 TERRAZZE SAN SISTO",
+   "prezzo": "€ 93.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5622/copertina-01a93eee13.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5622",
+   "facebook_id": "4545308702388675",
+   "instagram_id": "18119994377013559",
+   "tiktok_id": "6afc8c16f93e3c207f63df5a"
+  },
+  {
+   "id": 5525,
+   "sei": "affitto-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T17:20",
+   "titolo": "APPARTAMENTO AFFITTO SANTA LUCIA PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5525/copertina-516d430a5c.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5525",
+   "facebook_id": "1573265538155619",
+   "instagram_id": "18110457311204282",
+   "tiktok_id": "6afc8d37f413860c6403856d"
+  },
+  {
+   "id": 5619,
+   "sei": "asta-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-17T17:25",
+   "titolo": "Appartamento all’asta a Spoleto, Vicolo S. Filippo – piano 3, 3 locali",
+   "prezzo": "€ 63.000",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5619/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5619",
+   "facebook_id": "1482719857338143",
+   "instagram_id": "18125330476981198",
+   "tiktok_id": "6afc8e55ba9fc13b5b393908"
   }
  ],
  "versione": 7
