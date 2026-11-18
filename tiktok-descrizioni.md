@@ -1,113 +1,102 @@
-# Descrizioni TikTok del 17/11/2026
+# Descrizioni TikTok del 18/11/2026
 
 Apri la bozza su TikTok, tieni premuto sul testo qui sotto, copia e incolla nella descrizione.
 
 ## Vendita Terni
 
 ```
-🏠 VENDITA VILLA UNIFAMILIARE PIEDIMONTE TERNI
-🏡 Villa a Terni a € 420.000
-5 locali · 500 m²
-Annuncio di TECNORETE IMMOBILIARE TERNI CITTA'
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5629) · link in bio
+🏠 VENDITA APPARTAMENTO ABITABILE DA SUBITO TERNI
+👀 Casa a Terni sotto i 100.000 €: € 85.000
+1 bagno · 95 m²
+Annuncio di TECNOCASA VALENZA
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5623) · link in bio
 #terni #umbria #casainvendita #case #immobiliare
 ```
 
 ## Vendita Perugia
 
 ```
-🏠 VENDITA SOLUZIONE INDIPENDENTE MONTELAGUARDIA
-🏠 Nuova in vendita a Perugia: € 380.000
-10 locali · 2 bagni · 230 m²
-Annuncio di TEMPOCASA TRE ARCHI PERUGIA
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5631) · link in bio
+🏠 Corso Vannucci (a pochi passi) Inizio Via dei Priori
+🏠 Nuova in vendita a Perugia: € 295.000
+5 locali · 1 bagno · 198 m²
+Annuncio di SINERGIE IMMOBILIARE
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5633) · link in bio
 #perugia #umbria #casainvendita #case #immobiliare
-```
-
-## Affitto Terni
-
-```
-🏠 UFFICIO AFFITTO TERNI CENTRO STORICO
-🔑 In affitto a Terni: 
-2 locali · 42 m²
-Annuncio di CENTRO SERVIZI IMMOBILIARI
-👉 Foto e contatti su www.cercocasaumbria.it (codice 977) · link in bio
-#terni #umbria #casainaffitto #case #immobiliare
 ```
 
 ## Affitto Perugia
 
 ```
-🏠 AFFITTO CENTRO STORICO PERUGIA
+🏠 LOFT AFFITTO CENTRO STORICO PERUGIA
 🔑 In affitto a Perugia: 
-2 locali · 1 bagno · 48 m²
+2 locali · 1 bagno · 60 m²
 Annuncio di QUALITY LIVING IMMOBILIARE
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5533) · link in bio
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5514) · link in bio
 #perugia #umbria #casainaffitto #case #immobiliare
 ```
 
 ## Asta Terni
 
 ```
-🏠 Appartamento all’asta a San Venanzo, via Monte Peia (Voc. Ospedaletto)
-⚖️ All'asta a San venanzo: si parte € 18.510!
-3 locali · 106 m²
+🏠 Appartamento all’asta a Terni, Via Andromeda, 5 – piano 1
+⚖️ All'asta a Terni: si parte € 64.500!
+119 m²
 Annuncio di AFFARI IN ASTA TERNI
-👉 Foto e contatti su www.cercocasaumbria.it (codice 4680) · link in bio
-#sanvenanzo #umbria #asteimmobiliari #terni #case
+👉 Foto e contatti su www.cercocasaumbria.it (codice 4655) · link in bio
+#terni #umbria #asteimmobiliari #case #immobiliare
 ```
 
 ## Asta Perugia
 
 ```
-🏠 Appartamento all’asta a Marsciano, Vicolo Chiuso – piano 1, 7 locali
-⚖️ All'asta a Marsciano: si parte € 51.975!
-7 locali · 191 m²
+🏠 Appartamento all’asta a Foligno, Via Antonio Gramsci – piano terra, 3 locali
+⚖️ All'asta a Foligno: si parte € 77.846!
+3 locali · 134 m²
 Annuncio di AFFARI IN ASTA TERNI
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5618) · link in bio
-#marsciano #umbria #asteimmobiliari #perugia #case
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5640) · link in bio
+#foligno #umbria #asteimmobiliari #perugia #case
 ```
 
 ## Vendita Terni 2
 
 ```
-🏠 VENDITA APPARTAMENTO VILLAGGIO CAMPOMAGGIO TERNI
-🏡 Villa a Terni a € 49.000
-3 locali · 1 bagno · 85 m²
-Annuncio di CLASSE A IMMOBILIARE DI FUSAROLI ELEONORA
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5627) · link in bio
+🏠 APPARTAMENTO VENDITA ZONA SAN ROCCO TERNI
+🏠 Nuova in vendita a Terni: € 115.000
+6 locali · 1 bagno · 110 m²
+Annuncio di AFFILIATO TECNOCASA: STUDIO COSPEA SAN GIOVANNI
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5597) · link in bio
 #terni #umbria #casainvendita #case #immobiliare
 ```
 
 ## Vendita Perugia 2
 
 ```
-🏠 VENDITA ATTICO CON 2 TERRAZZE SAN SISTO
-👀 Casa a Perugia sotto i 100.000 €: € 93.000
-6 locali · 1 bagno · 60 m²
-Annuncio di TEKNOMEDIARE ELCE
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5622) · link in bio
+🏠 VILLA ZONA SANTA LUCIA PERUGIA
+🏡 Villa a Perugia a € 460.000
+12 locali · 3 bagni · 220 m²
+Annuncio di SAIONI L'IMMOBILIARE
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5612) · link in bio
 #perugia #umbria #casainvendita #case #immobiliare
 ```
 
 ## Affitto Perugia 2
 
 ```
-🏠 APPARTAMENTO AFFITTO SANTA LUCIA PERUGIA
-🔑 In affitto a Perugia: 
-3 locali · 1 bagno · 45 m²
-Annuncio di Cercocasa Umbria
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5525) · link in bio
+🏠 AFFITTO CIELO TERRA PERUGIA CENTRO
+🔑 In affitto a Perugia: € 1.100/mese
+4 locali · 2 bagni · 95 m²
+Annuncio di QUALITY LIVING IMMOBILIARE
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5505) · link in bio
 #perugia #umbria #casainaffitto #case #immobiliare
 ```
 
 ## Asta Perugia 2
 
 ```
-🏠 Appartamento all’asta a Spoleto, Vicolo S. Filippo – piano 3, 3 locali
-⚖️ All'asta a Spoleto: si parte € 63.000!
-3 locali · 88 m²
+🏠 Appartamento all’asta a Foligno, Via Antonio Gramsci – piano terra, 2 locali
+⚖️ All'asta a Foligno: si parte € 67.562!
+2 locali · 106 m²
 Annuncio di AFFARI IN ASTA TERNI
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5619) · link in bio
-#spoleto #umbria #asteimmobiliari #perugia #case
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5641) · link in bio
+#foligno #umbria #asteimmobiliari #perugia #case
 ```

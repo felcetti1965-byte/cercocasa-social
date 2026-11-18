@@ -2732,6 +2732,168 @@
    "facebook_id": "1482719857338143",
    "instagram_id": "18125330476981198",
    "tiktok_id": "6afc8e55ba9fc13b5b393908"
+  },
+  {
+   "id": 5623,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:17",
+   "titolo": "VENDITA APPARTAMENTO ABITABILE DA SUBITO TERNI",
+   "prezzo": "€ 85.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5623/copertina-e2c22226e9.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5623",
+   "facebook_id": "2118729585453437",
+   "instagram_id": "17957245407296897",
+   "tiktok_id": "6afdd003389ce63e54024d5a"
+  },
+  {
+   "id": 5633,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:22",
+   "titolo": "Corso Vannucci (a pochi passi) Inizio Via dei Priori",
+   "prezzo": "€ 295.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5633/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5633",
+   "facebook_id": "3982034191936728",
+   "instagram_id": "17919005667545673",
+   "tiktok_id": "6afdd13239b65b99f3ec03ce"
+  },
+  {
+   "id": 5514,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:27",
+   "titolo": "LOFT AFFITTO CENTRO STORICO PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5514/copertina-71e4db8935.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5514",
+   "facebook_id": "1699990515063854",
+   "instagram_id": "18185486641381982",
+   "tiktok_id": "6afdd25c9eb34370f8fe3da0"
+  },
+  {
+   "id": 4655,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:32",
+   "titolo": "Appartamento all’asta a Terni, Via Andromeda, 5 – piano 1",
+   "prezzo": "€ 64.500",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4655/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4655",
+   "facebook_id": "1490662719830817",
+   "instagram_id": "18139765777638447",
+   "tiktok_id": "6afdd3a0554ac5564d268eda"
+  },
+  {
+   "id": 5640,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:37",
+   "titolo": "Appartamento all’asta a Foligno, Via Antonio Gramsci – piano terra, 3 locali",
+   "prezzo": "€ 77.846",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5640/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5640",
+   "facebook_id": "1155626983637293",
+   "instagram_id": "18202206361383416",
+   "tiktok_id": "6afdd4c2cf90875eda901e81"
+  },
+  {
+   "id": 5597,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:42",
+   "titolo": "APPARTAMENTO VENDITA ZONA SAN ROCCO TERNI",
+   "prezzo": "€ 115.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5597/copertina-1e3c935130.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5597",
+   "facebook_id": "1138223898916806",
+   "instagram_id": "18475427272139533",
+   "tiktok_id": "6afdd60042181acc8c58a8d1"
+  },
+  {
+   "id": 5612,
+   "sei": "vendita-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:48",
+   "titolo": "VILLA ZONA SANTA LUCIA PERUGIA",
+   "prezzo": "€ 460.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5612/copertina-79aad4b8c4.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5612",
+   "facebook_id": "1457359845726538",
+   "instagram_id": "17997844878102225",
+   "tiktok_id": "6afdd76e617c5eddfbb7ec39"
+  },
+  {
+   "id": 5505,
+   "sei": "affitto-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:54",
+   "titolo": "AFFITTO CIELO TERRA PERUGIA CENTRO",
+   "prezzo": "€ 1.100/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5505/copertina-396957b2df.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5505",
+   "facebook_id": "1140145248981579",
+   "instagram_id": "18116744057138871",
+   "tiktok_id": "6afdd89e0af74f2f44524873"
+  },
+  {
+   "id": 5641,
+   "sei": "asta-perugia-2",
+   "social": [
+    "facebook",
+    "instagram",
+    "tiktok"
+   ],
+   "data": "2026-11-18T16:59",
+   "titolo": "Appartamento all’asta a Foligno, Via Antonio Gramsci – piano terra, 2 locali",
+   "prezzo": "€ 67.562",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5641/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5641",
+   "facebook_id": "1622515695613959",
+   "instagram_id": "18021861272957623",
+   "tiktok_id": "6afdda16de902f9edaf40650"
   }
  ],
  "versione": 7
