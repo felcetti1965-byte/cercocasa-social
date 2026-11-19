@@ -756,6 +756,8 @@ def produci_tiktok(nome, tipo, citta, schede):
 
 def main_tiktok(args):
     """giro solo TikTok: un tour al giorno per categoria, annunci con tante foto mai usciti su TikTok"""
+    cs.USCITA.mkdir(exist_ok=True)
+    apertura_breve()
     stato = cs.carica_stato()
     oggi = date.today().isoformat()
     fatti = {p.get("tt") for p in stato["pubblicati"] if p.get("tt") and str(p.get("data", "")).startswith(oggi)}
