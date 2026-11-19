@@ -432,56 +432,149 @@ NON_LEGGERE = re.compile(r"www\.|@|https?:|\btel\b|telefon|cell\.?\s*\d|whatsapp
 VOCE_MAX_CARATTERI = int(os.environ.get("VOCE_TIKTOK_MAX", "2600"))   # circa 3 minuti di voce
 
 
-def testo_annuncio(a):
-    """titolo dell'annuncio + tutta la descrizione, come la legge la voce"""
+def frasi_annuncio(a):
+    """titolo dell'annuncio + tutte le frasi della descrizione, come le legge la voce"""
     titolo = re.sub(r"\s+", " ", a.get("titolo", "")).strip(" .")
-    pezzi = [titolo.capitalize() if titolo.isupper() else titolo]
+    pezzi = [(titolo.capitalize() if titolo.isupper() else titolo) + "."] if titolo else []
     for f in re.split(r"(?<=[.!?;])\s+|\s*\n+\s*|\s*•\s*", a.get("descrizione", "")):
         f = re.sub(r"\s+", " ", f).strip(" -–*•")
-        f = re.sub(r"\b(mq|m²|m2)\b\.?|m²", "metri quadri", f, flags=re.I)
+        f = re.sub(r"\b(mq|m2)\b\.?|m²", "metri quadri", f, flags=re.I)
         if len(f.split()) < 2 or NON_LEGGERE.search(f):
             continue
         if f.isupper():
             f = f.capitalize()
         pezzi.append(f if f.endswith((".", "!", "?", ";", ":")) else f + ".")
-    testo, out = "", []
+    out, n = [], 0
     for p in pezzi:
-        if len(testo) + len(p) > VOCE_MAX_CARATTERI:
+        if n + len(p) > VOCE_MAX_CARATTERI:
             break
         out.append(p)
-        testo += p + " "
-    return " ".join(out[:1]) + ". " + " ".join(out[1:]) if out else ""
+        n += len(p) + 1
+    return out
 
 
-def ritmo_sulla_voce(d, voce_ms):
-    """allunga il tour delle foto quanto dura la voce: le foto si alternano (ogni 3 s circa,
-    ripartendo dall'inizio se finiscono), poi il prezzo"""
-    foto = d["scenes"][1:]
-    if not foto:
-        return d
-    inizio = d["scenes"][0]["end"]
-    serve = max(d["reveal"]["start"], 250 + voce_ms + 400)
-    n = len(foto)
-    passo = (serve - inizio) / n
-    if passo > 3600:                                    # troppo lente: le ripasso (senza scritte) a ritmo di 3 s
-        giri = []
-        k = 0
-        while inizio + len(giri) * 3000 < serve:
-            sc = dict(foto[k % n])
-            if k >= n:
-                sc["chip"] = ""
-            giri.append(sc)
-            k += 1
-        foto, passo = giri, (serve - inizio) / len(giri)
-    t = inizio
-    for sc in foto:
-        sc["start"], sc["end"] = int(t), int(t + passo)
-        t += passo
-    t = int(t)
-    d["scenes"] = [d["scenes"][0]] + foto
-    d["reveal"] = {"start": t, "end": t + 5000}
-    d["total"] = t + 5000
-    return d
+def testo_annuncio(a):
+    return " ".join(frasi_annuncio(a))
+
+
+PAROLE_LEGATE = {"di", "e", "ed", "con", "a", "al", "alla", "il", "lo", "la", "le", "i", "gli", "un", "una", "in",
+                 "da", "per", "su", "del", "della", "dei", "delle", "nel", "nella", "o", "che", "è"}
+
+
+def spezza(frase, max_car=22, max_parole=4):
+    """la frase in pezzi brevi da sottotitolo (3-4 parole), senza lasciare 'di', 'e', 'con' in fondo"""
+    pezzi, cur = [], []
+    for w in frase.rstrip(".;:").split():
+        if cur and (len(" ".join(cur + [w])) > max_car or len(cur) >= max_parole):
+            resto = []
+            while len(cur) > 1 and cur[-1].lower().strip(",") in PAROLE_LEGATE:
+                resto.insert(0, cur.pop())
+            pezzi.append(" ".join(cur))
+            cur = resto
+        cur.append(w)
+    if cur:
+        pezzi.append(" ".join(cur))
+    return [p.strip(" ,") for p in pezzi if p.strip(" ,")]
+
+
+def sincronizza(d, s, cartella):
+    """voce, sottotitoli e foto insieme: una voce per ogni frase (titolo + descrizione), i sottotitoli
+    sono le parole dette in quel momento, e la foto cambia quando la voce parla di una stanza
+    (cucina -> foto della cucina, bagni -> foto del bagno). Restituisce (dati del video, voci)."""
+    vel = os.environ.get("VOCE_TIKTOK_VELOCITA", "+2%")
+    tracce, t = [], 250
+    for k, f in enumerate(frasi_annuncio(s["dettaglio"])):
+        mp3 = cartella / f"voce-f{k}.mp3"
+        dur = cs.crea_voce(parlato(f), mp3, voce="umana", velocita=vel)
+        if dur:
+            tracce.append((f, mp3, t, int(dur * 1000)))
+            t += int(dur * 1000) + 160
+    if len(tracce) < 2:
+        return d, [(mp3, st) for _, mp3, st, _ in tracce]
+    cat = d.get("_cat", {})
+    giro = [sc["photo"] for sc in d["scenes"][1:]] or [d["scenes"][0]["photo"]]
+    volte = {f: 0 for f in giro}
+    copertina = d["scenes"][0]["photo"]
+    fine_gancio = max(2600, tracce[0][2] + tracce[0][3] + 80)
+    scene, caps = [{"photo": copertina, "start": 0, "end": fine_gancio, "chip": ""}], []
+    stato = {"foto": None, "da": fine_gancio}
+
+    def cambia(foto, quando):
+        quando = max(int(quando), fine_gancio)
+        if stato["foto"] is not None:
+            if quando - stato["da"] < 600:          # foto rimasta troppo poco: la sostituisco
+                scene[-1]["photo"] = foto
+                stato["foto"] = foto
+                volte[foto] = volte.get(foto, 0) + 1
+                return
+            scene[-1]["end"] = quando
+        scene.append({"photo": foto, "start": quando, "end": quando, "chip": ""})
+        stato["foto"], stato["da"] = foto, quando
+        volte[foto] = volte.get(foto, 0) + 1
+
+    def stanze_dette(p):
+        """le stanze nominate in un pezzo di frase, in ordine (il camino, se non c'è la foto, è il soggiorno)"""
+        out = [c for rx, c in foto_stanze.FRASI_FOTO if re.search(rx, p.lower()) and c != "nessuna"]
+        if "camino" in out:
+            out.append("soggiorno")
+        return out
+
+    tutte = " ".join(f for f, *_ in tracce[1:])
+    nominate = set(stanze_dette(tutte))
+
+    def preferenza(f):
+        c = cat.get(f, "stanza")
+        if c == "documento":
+            return 999
+        base = foto_stanze.GENERICHE_PREFERITE.index(c) if c in foto_stanze.GENERICHE_PREFERITE else 50
+        return base + (100 if c in nominate else 0)     # le stanze nominate dalla voce le tengo per quando le nomina
+
+    def della_stanza(c):
+        cand = [f for f in giro if cat.get(f) == c]
+        if not cand:
+            return None
+        if stato["foto"] in cand:
+            return stato["foto"]
+        return min(cand, key=lambda f: (volte.get(f, 0), giro.index(f)))
+
+    def generica():
+        prima = [f for f in giro if f != stato["foto"] and preferenza(f) < 999] or giro
+        return min(prima, key=lambda f: (volte.get(f, 0), preferenza(f), giro.index(f)))
+
+    for f, mp3, st, dur in tracce[1:]:
+        pezzi = spezza(f)
+        tot = sum(len(p) + 1 for p in pezzi)
+        x = st
+        for p in pezzi:
+            cd = dur * (len(p) + 1) / tot
+            caps.append({"start": int(x), "end": int(x + cd), "text": p})
+            voluta = next((v for v in map(della_stanza, stanze_dette(p)) if v), None)
+            if voluta and voluta != stato["foto"]:
+                cambia(voluta, x)
+            elif stato["foto"] is None:
+                cambia(generica(), x)
+            elif x - stato["da"] > 3200 and not voluta:
+                # si parla ancora della stessa stanza: un'altra foto di quella stanza, se c'è; se no una generica
+                altra = [g for g in giro if g != stato["foto"] and cat.get(g) == cat.get(stato["foto"])
+                         and cat.get(g) in STANZE_IT and volte.get(g, 0) == 0]
+                cambia(altra[0] if altra else generica(), x)
+            x += cd
+    fine_tour = tracce[-1][2] + tracce[-1][3] + 300
+    scene[-1]["end"] = fine_tour
+    voci = [(mp3, st) for _, mp3, st, _ in tracce]
+    durata_prezzo = 4000
+    testo_prezzo = d["voci"][-1][0] if d.get("voci") else ""
+    if testo_prezzo:
+        mp3 = cartella / "voce-prezzo.mp3"
+        dp = cs.crea_voce(parlato(testo_prezzo), mp3, voce="umana", velocita=vel)
+        if dp:
+            voci.append((mp3, fine_tour + 200))
+            durata_prezzo = max(4000, int(dp * 1000) + 700)
+    d["scenes"], d["caps"] = scene, caps
+    d["reveal"] = {"start": fine_tour, "end": fine_tour + durata_prezzo}
+    d["total"] = fine_tour + durata_prezzo
+    cs.log(f"  TikTok: {len(tracce)} frasi, {len(caps)} sottotitoli, {len(scene) - 1} foto, {d['total'] / 1000:.0f} s")
+    return d, voci
 
 
 def dati_tiktok(s, foto, cartella):
@@ -548,7 +641,8 @@ def dati_tiktok(s, foto, cartella):
             "price": ("da " if s["tipo"] == "asta" else "") + prezzo,
             "revealQ": "Base d'asta" if s["tipo"] == "asta" else ("Affitto" if s["tipo"] == "affitto" else "Prezzo"),
             "revealS": "Tutte le foto e i contatti: link in bio", "reveal": reveal, "endcard": endcard,
-            "code": str(s["id"]), "accent": accent, "onAccent": on, "total": t + 3000, "voci": voci}
+            "code": str(s["id"]), "accent": accent, "onAccent": on, "total": t + 3000, "voci": voci,
+            "_cat": {str(f): c[0] for f, c in info.items()}}
 
 
 def foto_senza_filigrana(foto, cartella):
@@ -577,13 +671,7 @@ def video_tiktok(browser, s, cartella, foto):
     d = dati_tiktok(s, foto, cartella)
     voci = []
     if os.environ.get("VOCE_TIKTOK_ATTIVA", "si") != "no":
-        for k, (testo, ms) in enumerate(d.get("voci", [])):
-            mp3 = cartella / f"voce-tt{k}.mp3"
-            if testo and cs.crea_voce(parlato(testo), mp3, voce="umana",
-                                      velocita=os.environ.get("VOCE_TIKTOK_VELOCITA", "+2%")):
-                if ms is not None:
-                    d = ritmo_sulla_voce(d, int(durata(mp3) * 1000))
-                voci.append((mp3, ms if ms is not None else d["reveal"]["start"] + 200))
+        d, voci = sincronizza(d, s, cartella)
     fotogrammi = cartella / "fotogrammi-tiktok"
     fotogrammi.mkdir()
     pagina = browser.new_page(viewport={"width": W, "height": 1920})

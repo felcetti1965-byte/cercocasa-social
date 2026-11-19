@@ -19,7 +19,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
   text-transform:uppercase;letter-spacing:.5px;text-shadow:0 6px 28px rgba(0,0,0,.65)}
 .hook .hl{background:var(--accent);color:#fff;text-shadow:none;padding:0 18px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .tag{position:absolute;left:60px;top:220px;font-weight:700;font-size:40px;letter-spacing:3px;background:#fff;color:#111;padding:12px 26px;border-radius:999px}
-.chip{position:absolute;left:60px;right:190px;top:1210px;font-family:Oswald;font-weight:700;font-size:100px;line-height:1.12;text-transform:uppercase;
+.chip{position:absolute;left:60px;right:190px;top:1210px;font-family:Oswald;font-weight:700;font-size:92px;line-height:1.12;text-transform:uppercase;
   color:#fff;-webkit-text-stroke:14px #000;paint-order:stroke fill;text-shadow:0 8px 24px rgba(0,0,0,.55);letter-spacing:1px}
 .chip .k{color:var(--accent)}
 .logo{position:absolute;top:190px;right:34px;width:150px;height:150px;border-radius:50%;box-shadow:0 6px 22px rgba(0,0,0,.45)}
@@ -100,8 +100,12 @@ window.seek = function (ms) {
     hook.style.transform = `translateY(${(1 - a) * 60}px)`; hook.style.opacity = a;
   }
   // scritte delle stanze, una per foto
-  const sc = cur >= 0 && ms < R.start ? S[cur] : null;
-  if (sc && sc.chip && cur > 0) {
+  let sc = cur >= 0 && ms < R.start ? S[cur] : null;
+  if (P.caps) {                       // sottotitoli = le parole che la voce sta dicendo
+    sc = null;
+    if (ms < R.start) P.caps.forEach(c => { if (ms >= c.start && ms < c.end) sc = {chip: c.text, start: c.start}; });
+  }
+  if (sc && sc.chip && (cur > 0 || P.caps)) {
     chip.style.display = 'block';
     chip.innerHTML = esc(sc.chip).replace(/(\d[\d.,]*\s*(m²|mq)?|€\s?[\d.]+)/g, '<span class="k">$1</span>')
                                  .replace(/^(con)\s+(\S+)/i, '$1 <span class="k">$2</span>');
