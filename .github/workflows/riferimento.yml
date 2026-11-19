@@ -1,0 +1,19 @@
+name: Scarica video di riferimento
+on:
+  workflow_dispatch:
+    inputs:
+      url: {description: "link del video", required: true}
+permissions: {contents: write}
+jobs:
+  scarica:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          pip install -q yt-dlp && sudo apt-get -qq install -y ffmpeg >/dev/null
+          mkdir out && cd out
+          yt-dlp -q -o ref.mp4 -f "mp4/best" "${{ inputs.url }}"
+          ffprobe -v error -show_entries format=duration:stream=width,height,codec_type -of compact ref.mp4 > info.txt
+          ffmpeg -v error -i ref.mp4 -vf "fps=2,scale=180:-1,tile=10x4" -frames:v 3 tile%d.jpg
+          ffmpeg -v error -i ref.mp4 -vn -c:a copy ref.m4a || true
+          git init -q -b riferimento && git add -A && git -c user.name=bot -c user.email=bot@x commit -qm ref
+          git push -fq "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" riferimento
