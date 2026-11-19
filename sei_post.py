@@ -462,6 +462,35 @@ def frasi_annuncio(a):
     return out
 
 
+TIKTOK_PARLATO_MAX_MS = int(os.environ.get("TIKTOK_PARLATO_MAX_MS", "46000"))   # + prezzo + chiusura = 1 minuto
+
+
+def frasi_tiktok(a):
+    """cosa dice la voce nel video TikTok: "<agenzia> propone <titolo>", poi solo i dati importanti
+    (zona, metri quadri, camere, bagni, piano, giardino, garage...), una frase breve per volta"""
+    titolo = re.sub(r"\s+", " ", a.get("titolo", "")).strip(" .")
+    if titolo.isupper():
+        titolo = titolo.capitalize()
+    agenzia = re.sub(r"\s+", " ", a.get("agenzia", "")).strip(" .")
+    if agenzia.isupper():
+        agenzia = agenzia.title()
+    frasi = [f"{agenzia} propone {titolo[:1].lower() + titolo[1:]}." if agenzia else titolo + "."]
+    gia = titolo.lower()
+    for f in cs.frasi_video(a):
+        chiave = [w for w in re.findall(r"[a-zà-ù]{5,}", f.lower()) if w not in ("impianto", "metri", "quadrati")]
+        if chiave and all(w[:-1] in gia for w in chiave):     # già detto nel titolo
+            continue
+        frasi.append(f + ".")
+    if len(frasi) < 6:                                    # pochi dati: qualche frase breve della descrizione
+        for f in frasi_annuncio(a)[1:]:
+            if f.startswith(("Lo propone",)) or len(f) > 90 or re.match(r"(propon|vendes|offriam|in vendita)", f, re.I):
+                continue
+            frasi.append(f)
+            if len(frasi) >= 8:
+                break
+    return frasi
+
+
 def testo_annuncio(a):
     return " ".join(frasi_annuncio(a))
 
@@ -492,9 +521,13 @@ def sincronizza(d, s, cartella):
     (cucina -> foto della cucina, bagni -> foto del bagno). Restituisce (dati del video, voci)."""
     vel = os.environ.get("VOCE_TIKTOK_VELOCITA", "+2%")
     tracce, t = [], 250
-    for k, f in enumerate(frasi_annuncio(s["dettaglio"])):
+    for k, f in enumerate(frasi_tiktok(s["dettaglio"])):
+        if t > TIKTOK_PARLATO_MAX_MS - 1500:
+            break
         mp3 = cartella / f"voce-f{k}.mp3"
         dur = cs.crea_voce(parlato(f), mp3, voce="umana", velocita=vel)
+        if dur and t + dur * 1000 > TIKTOK_PARLATO_MAX_MS and k > 0:
+            break
         if dur:
             tracce.append((f, mp3, t, int(dur * 1000)))
             t += int(dur * 1000) + 160
@@ -554,12 +587,15 @@ def sincronizza(d, s, cartella):
         pezzi = spezza(f)
         tot = sum(len(p) + 1 for p in pezzi)
         x = st
-        for p in pezzi:
+        stanze_frase = stanze_dette(f)
+        for j, p in enumerate(pezzi):
             cd = dur * (len(p) + 1) / tot
             caps.append({"start": int(x), "end": int(x + cd), "text": p})
-            voluta = next((v for v in map(della_stanza, stanze_dette(p)) if v), None)
+            voluta = next((v for v in map(della_stanza, stanze_dette(p) or (stanze_frase if j == 0 else [])) if v), None)
             if voluta and voluta != stato["foto"]:
                 cambia(voluta, x)
+            elif j == 0 and not voluta:                     # ogni frase nuova: foto nuova
+                cambia(generica(), x)
             elif stato["foto"] is None:
                 cambia(generica(), x)
             elif x - stato["da"] > 3200 and not voluta:
