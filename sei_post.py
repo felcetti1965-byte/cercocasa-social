@@ -702,6 +702,110 @@ def dati_tiktok(s, foto, cartella):
             "_cat": {str(f): c[0] for f, c in info.items()}}
 
 
+# ---------------------------------------------------------------- TikTok: stile "home tour" (come @bilocale.it)
+# Foto in ordine di visita (soggiorno, cucina, balcone, corridoio, camere, bagni...), movimento lento
+# da telecamera, dissolvenza morbida, niente voce: musica, logo Cercocasa e una scritta per foto presa
+# dal testo dell'annuncio che parla proprio di quella stanza.
+ORDINE_TOUR = ["soggiorno", "camino", "cucina", "terrazzo", "stanza", "camera", "bagno", "mansarda",
+               "cantina", "garage", "giardino", "piscina", "terreno", "vista", "esterno"]
+PAROLE_STANZA = {
+    "soggiorno": r"soggiorno|salone|salotto|living|zona giorno|open space",
+    "camino": r"camino",
+    "cucina": r"cucin|angolo cottura",
+    "terrazzo": r"terrazz|balcon|loggia",
+    "stanza": r"ingresso|disimpegno|corridoio|ripostiglio|scala|studio",
+    "camera": r"camer|matrimonial|stanza da letto|zona notte",
+    "bagno": r"bagn|servizi|doccia|vasca",
+    "mansarda": r"mansard|soffitta|sottotetto",
+    "cantina": r"cantin|taverna|seminterrato",
+    "garage": r"garage|box|posto auto|autorimessa",
+    "giardino": r"giardin|corte|resede|prato",
+    "piscina": r"piscin",
+    "terreno": r"terren|uliv|oliv",
+    "vista": r"vista|panoram",
+    "esterno": r"facciata|palazzin|stabile|edificio|condominio|immobile|villa|casale|zona",
+}
+TOUR_PASSO_MS = int(os.environ.get("TIKTOK_PASSO_MS", "2400"))
+TOUR_MAX_FOTO = int(os.environ.get("TIKTOK_TOUR_FOTO", "16"))
+
+
+def pezzi_testo(a):
+    """il testo dell'annuncio a pezzi brevi (frasi spezzate su virgole e 'e'), puliti"""
+    out = []
+    for f in re.split(r"(?<=[.!?;])\s+|\s*\n+\s*|\s*•\s*", a.get("descrizione", "")):
+        if NON_LEGGERE.search(f) or re.search(r"€|\beuro\b|prezzo|trattabil", f, re.I):
+            continue
+        for p in re.split(r",\s*|\s+-\s+|:\s*|\s+e\s+(?=(?:un|una|uno|due|tre|quattro|cinque|\d+)\s)", f):
+            p = re.sub(r"\s+", " ", p).strip(" .;-–*")
+            p = re.sub(r"^(e|ed|con|oltre a|inoltre|poi|infine|il tutto)\s+", "", p, flags=re.I)
+            p = re.sub(r"\b(mq|m2)\b\.?|m²", "m²", p, flags=re.I)
+            p = re.sub(r"^(proponiamo|vendesi|si vende|in vendita|vendiamo|offriamo|presentiamo)\s+(in vendita\s+)?",
+                       "", p, flags=re.I)
+            if 2 <= len(p.split()) <= 9 and len(p) <= 48:
+                out.append(p[:1].upper() + p[1:])
+    return list(dict.fromkeys(out))
+
+
+def dati_tour(s, foto, cartella):
+    a = s["dettaglio"]
+    base = dati_post(s, foto)
+    info = foto_stanze.classifica(foto)
+    cat = {str(f): info.get(str(f), ("stanza",))[0] for f in foto}
+    copertina = foto[0]
+    resto = [f for f in foto[1:] if cat[str(f)] != "documento"]
+    # ordine di visita: prima la copertina, poi le stanze nell'ordine di un sopralluogo
+    resto.sort(key=lambda f: (ORDINE_TOUR.index(cat[str(f)]) if cat[str(f)] in ORDINE_TOUR else 50,
+                              foto.index(f)))
+    giro = [copertina] + resto[:TOUR_MAX_FOTO - 1]
+    pezzi = pezzi_testo(a)
+    usati = set()
+    dati = {"camera": None, "bagno": None}
+    if a.get("camere"):
+        dati["camera"] = "Una camera da letto" if a["camere"] == "1" else f"{a['camere']} camere da letto"
+    if a.get("bagni"):
+        dati["bagno"] = "Un bagno" if a["bagni"] == "1" else f"{a['bagni']} bagni"
+    generici = [f for f in cs.frasi_video(a)]
+    if a.get("mq"):
+        generici = [f"{a['mq']} m²"] + [g for g in generici if "metri" not in g]
+
+    def frase_per(c):
+        rx = PAROLE_STANZA.get(c)
+        if rx:
+            for p in pezzi:
+                if p not in usati and re.search(rx, p, re.I):
+                    usati.add(p)
+                    return p
+        d = dati.get(c)
+        if d:
+            dati[c] = None
+            return d
+        return ""
+
+    titolo = re.sub(r"\s+", " ", a.get("titolo", "")).strip(" .")
+    scene, t, gia_stanza = [], 0, set()
+    for i, f in enumerate(giro):
+        c = cat[str(f)]
+        if i == 0:
+            chip = titolo.capitalize() if titolo.isupper() else titolo
+        else:
+            chip = frase_per(c)
+            if not chip and c not in gia_stanza and c in ("esterno", "stanza", "vista") and generici:
+                chip = generici.pop(0)
+        gia_stanza.add(c)
+        scene.append({"photo": str(f), "start": t, "end": t + TOUR_PASSO_MS, "chip": chip})
+        t += TOUR_PASSO_MS
+    # ultima foto: il prezzo, scritto come gli altri sottotitoli
+    prezzo = base["price"] + (" al mese" if s["tipo"] == "affitto" else "")
+    scene.append({"photo": str(copertina), "start": t, "end": t + 3200,
+                  "chip": ("Base d'asta " if s["tipo"] == "asta" else "") + prezzo + "\nInfo: link in bio"})
+    t += 3200
+    accent, on = colore_del_giorno(s.get("slot"))
+    cs.log("  TikTok tour: " + " | ".join(f"{cat.get(sc['photo'], '?')}: {sc['chip']}" for sc in scene))
+    return {"stile": "tour", "scenes": scene, "hook": [], "tag": "", "price": "", "reveal": {"start": 10 ** 9, "end": 10 ** 9},
+            "endcard": {"start": 10 ** 9}, "code": str(s["id"]), "accent": accent, "onAccent": on,
+            "total": t, "voci": []}
+
+
 def foto_senza_filigrana(foto, cartella):
     """copie delle foto senza la filigrana dell'agenzia (solo per TikTok); se non riesce, le foto originali"""
     if os.environ.get("FILIGRANA_TIKTOK", "si") == "no":
@@ -725,10 +829,13 @@ def video_tiktok(browser, s, cartella, foto):
     """video TikTok virale: solo musica (si guarda spesso senza audio), scritte grandi, prezzo alla fine,
     logo piccolo in alto a destra, chiusura animata Cercocasa"""
     foto = foto_senza_filigrana(foto, cartella)
-    d = dati_tiktok(s, foto, cartella)
     voci = []
-    if os.environ.get("VOCE_TIKTOK_ATTIVA", "si") != "no":
-        d, voci = sincronizza(d, s, cartella)
+    if os.environ.get("TIKTOK_STILE", "tour") == "tour":      # come il video di riferimento: musica, logo, scritte
+        d = dati_tour(s, foto, cartella)
+    else:
+        d = dati_tiktok(s, foto, cartella)
+        if os.environ.get("VOCE_TIKTOK_ATTIVA", "si") != "no":
+            d, voci = sincronizza(d, s, cartella)
     fotogrammi = cartella / "fotogrammi-tiktok"
     fotogrammi.mkdir()
     pagina = browser.new_page(viewport={"width": W, "height": 1920})

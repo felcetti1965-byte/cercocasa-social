@@ -22,6 +22,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 .chip{position:absolute;left:60px;right:190px;top:1210px;font-family:Oswald;font-weight:700;font-size:92px;line-height:1.12;text-transform:uppercase;
   color:#fff;-webkit-text-stroke:14px #000;paint-order:stroke fill;text-shadow:0 8px 24px rgba(0,0,0,.55);letter-spacing:1px}
 .chip .k{color:var(--accent)}
+.tour .chip{font-size:74px;line-height:1.15;top:1180px;right:150px;white-space:pre-line}
 .logo{position:absolute;top:150px;left:50%;margin-left:-140px;width:280px;height:280px;border-radius:50%;box-shadow:0 6px 22px rgba(0,0,0,.45)}
 .reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;padding:0 150px 300px 70px;text-align:center}
 .reveal .q{font-family:Oswald;font-weight:700;font-size:72px;text-transform:uppercase;text-shadow:0 4px 20px rgba(0,0,0,.7)}
@@ -41,6 +42,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 const P = window.POST || {};
 const v = document.getElementById('v');
 v.style.setProperty('--accent', P.accent || '#DB9C12');
+if (P.stile === 'tour') v.classList.add('tour');
 v.style.setProperty('--on', P.onAccent || '#111');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -75,6 +77,30 @@ window.seek = function (ms) {
   let cur = -1;
   S.forEach((sc, i) => { if (ms >= sc.start && ms < sc.end) cur = i; });
   if (ms >= R.start) cur = 0;                      // reveal: torna sulla foto più bella
+  if (P.stile === 'tour') {           // home tour: dissolvenza morbida e movimento lento da telecamera
+    const ez = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    layers.forEach((L, i) => {
+      const sc = S[i], fine = sc.end + 350;
+      const on = ms >= sc.start && ms < fine;
+      L.style.opacity = on ? (i === 0 ? 1 : Math.min(1, (ms - sc.start) / 350)) : 0;
+      if (on) {
+        const k = ez(Math.min(1, (ms - sc.start) / (fine - sc.start)));
+        const m = i % 4;
+        const z = m === 0 ? 1.04 + 0.10 * k : m === 2 ? 1.14 - 0.10 * k : 1.12;
+        const x = m === 1 ? 40 - 80 * k : m === 3 ? -40 + 80 * k : 0;
+        L.style.transform = `translateX(${x}px) scale(${z})`;
+      }
+    });
+    flash.style.opacity = 0; hook.style.display = 'none'; tag.style.display = 'none'; rev.classList.add('hidden');
+    const sc = cur >= 0 ? S[cur] : null;
+    if (sc && sc.chip) {
+      chip.style.display = 'block';
+      chip.innerHTML = esc(sc.chip).replace(/(€\s?[\d.]+|\d[\d.,]*\s*(m²|mq)?)/g, '<span class="k">$1</span>');
+      const a = ease((ms - sc.start - 150) / 450);
+      chip.style.opacity = Math.max(0, a); chip.style.transform = `translateY(${(1 - a) * 30}px)`;
+    } else chip.style.display = 'none';
+    return;
+  }
   layers.forEach((L, i) => {
     const on = i === cur;
     L.style.opacity = on ? 1 : 0;
