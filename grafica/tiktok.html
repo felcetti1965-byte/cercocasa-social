@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>TikTok Cercocasa</title>
+<style>
+@font-face{font-family:Oswald;font-weight:600;src:url(fonts/oswald-latin-600-normal.woff2)}
+@font-face{font-family:Oswald;font-weight:700;src:url(fonts/oswald-latin-700-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2)}
+*{box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
+#v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:Montserrat,sans-serif;color:#fff}
+.ph{position:absolute;inset:0;background-size:cover;background-position:center;will-change:transform,opacity}
+.dark{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 62%,rgba(0,0,0,.6) 100%)}
+.flash{position:absolute;inset:0;background:#fff;opacity:0}
+/* zona sicura TikTok: niente testi negli ultimi ~420px in basso e nei ~140px a destra */
+.hook{position:absolute;left:70px;right:150px;top:330px;font-family:Oswald;font-weight:700;font-size:108px;line-height:1.22;
+  text-transform:uppercase;letter-spacing:.5px;text-shadow:0 6px 28px rgba(0,0,0,.65)}
+.hook .hl{background:var(--accent);color:var(--on);padding:0 18px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.tag{position:absolute;left:70px;top:210px;font-weight:700;font-size:40px;letter-spacing:3px;background:#fff;color:#111;padding:12px 26px;border-radius:999px}
+.chip{position:absolute;left:70px;right:150px;top:1080px;font-family:Oswald;font-weight:700;font-size:96px;line-height:1.25;text-transform:uppercase;
+  text-shadow:0 6px 26px rgba(0,0,0,.7)}
+.chip span{background:rgba(0,0,0,.55);padding:4px 22px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.num{position:absolute;right:150px;top:210px;font-weight:700;font-size:36px;background:rgba(0,0,0,.55);padding:10px 22px;border-radius:999px}
+.reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;padding:0 150px 300px 70px;text-align:center}
+.reveal .q{font-family:Oswald;font-weight:700;font-size:72px;text-transform:uppercase;text-shadow:0 4px 20px rgba(0,0,0,.7)}
+.reveal .p{font-family:Oswald;font-weight:700;font-size:150px;line-height:1.05;white-space:nowrap;background:var(--accent);color:var(--on);padding:18px 44px;border-radius:28px}
+.reveal .s{font-weight:700;font-size:44px;text-shadow:0 4px 16px rgba(0,0,0,.8)}
+.end{position:absolute;inset:0;background:#0d0d0e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:42px;padding:0 120px 320px;text-align:center}
+.end img{width:420px;height:auto}
+.end .c{font-family:Oswald;font-weight:700;font-size:96px;color:var(--accent)}
+.end .t{font-weight:700;font-size:50px;line-height:1.3;max-width:760px}
+.end .u{font-weight:600;font-size:40px;color:#bdbdbd}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="v"></div>
+<script>
+const P = window.POST || {};
+const v = document.getElementById('v');
+v.style.setProperty('--accent', P.accent || '#DB9C12');
+v.style.setProperty('--on', P.onAccent || '#111');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// scene: [{photo, start, end, chip}]  · hook sulla prima · reveal del prezzo · cartello finale
+const S = P.scenes || [];
+const layers = S.map((sc, i) => {
+  const d = document.createElement('div'); d.className = 'ph'; d.style.backgroundImage = `url("${sc.photo}")`;
+  v.appendChild(d); return d;
+});
+const dark = document.createElement('div'); dark.className = 'dark'; v.appendChild(dark);
+const flash = document.createElement('div'); flash.className = 'flash'; v.appendChild(flash);
+
+const tag = document.createElement('div'); tag.className = 'tag'; tag.textContent = P.tag || ''; v.appendChild(tag);
+const hook = document.createElement('div'); hook.className = 'hook';
+hook.innerHTML = (P.hook || []).map(r => r.hl ? `<span class="hl">${esc(r.t)}</span>` : esc(r.t)).join('<br>');
+v.appendChild(hook);
+const num = document.createElement('div'); num.className = 'num'; v.appendChild(num);
+const chip = document.createElement('div'); chip.className = 'chip'; v.appendChild(chip);
+
+const rev = document.createElement('div'); rev.className = 'reveal hidden';
+rev.innerHTML = `<div class="q">${esc(P.revealQ || 'Quanto costa?')}</div><div class="p">${esc(P.price || '')}</div><div class="s">${esc(P.revealS || '')}</div>`;
+v.appendChild(rev);
+const end = document.createElement('div'); end.className = 'end hidden';
+end.innerHTML = `<img src="logo.png" alt=""><div class="c">CODICE ${esc(P.code || '')}</div><div class="t">${esc(P.endT || 'Tutte le foto e i contatti: link in bio')}</div><div class="u">www.cercocasaumbria.it</div>`;
+v.appendChild(end);
+
+const ease = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+window.seek = function (ms) {
+  const R = P.reveal || {start: 1e9, end: 1e9}, E = P.endcard || {start: 1e9};
+  let cur = -1;
+  S.forEach((sc, i) => { if (ms >= sc.start && ms < sc.end) cur = i; });
+  if (ms >= R.start) cur = 0;                      // reveal: torna sulla foto più bella
+  layers.forEach((L, i) => {
+    const on = i === cur;
+    L.style.opacity = on ? 1 : 0;
+    if (on) {
+      const sc = S[i], st = ms >= R.start ? R.start : sc.start, en = ms >= R.start ? R.end : sc.end;
+      const k = (ms - st) / Math.max(1, en - st);
+      const z = (i % 2 ? 1.16 - 0.12 * k : 1.04 + 0.12 * k);      // zoom avanti / indietro alternato
+      const x = (i % 3 === 1 ? -30 + 60 * k : 0);
+      L.style.transform = `translateX(${x}px) scale(${z})`;
+      L.style.filter = ms >= R.start ? 'blur(14px) brightness(.55)' : 'none';
+    }
+  });
+  // lampo breve a ogni cambio foto (ritmo)
+  let f = 0;
+  S.forEach((sc, i) => { if (i > 0) { const d = ms - sc.start; if (d >= 0 && d < 140) f = 0.55 * (1 - d / 140); } });
+  flash.style.opacity = f;
+  // gancio sulla prima scena
+  const h0 = S[0] ? S[0].end : 0;
+  const showHook = ms < h0;
+  hook.style.display = tag.style.display = showHook ? 'block' : 'none';
+  if (showHook) {
+    const a = ease(ms / 350);
+    hook.style.transform = `translateY(${(1 - a) * 60}px)`; hook.style.opacity = a;
+  }
+  // scritte delle stanze, una per foto
+  const sc = cur >= 0 && ms < R.start ? S[cur] : null;
+  if (sc && sc.chip && cur > 0) {
+    chip.style.display = 'block';
+    chip.innerHTML = `<span>${esc(sc.chip)}</span>`;
+    const a = ease((ms - sc.start) / 260);
+    chip.style.transform = `scale(${0.85 + 0.15 * a})`; chip.style.opacity = a;
+    chip.style.transformOrigin = 'left center';
+  } else chip.style.display = 'none';
+  num.style.display = cur > 0 && ms < R.start ? 'block' : 'none';
+  num.textContent = cur > 0 ? `${cur}/${S.length - 1}` : '';
+  // prezzo svelato alla fine (curiosità: fa restare fino in fondo)
+  const inR = ms >= R.start && ms < E.start;
+  rev.classList.toggle('hidden', !inR);
+  if (inR) {
+    const a = ease((ms - R.start) / 420);
+    rev.querySelector('.p').style.transform = `scale(${0.6 + 0.4 * a})`;
+    rev.style.opacity = Math.min(1, (ms - R.start) / 200);
+  }
+  const inE = ms >= E.start;
+  end.classList.toggle('hidden', !inE);
+  dark.style.display = inE ? 'none' : 'block';
+};
+window.seek(0);
+</script>
+</body>
+</html>

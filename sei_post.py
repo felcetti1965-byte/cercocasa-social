@@ -396,6 +396,78 @@ def musica():
     return brani[(n + date.today().toordinal()) % len(brani)]
 
 
+# ---------------------------------------------------------------- TikTok: formato virale
+# Regole dai video immobiliari con più visualizzazioni: gancio scritto sul primo fotogramma (domanda),
+# niente sigla iniziale, 15-25 secondi, un cambio ogni ~2 s, scritte grandi al centro (zona sicura),
+# prezzo svelato alla fine (fa restare fino in fondo), cartello finale breve con codice e link in bio.
+GANCI = {
+    "vendita": [["Quanto costa", "questa casa", "a {dove}?"], ["Indovina", "il prezzo", "di questa casa"],
+                ["Questa casa", "a {dove}", "costa meno di quanto pensi"]],
+    "affitto": [["Quanto si paga", "di affitto qui", "a {dove}?"], ["Indovina", "l'affitto", "di questa casa"]],
+    "asta": [["Questa casa", "è all'asta.", "Da quanto parte?"], ["All'asta", "a {dove}:", "indovina il prezzo"]],
+}
+
+
+def dati_tiktok(s, foto, cartella):
+    """scene e testi del video TikTok virale"""
+    a = s["dettaglio"]
+    base = dati_post(s, foto)
+    dove = (s.get("zona") or s["citta"]).title() if s["tipo"] != "asta" else base["city"].title()
+    if len(dove) > 16:
+        dove = s["citta"].title()
+    scelta = GANCI[s["tipo"]][(datetime.now().timetuple().tm_yday + sum(map(ord, s.get("slot", "")))) % len(GANCI[s["tipo"]])]
+    righe = [r.format(dove=dove) for r in scelta]
+    hook = [{"t": righe[0]}, {"t": righe[1]}, {"t": righe[2], "hl": True}]
+    # scritte delle stanze: corte, una per foto, sulla foto giusta
+    frasi = [f for f in cs.frasi_video(a) if len(f) <= 24][:5]
+    if len(frasi) < 3:
+        frasi = (frasi + [t for _, t in base.get("specs", [])])[:5]
+    abbinate = foto_stanze.abbina(frasi, foto, cartella, colore_del_giorno(s.get("slot"))[0], log=cs.log)
+    t, scene = 0, [{"photo": str(foto[0]), "start": 0, "end": 2300, "chip": ""}]
+    t = 2300
+    for fr, fp in zip(frasi, abbinate):
+        scene.append({"photo": str(fp), "start": t, "end": t + 1900, "chip": fr})
+        t += 1900
+    reveal = {"start": t, "end": t + 3200}
+    endcard = {"start": t + 3200}
+    tot = t + 3200 + 2600
+    tipo = {"vendita": "IN VENDITA", "affitto": "IN AFFITTO", "asta": "ALL'ASTA"}[s["tipo"]]
+    prezzo = base["price"] + (" al mese" if s["tipo"] == "affitto" else "")
+    domanda = {"vendita": "Te lo aspettavi?", "affitto": "Ti sembra giusto?", "asta": "Base d'asta"}[s["tipo"]]
+    sotto = {"vendita": "Scrivi nei commenti quanto avresti detto",
+             "affitto": "Scrivi nei commenti quanto paghi tu",
+             "asta": "La compreresti? Scrivilo nei commenti"}[s["tipo"]]
+    accent, on = colore_del_giorno(s.get("slot"))
+    return {"scenes": scene, "hook": hook, "tag": f"{tipo} · {base['city']}", "price": ("da " if s["tipo"] == "asta" else "") + prezzo,
+            "revealQ": domanda, "revealS": sotto, "reveal": reveal, "endcard": endcard, "code": str(s["id"]),
+            "accent": accent, "onAccent": on, "total": tot}
+
+
+def video_tiktok(browser, s, cartella, foto):
+    """video TikTok virale: solo musica (si guarda spesso senza audio), scritte grandi, prezzo alla fine"""
+    d = dati_tiktok(s, foto, cartella)
+    fotogrammi = cartella / "fotogrammi-tiktok"
+    fotogrammi.mkdir()
+    pagina = browser.new_page(viewport={"width": W, "height": 1920})
+    pagina.add_init_script("window.POST = " + json.dumps(d) + ";")
+    pagina.goto("file://" + str(GRAFICA / "tiktok.html"))
+    pagina.evaluate("document.fonts.ready")
+    pagina.wait_for_timeout(500)
+    for i in range(d["total"] * FPS // 1000):
+        pagina.evaluate(f"window.seek({i * 1000 / FPS})")
+        pagina.screenshot(path=str(fotogrammi / f"{i:04d}.jpg"), type="jpeg", quality=90)
+    pagina.close()
+    muto = cartella / "tiktok-muto.mp4"
+    cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.jpg", "-c:v", "libx264", "-preset", "veryfast",
+          "-crf", "19", "-pix_fmt", "yuv420p", muto)
+    shutil.rmtree(fotogrammi, ignore_errors=True)
+    audio = audio_post([], d["total"], cartella)
+    out = cs.USCITA / f"{s['slot']}-tiktok.mp4"
+    cs.ff("-i", muto, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-shortest",
+          "-movflags", "+faststart", out)
+    return out
+
+
 def audio_post(voci, totale_ms, cartella):
     """musica bassa sotto la voce, ogni frase all'inizio della sua scena"""
     dur = totale_ms / 1000
@@ -555,6 +627,11 @@ def produci(nome, tipo, citta, schede, social):
                 try:
                     post45, post916, audio, copertina, cop916 = video_post(browser, s, cartella, foto,
                                                                            con_facebook="facebook" in social)
+                    if "tiktok" in social and os.environ.get("TIKTOK_VIRALE", "si") != "no":
+                        try:     # versione TikTok virale: gancio, ritmo veloce, prezzo svelato alla fine
+                            video_tiktok(browser, s, cartella, foto)
+                        except Exception as e:
+                            cs.log("  TikTok virale non creato, uso il reel:", e)
                 finally:
                     browser.close()
             v45 = monta(post45, audio, s, cs.USCITA / f"{nome}.mp4", verticale=False) if post45 else None
@@ -640,13 +717,18 @@ def main():
                     ris = pubblica_instagram_reel(v916, cs.testo_post(a, nome))
                 elif nome == "tiktok":
                     vt = v916
+                    virale = cs.USCITA / f"{s['slot']}-tiktok.mp4"
+                    if virale.exists():
+                        vt = virale
+                        os.environ["TIKTOK_COPERTINA_MS"] = "700"     # copertina = foto con il gancio scritto
                     cop_reel = v916.with_suffix(".jpg")
-                    if cop_reel.exists() and not (os.environ.get("UPLOADPOST_KEY") or os.environ.get("ZERNIO_KEY")):   # con Upload-Post la copertina la sceglie cover_timestamp
+                    if vt == v916 and cop_reel.exists() and not (os.environ.get("UPLOADPOST_KEY") or os.environ.get("ZERNIO_KEY")):   # con Upload-Post la copertina la sceglie cover_timestamp
                         try:
                             vt = con_copertina_iniziale(v916, cop_reel)
                         except Exception as e:
                             cs.log("  TikTok: copertina iniziale non aggiunta:", e)
                     ris = cs.PUBBLICA[nome](vt, cs.testo_post(a, nome))
+                    os.environ["TIKTOK_COPERTINA_MS"] = str(tempo_copertina())
                     if ris is not None:
                         descrizioni_tiktok.append((s["slot"], cs.testo_post(a, nome)))
                 else:
