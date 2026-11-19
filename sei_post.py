@@ -152,10 +152,11 @@ def scheda_valida(tipo, s, usati):
     return True
 
 
-def candidati(stato, solo=None):
+def candidati(stato, solo=None, usati=None):
     """per ogni tipo e città: (nome, tipo, città, schede in ordine di preferenza, prima le case).
     solo = {slot: id}: ripropone proprio quegli annunci (già pubblicati oggi, per un altro social)"""
-    usati = {p.get("id") for p in stato["pubblicati"]} - set((solo or {}).values())
+    if usati is None:
+        usati = {p.get("id") for p in stato["pubblicati"]} - set((solo or {}).values())
     out = []
     elenchi = {}
     stessa = {}                        # più post dalla stessa pagina: si dividono gli annunci a turno
@@ -314,8 +315,9 @@ def scene_e_voce(s, foto, cartella):
     return scene, didascalie, audio, t
 
 
-def foto_annuncio(s, cartella):
+def foto_annuncio(s, cartella, massimo=None):
     """foto principale della scheda + le altre foto dell'annuncio (senza planimetrie e mappe), in jpg"""
+    massimo = massimo or MAX_FOTO
     a = s["dettaglio"]
     indirizzi = [urljoin(cs.SITO + "/", s["foto"])] if s.get("foto") else []
     for u in a.get("foto", []):
@@ -323,7 +325,7 @@ def foto_annuncio(s, cartella):
             indirizzi.append(u)
     file = []
     for u in indirizzi:
-        if len(file) >= MAX_FOTO:
+        if len(file) >= massimo:
             break
         try:
             r = cs.HTTP.get(u, timeout=60)
@@ -400,59 +402,77 @@ def musica():
 # Regole dai video immobiliari con più visualizzazioni: gancio scritto sul primo fotogramma (domanda),
 # niente sigla iniziale, 15-25 secondi, un cambio ogni ~2 s, scritte grandi al centro (zona sicura),
 # prezzo svelato alla fine (fa restare fino in fondo), cartello finale breve con codice e link in bio.
-GANCI = {
-    "vendita": [["Quanto costa", "questa casa", "a {dove}?"], ["Indovina", "il prezzo", "di questa casa"],
-                ["Questa casa", "a {dove}", "costa meno di quanto pensi"]],
-    "affitto": [["Quanto si paga", "di affitto qui", "a {dove}?"], ["Indovina", "l'affitto", "di questa casa"]],
-    "asta": [["Questa casa", "è all'asta.", "Da quanto parte?"], ["All'asta", "a {dove}:", "indovina il prezzo"]],
-}
+# punto forte dell'annuncio, preso dalla descrizione (in ordine di forza)
+PUNTI_FORTI = [
+    (r"piscin", "con piscina"), (r"vista (panoramica|mozzafiato|lago|valle|colline)|panoramic", "con vista panoramica"),
+    (r"attico", "attico"), (r"giardino", "con giardino"), (r"terrazz", "con terrazzo"),
+    (r"centro storico", "nel centro storico"), (r"ristrutturat|rinnovat|nuov[ao] di zecca", "appena ristrutturato"),
+    (r"nuova costruzione|classe a", "nuova costruzione"), (r"indipendente", "indipendente"),
+    (r"camino", "con camino"), (r"garage|box auto", "con garage"), (r"arredat", "arredato"),
+    (r"balcon", "con balcone"), (r"luminos", "luminosissimo"),
+]
+STANZE_IT = {"bagno": "Bagno", "cucina": "Cucina", "camera": "Camera da letto", "soggiorno": "Soggiorno",
+             "camino": "Soggiorno con camino", "esterno": "Esterno", "giardino": "Giardino", "terrazzo": "Terrazzo",
+             "garage": "Garage", "piscina": "Piscina", "vista": "Vista", "terreno": "Terreno", "mansarda": "Mansarda",
+             "cantina": "Cantina"}
+TIKTOK_MIN_FOTO, TIKTOK_FOTO_TOP, TIKTOK_MAX_FOTO = 10, 20, 20
+
+
+def punto_forte(a):
+    testo = " ".join([a.get("titolo", ""), a.get("descrizione", ""), " ".join(a.get("punti", []))]).lower()
+    for rx, frase in PUNTI_FORTI:
+        if re.search(rx, testo):
+            return frase
+    return ""
 
 
 def dati_tiktok(s, foto, cartella):
-    """scene e testi del video TikTok virale"""
+    """video "tour della casa" (il formato immobiliare con più visualizzazioni): gancio con il punto forte
+    preso dalla descrizione, tutte le foto (fino a 20) con il nome della stanza o la caratteristica giusta,
+    prezzo chiaro alla fine. Niente indovinelli."""
     a = s["dettaglio"]
     base = dati_post(s, foto)
     dove = (s.get("zona") or s["citta"]).title() if s["tipo"] != "asta" else base["city"].title()
-    if len(dove) > 16:
+    if len(dove) > 18:
         dove = s["citta"].title()
-    scelta = GANCI[s["tipo"]][(datetime.now().timetuple().tm_yday + sum(map(ord, s.get("slot", "")))) % len(GANCI[s["tipo"]])]
-    righe = [r.format(dove=dove) for r in scelta]
-    hook = [{"t": righe[0]}, {"t": righe[1]}, {"t": righe[2], "hl": True}]
-    # scritte delle stanze: corte, una per foto, sulla foto giusta
-    frasi = [f for f in cs.frasi_video(a) if len(f) <= 24][:5]
-    if len(frasi) < 3:
-        frasi = (frasi + [t for _, t in base.get("specs", [])])[:5]
+    tipo = tipo_bello(s["tipo_imm"])
+    forte = punto_forte(a)
+    giorno = datetime.now().timetuple().tm_yday + sum(map(ord, s.get("slot", "")))
+    if s["tipo"] == "asta":
+        hook = [{"t": f"{tipo} all'asta"}, {"t": f"a {dove}"}, {"t": forte or "Tour completo", "hl": True}]
+    elif giorno % 2:
+        hook = [{"t": "POV: entri nella"}, {"t": "tua nuova casa"}, {"t": f"{forte or ''} a {dove}".strip(), "hl": True}]
+    else:
+        hook = [{"t": tipo}, {"t": forte or f"a {dove}"}, {"t": (f"a {dove}" if forte else "Tour completo"), "hl": True}]
+    # ogni foto: la caratteristica giusta (foto della stanza giusta) o il nome della stanza; planimetrie escluse
+    info = foto_stanze.classifica(foto)
+    frasi = [f for f in cs.frasi_video(a) if len(f) <= 26]
     abbinate = foto_stanze.abbina(frasi, foto, cartella, colore_del_giorno(s.get("slot"))[0], log=cs.log)
-    # su TikTok niente pagina col logo (fa scorrere via): frase senza la sua foto = saltata
-    coppie = [(fr, fp) for fr, fp in zip(frasi, abbinate) if Path(fp).name != "neutra.jpg"]
-    usate = {str(fp) for _, fp in coppie} | {str(foto[0])}
-    numeri = lambda x: set(re.findall(r"\d+", x))
-    gia = set().union(*[numeri(c) for c, _ in coppie]) if coppie else set()
-    generiche = [t for _, t in base.get("specs", []) if not (numeri(t) & gia) and t not in [c for c, _ in coppie]]
-    for f in foto[1:]:                        # le altre foto, con i dati generici (m², camere, zona...)
-        if len(coppie) >= 5:
-            break
-        if str(f) not in usate:
-            coppie.append((generiche.pop(0) if generiche else "", f))
-            usate.add(str(f))
-    t, scene = 0, [{"photo": str(foto[0]), "start": 0, "end": 2300, "chip": ""}]
-    t = 2300
-    for fr, fp in coppie[:5]:
-        scene.append({"photo": str(fp), "start": t, "end": t + 1900, "chip": fr})
-        t += 1900
-    reveal = {"start": t, "end": t + 3200}
-    endcard = {"start": 10 ** 9}           # il finale è la chiusura animata Cercocasa (sigle/chiusura-tiktok.mp4)
-    tot = t + 3200
-    tipo = {"vendita": "IN VENDITA", "affitto": "IN AFFITTO", "asta": "ALL'ASTA"}[s["tipo"]]
+    chip_di = {}
+    for fr, fp in zip(frasi, abbinate):
+        if Path(fp).name != "neutra.jpg" and str(fp) not in chip_di:
+            chip_di[str(fp)] = fr
+    dati_generici = [t for _, t in base.get("specs", [])]
+    t, scene = 2600, [{"photo": str(foto[0]), "start": 0, "end": 2600, "chip": ""}]
+    for f in foto[1:TIKTOK_MAX_FOTO]:
+        cat = info.get(str(f), ("",))[0]
+        if cat == "documento":
+            continue
+        chip = chip_di.get(str(f)) or STANZE_IT.get(cat, "")
+        if not chip and dati_generici:
+            chip = dati_generici.pop(0)
+        scene.append({"photo": str(f), "start": t, "end": t + 1500, "chip": chip})
+        t += 1500
+    reveal = {"start": t, "end": t + 3000}
+    endcard = {"start": 10 ** 9}
+    etichetta = {"vendita": "IN VENDITA", "affitto": "IN AFFITTO", "asta": "ALL'ASTA"}[s["tipo"]]
     prezzo = base["price"] + (" al mese" if s["tipo"] == "affitto" else "")
-    domanda = {"vendita": "Te lo aspettavi?", "affitto": "Ti sembra giusto?", "asta": "Base d'asta"}[s["tipo"]]
-    sotto = {"vendita": "Scrivi nei commenti quanto avresti detto",
-             "affitto": "Scrivi nei commenti quanto paghi tu",
-             "asta": "La compreresti? Scrivilo nei commenti"}[s["tipo"]]
     accent, on = colore_del_giorno(s.get("slot"))
-    return {"scenes": scene, "hook": hook, "tag": f"{tipo} · {base['city']}", "price": ("da " if s["tipo"] == "asta" else "") + prezzo,
-            "revealQ": domanda, "revealS": sotto, "reveal": reveal, "endcard": endcard, "code": str(s["id"]),
-            "accent": accent, "onAccent": on, "total": tot}
+    return {"scenes": scene, "hook": hook, "tag": f"TOUR · {etichetta} · {base['city']}",
+            "price": ("da " if s["tipo"] == "asta" else "") + prezzo,
+            "revealQ": "Base d'asta" if s["tipo"] == "asta" else ("Affitto" if s["tipo"] == "affitto" else "Prezzo"),
+            "revealS": "Tutte le foto e i contatti: link in bio", "reveal": reveal, "endcard": endcard,
+            "code": str(s["id"]), "accent": accent, "onAccent": on, "total": t + 3000}
 
 
 def foto_senza_filigrana(foto, cartella):
@@ -694,14 +714,112 @@ def produci(nome, tipo, citta, schede, social):
     return None
 
 
+def produci_tiktok(nome, tipo, citta, schede):
+    """TikTok "tour": annuncio con almeno 20 foto (se non c'è, almeno 10), video lungo con tutte le foto"""
+    from playwright.sync_api import sync_playwright
+    letti = []
+    for scheda in schede[:30]:
+        try:
+            d = cs.leggi_annuncio(scheda["id"])
+            n = len([u for u in d.get("foto", []) if not re.search(r"mappa|planimetr|piantin", u, re.I)])
+            letti.append((n, scheda, d))
+            if n >= TIKTOK_FOTO_TOP:
+                break
+        except Exception as e:
+            cs.log(f"  {nome} TikTok: annuncio {scheda.get('id')} non letto:", e)
+    for soglia in (TIKTOK_FOTO_TOP, TIKTOK_MIN_FOTO):
+        for n, scheda, d in sorted(letti, key=lambda x: -x[0]):
+            if n < soglia:
+                continue
+            cartella = Path(tempfile.mkdtemp())
+            try:
+                s = dict(scheda, slot=nome, tipo=tipo, citta=citta, dettaglio=d)
+                foto = foto_annuncio(s, cartella, massimo=TIKTOK_MAX_FOTO)
+                if len(foto) < TIKTOK_MIN_FOTO:
+                    continue
+                cs.log(f"{nome} TikTok: {s['id']} – {d['titolo']} – {len(foto)} foto")
+                with sync_playwright() as p:
+                    browser = p.chromium.launch()
+                    try:
+                        video = video_tiktok(browser, s, cartella, foto)
+                    finally:
+                        browser.close()
+                cs.log("Video TikTok pronto:", video.name, f"({durata(video):.1f} s)")
+                return s, video
+            except Exception as e:
+                cs.log(f"  {nome} TikTok: annuncio {scheda.get('id')} non riuscito:", e)
+            finally:
+                shutil.rmtree(cartella, ignore_errors=True)
+    cs.log(f"Nessun annuncio con almeno {TIKTOK_MIN_FOTO} foto per {nome} (TikTok)")
+    return None
+
+
+def main_tiktok(args):
+    """giro solo TikTok: un tour al giorno per categoria, annunci con tante foto mai usciti su TikTok"""
+    stato = cs.carica_stato()
+    oggi = date.today().isoformat()
+    fatti = {p.get("tt") for p in stato["pubblicati"] if p.get("tt") and str(p.get("data", "")).startswith(oggi)}
+    gia_tiktok = {p.get("id") for p in stato["pubblicati"] if "tiktok" in (p.get("social") or [])}
+    quanti = int(os.environ.get("TIKTOK_AL_GIORNO", "6") or 6)
+    lista = [x for x in candidati(stato, usati=gia_tiktok) if x[3] and (args.prova or x[0] not in fatti)]
+    lista = [x for x in lista if not x[0].endswith("-2")][:quanti] if quanti <= 6 else lista[:quanti]
+    if args.slot:
+        lista = [x for x in candidati(stato, usati=gia_tiktok) if x[0] == args.slot and x[3]][:1]
+    if not lista:
+        cs.log("TikTok: niente da fare oggi.")
+        return
+    from concurrent.futures import ProcessPoolExecutor
+    pronti = []
+    with ProcessPoolExecutor(max_workers=int(os.environ.get("VIDEO_IN_PARALLELO", "3") or 3)) as pool:
+        lavori = [pool.submit(produci_tiktok, n, t, c, sc) for n, t, c, sc in lista]
+        for lavoro in lavori:
+            try:
+                r = lavoro.result()
+                if r:
+                    pronti.append(r)
+            except Exception as e:
+                cs.log("  TikTok: video non creato:", e)
+    descr = []
+    for k, (s, video) in enumerate(pronti):
+        a = s["dettaglio"]
+        testo = cs.testo_post(a, "tiktok")
+        if args.prova:
+            cs.log("PROVA, non pubblico:", video.name)
+            continue
+        if k:
+            time.sleep(60 * float(os.environ.get("PAUSA_MINUTI", "3") or 3))
+        try:
+            os.environ["TIKTOK_COPERTINA_MS"] = "700"
+            ris = cs.PUBBLICA["tiktok"](video, testo)
+        except Exception as e:
+            cs.log("tiktok: ERRORE", s["slot"], e)
+            continue
+        if ris is None:
+            continue
+        descr.append((s["slot"], testo))
+        stato["pubblicati"].append({"id": s["id"], "tt": s["slot"], "social": ["tiktok"], "tiktok_id": str(ris),
+                                    "data": datetime.now().isoformat(timespec="seconds"), "titolo": a.get("titolo"),
+                                    "prezzo": a.get("prezzo"), "comune": a.get("comune"), "url": a.get("url")})
+        cs.STATO.write_text(json.dumps(stato, ensure_ascii=False, indent=1))
+        cs.log("Pubblicato TikTok", s["slot"], s["id"])
+    if descr:
+        righe = [f"# TikTok del {date.today().strftime('%d/%m/%Y')}", ""]
+        for slot, testo in descr:
+            righe += [f"## {slot.replace('-', ' ').title()}", "", "```", testo, "```", ""]
+        (QUI / "tiktok-descrizioni.md").write_text("\n".join(righe), encoding="utf-8")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prova", action="store_true", help="crea video e testi senza pubblicare")
+    ap.add_argument("--solo-tiktok", action="store_true", help="giro TikTok: tour lunghi di annunci con tante foto")
     ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "10") or 10))
     ap.add_argument("--slot", default="", help="un post in più di questo tipo, es. vendita-perugia (prova a mano)")
     ap.add_argument("--rifai-oggi", action="store_true",
                     help="ripubblica gli annunci già usciti oggi sui social indicati (es. solo facebook)")
     args = ap.parse_args()
+    if args.solo_tiktok:
+        return main_tiktok(args)
 
     social = [x.strip() for x in os.environ.get("SOCIAL_SEI", "facebook,instagram,tiktok").split(",") if x.strip()]
     pausa = int(os.environ.get("PAUSA_MINUTI", "3") or 3) * 60

@@ -70,7 +70,7 @@ jobs:
           TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}
           MODO_POST: ${{ vars.MODO_POST || 'diversi' }}
           SOCIAL: ${{ vars.SOCIAL || 'facebook,instagram,tiktok' }}
-          SOCIAL_SEI: ${{ inputs.social || 'facebook,instagram,tiktok' }}
+          SOCIAL_SEI: ${{ inputs.social || 'facebook,instagram' }}
           PAUSA_MINUTI: ${{ vars.PAUSA_MINUTI || '3' }}
           MODO_GIORNALIERO: ${{ vars.MODO_GIORNALIERO || 'sei' }}
         run: |
@@ -84,7 +84,15 @@ jobs:
             SLOT_ARG=""
             [ -n "${{ inputs.slot }}" ] && SLOT_ARG="--slot ${{ inputs.slot }}"
             [ "${{ inputs.rifai_oggi }}" = "true" ] && SLOT_ARG="$SLOT_ARG --rifai-oggi"
-            python sei_post.py $PROVA --quanti "${{ inputs.quanti || 10 }}" $SLOT_ARG
+            if [ "$SOCIAL_SEI" = "tiktok" ]; then
+              # TikTok a parte: tour lunghi di annunci con tante foto
+              python sei_post.py $PROVA --solo-tiktok $SLOT_ARG
+            else
+              python sei_post.py $PROVA --quanti "${{ inputs.quanti || 10 }}" $SLOT_ARG
+              if [ -z "${{ inputs.social }}" ]; then
+                python sei_post.py $PROVA --solo-tiktok || echo "giro TikTok non riuscito"
+              fi
+            fi
           fi
 
       - name: Video TikTok di prova su un ramo (solo in prova)
