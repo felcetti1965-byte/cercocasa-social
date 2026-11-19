@@ -426,6 +426,64 @@ def punto_forte(a):
     return ""
 
 
+# frasi della descrizione da NON leggere (telefoni, agenzia, codici, link)
+NON_LEGGERE = re.compile(r"www\.|@|https?:|\btel\b|telefon|cell\.?\s*\d|whatsapp|chiama|mediazione|provvigion|"
+                         r"\brif\b|riferimento|codice|buona fede|\biva\b|\d{3}[\s.]?\d{3}[\s.]?\d{3,4}", re.I)
+VOCE_MAX_CARATTERI = int(os.environ.get("VOCE_TIKTOK_MAX", "2600"))   # circa 3 minuti di voce
+
+
+def testo_annuncio(a):
+    """titolo dell'annuncio + tutta la descrizione, come la legge la voce"""
+    titolo = re.sub(r"\s+", " ", a.get("titolo", "")).strip(" .")
+    pezzi = [titolo.capitalize() if titolo.isupper() else titolo]
+    for f in re.split(r"(?<=[.!?;])\s+|\s*\n+\s*|\s*•\s*", a.get("descrizione", "")):
+        f = re.sub(r"\s+", " ", f).strip(" -–*•")
+        f = re.sub(r"\b(mq|m²|m2)\b\.?|m²", "metri quadri", f, flags=re.I)
+        if len(f.split()) < 2 or NON_LEGGERE.search(f):
+            continue
+        if f.isupper():
+            f = f.capitalize()
+        pezzi.append(f if f.endswith((".", "!", "?", ";", ":")) else f + ".")
+    testo, out = "", []
+    for p in pezzi:
+        if len(testo) + len(p) > VOCE_MAX_CARATTERI:
+            break
+        out.append(p)
+        testo += p + " "
+    return " ".join(out[:1]) + ". " + " ".join(out[1:]) if out else ""
+
+
+def ritmo_sulla_voce(d, voce_ms):
+    """allunga il tour delle foto quanto dura la voce: le foto si alternano (ogni 3 s circa,
+    ripartendo dall'inizio se finiscono), poi il prezzo"""
+    foto = d["scenes"][1:]
+    if not foto:
+        return d
+    inizio = d["scenes"][0]["end"]
+    serve = max(d["reveal"]["start"], 250 + voce_ms + 400)
+    n = len(foto)
+    passo = (serve - inizio) / n
+    if passo > 3600:                                    # troppo lente: le ripasso (senza scritte) a ritmo di 3 s
+        giri = []
+        k = 0
+        while inizio + len(giri) * 3000 < serve:
+            sc = dict(foto[k % n])
+            if k >= n:
+                sc["chip"] = ""
+            giri.append(sc)
+            k += 1
+        foto, passo = giri, (serve - inizio) / len(giri)
+    t = inizio
+    for sc in foto:
+        sc["start"], sc["end"] = int(t), int(t + passo)
+        t += passo
+    t = int(t)
+    d["scenes"] = [d["scenes"][0]] + foto
+    d["reveal"] = {"start": t, "end": t + 5000}
+    d["total"] = t + 5000
+    return d
+
+
 def dati_tiktok(s, foto, cartella):
     """video "tour della casa" (il formato immobiliare con più visualizzazioni): gancio con il punto forte
     preso dalla descrizione, tutte le foto (fino a 20) con il nome della stanza o la caratteristica giusta,
@@ -476,19 +534,13 @@ def dati_tiktok(s, foto, cartella):
     # voce: gancio all'inizio, le caratteristiche durante il tour, il prezzo quando compare
     prezzo_detto = base["price"].replace("€", "").strip() + " euro" + (" al mese" if s["tipo"] == "affitto" else "")
     if s["tipo"] == "asta":
-        inizio = f"{tipo} all'asta a {dove}" + (f", {forte}" if forte else "") + "."
         fine = f"La base d'asta parte da {prezzo_detto}. Perizia e contatti nel link in bio."
     elif giorno % 2:
-        inizio = f"Entra con me in questa casa {forte} a {dove}." if forte else f"Entra con me in questa casa a {dove}."
         fine = f"Il prezzo? {prezzo_detto}. Tutte le foto e i contatti nel link in bio."
     else:
-        inizio = f"{tipo} {forte} a {dove}." if forte else f"{tipo} a {dove}."
         fine = f"Prezzo: {prezzo_detto}. Tutte le foto e i contatti nel link in bio."
-    dati_voce = [c for c in [c for c, _ in [(sc["chip"], 0) for sc in scene[1:]]] if c and c not in STANZE_IT.values()][:3]
-    voci = [(inizio, 250)]
-    if dati_voce:
-        voci.append((", ".join(dati_voce) + ".", 2900))
-    voci.append((fine, t + 200))
+    # voce: il titolo dell'annuncio, poi tutto il testo della descrizione, poi il prezzo quando compare
+    voci = [(testo_annuncio(a), 250), (fine, None)]
     etichetta = {"vendita": "IN VENDITA", "affitto": "IN AFFITTO", "asta": "ALL'ASTA"}[s["tipo"]]
     prezzo = base["price"] + (" al mese" if s["tipo"] == "affitto" else "")
     accent, on = colore_del_giorno(s.get("slot"))
@@ -523,6 +575,15 @@ def video_tiktok(browser, s, cartella, foto):
     logo piccolo in alto a destra, chiusura animata Cercocasa"""
     foto = foto_senza_filigrana(foto, cartella)
     d = dati_tiktok(s, foto, cartella)
+    voci = []
+    if os.environ.get("VOCE_TIKTOK_ATTIVA", "si") != "no":
+        for k, (testo, ms) in enumerate(d.get("voci", [])):
+            mp3 = cartella / f"voce-tt{k}.mp3"
+            if testo and cs.crea_voce(parlato(testo), mp3, voce="umana",
+                                      velocita=os.environ.get("VOCE_TIKTOK_VELOCITA", "+2%")):
+                if ms is not None:
+                    d = ritmo_sulla_voce(d, int(durata(mp3) * 1000))
+                voci.append((mp3, ms if ms is not None else d["reveal"]["start"] + 200))
     fotogrammi = cartella / "fotogrammi-tiktok"
     fotogrammi.mkdir()
     pagina = browser.new_page(viewport={"width": W, "height": 1920})
@@ -540,12 +601,6 @@ def video_tiktok(browser, s, cartella, foto):
     shutil.rmtree(fotogrammi, ignore_errors=True)
     chiusura = cs.SIGLE / "chiusura-tiktok.mp4"
     out = cs.USCITA / f"{s['slot']}-tiktok.mp4"
-    voci = []
-    if os.environ.get("VOCE_TIKTOK_ATTIVA", "si") != "no":
-        for k, (testo, ms) in enumerate(d.get("voci", [])):
-            mp3 = cartella / f"voce-tt{k}.mp3"
-            if cs.crea_voce(parlato(testo), mp3, voce="umana", velocita=os.environ.get("VOCE_TIKTOK_VELOCITA", "+2%")):
-                voci.append((mp3, ms))
     if chiusura.exists():
         coda = int(durata(chiusura) * 1000)
         audio = audio_post(voci, d["total"] + coda, cartella)
