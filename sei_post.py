@@ -958,11 +958,16 @@ def foto_senza_filigrana(foto, cartella):
 def video_tiktok(browser, s, cartella, foto):
     """video TikTok virale: solo musica (si guarda spesso senza audio), scritte grandi, prezzo alla fine,
     logo piccolo in alto a destra, chiusura animata Cercocasa"""
-    if os.environ.get("TIKTOK_STILE", "editoriale") == "editoriale":
+    stile = os.environ.get("TIKTOK_STILE", "gabbia")
+    if stile == "gabbia":       # stessa gabbia dei post Facebook/Instagram, in verticale
+        foto = foto_senza_filigrana(foto, cartella)
+        _, reel, audio, _, _ = video_post(browser, s, cartella, foto, con_facebook=False)
+        return monta(reel, audio, s, cs.USCITA / f"{s['slot']}-tiktok.mp4", verticale=True)
+    if stile == "editoriale":
         return video_editoriale(browser, s, cartella, foto, 1080, 1920, "tiktok")
     foto = foto_senza_filigrana(foto, cartella)
     voci = []
-    if os.environ.get("TIKTOK_STILE", "editoriale") == "tour":      # come il video di riferimento: musica, logo, scritte
+    if stile == "tour":      # come il video di riferimento: musica, logo, scritte
         d = dati_tour(s, foto, cartella)
     else:
         d = dati_tiktok(s, foto, cartella)
