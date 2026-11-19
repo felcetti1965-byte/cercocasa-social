@@ -843,7 +843,8 @@ def dati_editoriale(s, foto, cartella, W=1080, H=1920):
     def frase(c, max_car=60):
         rx = PAROLE_STANZA.get(c)
         for p in pezzi:
-            if p not in usati and len(p) <= max_car and (rx is None or re.search(rx, p, re.I)):
+            conta = re.match(r"(un|una|uno|due|tre|quattro|cinque|\d+)\s+(bagn|camer|servizi)", p, re.I)
+            if p not in usati and len(p) <= max_car and not conta and (rx is None or re.search(rx, p, re.I)):
                 usati.add(p)
                 return p
         return ""
