@@ -15,14 +15,14 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 .dark{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 62%,rgba(0,0,0,.6) 100%)}
 .flash{position:absolute;inset:0;background:#fff;opacity:0}
 /* zona sicura TikTok: niente testi negli ultimi ~420px in basso e nei ~140px a destra */
-.hook{position:absolute;left:70px;right:150px;top:330px;font-family:Oswald;font-weight:700;font-size:108px;line-height:1.22;
+.hook{position:absolute;left:60px;right:200px;top:360px;font-family:Oswald;font-weight:700;font-size:108px;line-height:1.22;
   text-transform:uppercase;letter-spacing:.5px;text-shadow:0 6px 28px rgba(0,0,0,.65)}
 .hook .hl{background:var(--accent);color:var(--on);padding:0 18px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-.tag{position:absolute;left:70px;top:210px;font-weight:700;font-size:40px;letter-spacing:3px;background:#fff;color:#111;padding:12px 26px;border-radius:999px}
-.chip{position:absolute;left:70px;right:150px;top:1080px;font-family:Oswald;font-weight:700;font-size:96px;line-height:1.25;text-transform:uppercase;
-  text-shadow:0 6px 26px rgba(0,0,0,.7)}
-.chip span{background:rgba(0,0,0,.55);padding:4px 22px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-.num{position:absolute;right:150px;top:210px;font-weight:700;font-size:36px;background:rgba(0,0,0,.55);padding:10px 22px;border-radius:999px}
+.tag{position:absolute;left:60px;top:220px;font-weight:700;font-size:40px;letter-spacing:3px;background:#fff;color:#111;padding:12px 26px;border-radius:999px}
+.chip{position:absolute;left:60px;right:190px;top:1210px;font-family:Oswald;font-weight:700;font-size:100px;line-height:1.12;text-transform:uppercase;
+  color:#fff;-webkit-text-stroke:14px #000;paint-order:stroke fill;text-shadow:0 8px 24px rgba(0,0,0,.55);letter-spacing:1px}
+.chip .k{color:var(--accent)}
+.logo{position:absolute;top:190px;right:34px;width:150px;height:150px;border-radius:50%;box-shadow:0 6px 22px rgba(0,0,0,.45)}
 .reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;padding:0 150px 300px 70px;text-align:center}
 .reveal .q{font-family:Oswald;font-weight:700;font-size:72px;text-transform:uppercase;text-shadow:0 4px 20px rgba(0,0,0,.7)}
 .reveal .p{font-family:Oswald;font-weight:700;font-size:150px;line-height:1.05;white-space:nowrap;background:var(--accent);color:var(--on);padding:18px 44px;border-radius:28px}
@@ -57,7 +57,7 @@ const tag = document.createElement('div'); tag.className = 'tag'; tag.textConten
 const hook = document.createElement('div'); hook.className = 'hook';
 hook.innerHTML = (P.hook || []).map(r => r.hl ? `<span class="hl">${esc(r.t)}</span>` : esc(r.t)).join('<br>');
 v.appendChild(hook);
-const num = document.createElement('div'); num.className = 'num'; v.appendChild(num);
+const logo = document.createElement('img'); logo.className = 'logo'; logo.src = 'logo-tondo.png'; logo.alt = ''; v.appendChild(logo);
 const chip = document.createElement('div'); chip.className = 'chip'; v.appendChild(chip);
 
 const rev = document.createElement('div'); rev.className = 'reveal hidden';
@@ -101,13 +101,13 @@ window.seek = function (ms) {
   const sc = cur >= 0 && ms < R.start ? S[cur] : null;
   if (sc && sc.chip && cur > 0) {
     chip.style.display = 'block';
-    chip.innerHTML = `<span>${esc(sc.chip)}</span>`;
-    const a = ease((ms - sc.start) / 260);
-    chip.style.transform = `scale(${0.85 + 0.15 * a})`; chip.style.opacity = a;
-    chip.style.transformOrigin = 'left center';
+    chip.innerHTML = esc(sc.chip).replace(/(\d[\d.,]*\s*(m²|mq)?|€\s?[\d.]+)/g, '<span class="k">$1</span>')
+                                 .replace(/^(con)\s+(\S+)/i, '$1 <span class="k">$2</span>');
+    const d = (ms - sc.start) / 300;      // "pop": entra grande e si assesta
+    const sc2 = d < 1 ? 0.6 + 0.55 * ease(d) - 0.15 * Math.max(0, d - 0.6) / 0.4 : 1;
+    chip.style.transform = `scale(${Math.min(1.1, sc2)})`; chip.style.opacity = Math.min(1, d * 2);
+    chip.style.transformOrigin = 'left bottom';
   } else chip.style.display = 'none';
-  num.style.display = cur > 0 && ms < R.start ? 'block' : 'none';
-  num.textContent = cur > 0 ? `${cur}/${S.length - 1}` : '';
   // prezzo svelato alla fine (curiosità: fa restare fino in fondo)
   const inR = ms >= R.start && ms < E.start;
   rev.classList.toggle('hidden', !inR);

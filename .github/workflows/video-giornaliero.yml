@@ -41,7 +41,8 @@ jobs:
           path: |
             ~/.cache/pip
             ~/.cache/huggingface
-          key: clip-v1
+            ~/.cache/torch
+          key: clip-lama-v1
 
       - name: Installa programmi
         run: |
@@ -50,6 +51,7 @@ jobs:
           # riconoscimento delle foto (bagno, cucina, camera...) per abbinarle alle frasi
           pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -q open_clip_torch
+          pip install -q simple-lama-inpainting --no-deps   # toglie la filigrana delle agenzie (TikTok)
           python -m playwright install --with-deps chromium > /dev/null
           mkdir -p font
           [ -f font/Montserrat.ttf ] || curl -sSL -o font/Montserrat.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf"
@@ -84,6 +86,15 @@ jobs:
             [ "${{ inputs.rifai_oggi }}" = "true" ] && SLOT_ARG="$SLOT_ARG --rifai-oggi"
             python sei_post.py $PROVA --quanti "${{ inputs.quanti || 10 }}" $SLOT_ARG
           fi
+
+      - name: Video TikTok di prova su un ramo (solo in prova)
+        if: ${{ inputs.prova == true }}
+        run: |
+          ls video/*-tiktok.mp4 >/dev/null 2>&1 || exit 0
+          git config user.name "cercocasa-bot"; git config user.email "bot@cercocasaumbria.it"
+          mkdir -p /tmp/pt && cp video/*-tiktok.mp4 /tmp/pt/
+          git checkout -q --orphan prova-tiktok && git rm -rqf . && cp /tmp/pt/*.mp4 .
+          git add -f *.mp4 && git commit -qm "prova tiktok" && git push -qf origin prova-tiktok
 
       - name: Salva il video
         if: always()

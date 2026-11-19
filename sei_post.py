@@ -439,8 +439,8 @@ def dati_tiktok(s, foto, cartella):
         scene.append({"photo": str(fp), "start": t, "end": t + 1900, "chip": fr})
         t += 1900
     reveal = {"start": t, "end": t + 3200}
-    endcard = {"start": t + 3200}
-    tot = t + 3200 + 2600
+    endcard = {"start": 10 ** 9}           # il finale è la chiusura animata Cercocasa (sigle/chiusura-tiktok.mp4)
+    tot = t + 3200
     tipo = {"vendita": "IN VENDITA", "affitto": "IN AFFITTO", "asta": "ALL'ASTA"}[s["tipo"]]
     prezzo = base["price"] + (" al mese" if s["tipo"] == "affitto" else "")
     domanda = {"vendita": "Te lo aspettavi?", "affitto": "Ti sembra giusto?", "asta": "Base d'asta"}[s["tipo"]]
@@ -453,8 +453,29 @@ def dati_tiktok(s, foto, cartella):
             "accent": accent, "onAccent": on, "total": tot}
 
 
+def foto_senza_filigrana(foto, cartella):
+    """copie delle foto senza la filigrana dell'agenzia (solo per TikTok); se non riesce, le foto originali"""
+    if os.environ.get("FILIGRANA_TIKTOK", "si") == "no":
+        return foto
+    dir_ = cartella / "senza-filigrana"
+    dir_.mkdir(exist_ok=True)
+    copie = []
+    for f in foto:
+        c = dir_ / Path(f).name
+        shutil.copy(f, c)
+        copie.append(c)
+    try:
+        if filigrana.pulisci_foto(copie, log=cs.log):
+            return copie
+    except Exception as e:
+        cs.log("  TikTok: filigrana non tolta:", e)
+    return foto
+
+
 def video_tiktok(browser, s, cartella, foto):
-    """video TikTok virale: solo musica (si guarda spesso senza audio), scritte grandi, prezzo alla fine"""
+    """video TikTok virale: solo musica (si guarda spesso senza audio), scritte grandi, prezzo alla fine,
+    logo piccolo in alto a destra, chiusura animata Cercocasa"""
+    foto = foto_senza_filigrana(foto, cartella)
     d = dati_tiktok(s, foto, cartella)
     fotogrammi = cartella / "fotogrammi-tiktok"
     fotogrammi.mkdir()
@@ -471,10 +492,20 @@ def video_tiktok(browser, s, cartella, foto):
     cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.jpg", "-c:v", "libx264", "-preset", "veryfast",
           "-crf", "19", "-pix_fmt", "yuv420p", muto)
     shutil.rmtree(fotogrammi, ignore_errors=True)
-    audio = audio_post([], d["total"], cartella)
+    chiusura = cs.SIGLE / "chiusura-tiktok.mp4"
     out = cs.USCITA / f"{s['slot']}-tiktok.mp4"
-    cs.ff("-i", muto, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-shortest",
-          "-movflags", "+faststart", out)
+    if chiusura.exists():
+        coda = int(durata(chiusura) * 1000)
+        audio = audio_post([], d["total"] + coda, cartella)
+        cs.ff("-i", muto, "-i", chiusura, "-i", audio, "-filter_complex",
+              f"[0:v]setsar=1,fps={FPS},format=yuv420p[a];[1:v]scale={W}:1920,setsar=1,fps={FPS},format=yuv420p[b];"
+              "[a][b]concat=n=2:v=1:a=0[v]",
+              "-map", "[v]", "-map", "2:a", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19",
+              "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", out)
+    else:
+        audio = audio_post([], d["total"], cartella)
+        cs.ff("-i", muto, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-shortest",
+              "-movflags", "+faststart", out)
     return out
 
 
