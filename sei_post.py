@@ -437,6 +437,8 @@ def dati_tiktok(s, foto, cartella):
         dove = s["citta"].title()
     tipo = tipo_bello(s["tipo_imm"])
     forte = punto_forte(a)
+    if forte and (dove.lower() in forte or forte.split()[-1] in dove.lower()):
+        dove = s["citta"].title()            # niente "nel centro storico a Centro Storico"
     giorno = datetime.now().timetuple().tm_yday + sum(map(ord, s.get("slot", "")))
     if s["tipo"] == "asta":
         hook = [{"t": f"{tipo} all'asta"}, {"t": f"a {dove}"}, {"t": forte or "Tour completo", "hl": True}]
