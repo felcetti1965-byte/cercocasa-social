@@ -1239,9 +1239,16 @@ def main_tiktok(args):
     oggi = date.today().isoformat()
     fatti = {p.get("tt") for p in stato["pubblicati"] if p.get("tt") and str(p.get("data", "")).startswith(oggi)}
     gia_tiktok = {p.get("id") for p in stato["pubblicati"] if "tiktok" in (p.get("social") or [])}
-    quanti = int(os.environ.get("TIKTOK_AL_GIORNO", "6") or 6)
+    quanti = int(os.environ.get("TIKTOK_AL_GIORNO", "1") or 1)
     lista = [x for x in candidati(stato, usati=gia_tiktok) if x[3] and (args.prova or x[0] not in fatti)]
-    lista = [x for x in lista if not x[0].endswith("-2")][:quanti] if quanti <= 6 else lista[:quanti]
+    if not args.prova and not args.slot:
+        quanti = max(0, quanti - len(fatti))        # quelli già usciti oggi contano
+    if quanti <= 6:
+        lista = [x for x in lista if not x[0].endswith("-2")]
+        g = date.today().toordinal() % max(1, len(lista))      # ogni giorno un tipo diverso (vendita, affitto, asta...)
+        lista = (lista[g:] + lista[:g])[:quanti]
+    else:
+        lista = lista[:quanti]
     if args.slot:
         lista = [x for x in candidati(stato, usati=gia_tiktok) if x[0] == args.slot and x[3]][:1]
     if not lista:
@@ -1292,7 +1299,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prova", action="store_true", help="crea video e testi senza pubblicare")
     ap.add_argument("--solo-tiktok", action="store_true", help="giro TikTok: tour lunghi di annunci con tante foto")
-    ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "10") or 10))
+    ap.add_argument("--quanti", type=int, default=int(os.environ.get("QUANTI_POST", "6") or 6))
     ap.add_argument("--slot", default="", help="un post in più di questo tipo, es. vendita-perugia (prova a mano)")
     ap.add_argument("--rifai-oggi", action="store_true",
                     help="ripubblica gli annunci già usciti oggi sui social indicati (es. solo facebook)")

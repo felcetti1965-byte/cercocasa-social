@@ -12,7 +12,7 @@ on:
       quanti:
         description: "Quanti post (1-10): vendita, affitto, asta a Terni e Perugia + 4 in più"
         type: number
-        default: 10
+        default: 6
       social:
         description: "Solo questi social (es. instagram). Vuoto = quelli di sempre"
         type: string
@@ -89,7 +89,7 @@ jobs:
               # TikTok a parte: tour lunghi di annunci con tante foto
               python sei_post.py $PROVA --solo-tiktok $SLOT_ARG
             else
-              python sei_post.py $PROVA --quanti "${{ inputs.quanti || 10 }}" $SLOT_ARG
+              python sei_post.py $PROVA --quanti "${{ inputs.quanti || 6 }}" $SLOT_ARG
               if [ -z "${{ inputs.social }}" ]; then
                 python sei_post.py $PROVA --solo-tiktok || echo "giro TikTok non riuscito"
               fi
