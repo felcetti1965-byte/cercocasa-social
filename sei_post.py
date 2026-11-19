@@ -806,6 +806,135 @@ def dati_tour(s, foto, cartella):
             "total": t, "voci": []}
 
 
+# ---------------------------------------------------------------- video "editoriale" (come il video Trebbi)
+# Scene: copertina a tutto schermo con il titolo, poi schede eleganti (fondo crema o verde) con le foto
+# di ogni stanza e il testo dell'annuncio che ne parla, planimetrie, prezzo con i punti forti, chiusura.
+# Logo Cercocasa sempre in alto al centro. Stessa grafica in verticale (TikTok, Instagram) e quadrata.
+NUMERI = {1: "Una", 2: "Due", 3: "Tre", 4: "Quattro", 5: "Cinque", 6: "Sei", 7: "Sette", 8: "Otto"}
+NOMI_STANZA = {"soggiorno": "Il soggiorno", "camino": "Il soggiorno con camino", "cucina": "La cucina",
+               "terrazzo": "Il terrazzo", "stanza": "Gli interni", "camera": "Le camere", "bagno": "Il bagno",
+               "mansarda": "La mansarda", "cantina": "La cantina", "garage": "Il garage", "giardino": "Il giardino",
+               "piscina": "La piscina", "terreno": "Il terreno", "vista": "La vista", "esterno": "L'esterno"}
+EDIT_SCENA_MS = int(os.environ.get("EDIT_SCENA_MS", "3600"))
+EDIT_MAX_SCHEDE = int(os.environ.get("EDIT_MAX_SCHEDE", "7"))
+
+
+def _bel_titolo(t):
+    t = re.sub(r"\s+", " ", t or "").strip(" .")
+    if t.isupper():
+        t = t.capitalize()
+        for citta in ("perugia", "terni", "foligno", "spoleto", "assisi", "orvieto", "todi", "gubbio",
+                      "narni", "amelia", "corciano", "bastia", "marsciano", "umbertide", "deruta", "magione"):
+            t = re.sub(rf"\b{citta}\b", citta.title(), t)
+    return t
+
+
+def dati_editoriale(s, foto, cartella, W=1080, H=1920):
+    a = s["dettaglio"]
+    base = dati_post(s, foto)
+    info = foto_stanze.classifica(foto)
+    cat = {str(f): info.get(str(f), ("stanza",))[0] for f in foto}
+    tipo = tipo_bello(s["tipo_imm"])
+    zona = (s.get("zona") or "").strip()
+    citta = s["citta"].title() if s["tipo"] != "asta" else base["city"].title()
+    luogo = f"{citta} · {zona.title()}" if zona and zona.lower() != citta.lower() else citta
+    pezzi, usati = pezzi_testo(a), set()
+
+    def frase(c, max_car=60):
+        rx = PAROLE_STANZA.get(c)
+        for p in pezzi:
+            if p not in usati and len(p) <= max_car and (rx is None or re.search(rx, p, re.I)):
+                usati.add(p)
+                return p
+        return ""
+
+    gruppi = {}
+    for f in foto[1:]:
+        gruppi.setdefault(cat[str(f)], []).append(str(f))
+    scene = []
+    contratto = {"vendita": "In vendita", "affitto": "In affitto", "asta": "All'asta"}[s["tipo"]]
+    # 1) copertina
+    scene.append({"kind": "full", "photos": [str(foto[0])], "eye": f"{contratto} · {tipo}",
+                  "title": _bel_titolo(a.get("titolo")) or f"{tipo} a {citta}", "sub": luogo})
+    # 2) seconda foto a tutto schermo: metri quadri e la frase generale dell'annuncio
+    seconda = (gruppi.get("esterno") or gruppi.get("vista") or gruppi.get("soggiorno") or [None])[0]
+    if seconda:
+        for g in gruppi.values():
+            if seconda in g:
+                g.remove(seconda)
+        titolo2 = f"{tipo}, {a['mq']} m²" if a.get("mq") else tipo
+        generale = next((p for p in pezzi if not any(re.search(rx, p, re.I) for c, rx in PAROLE_STANZA.items()
+                                                      if c != "esterno")), "")
+        usati.add(generale)
+        scene.append({"kind": "full", "photos": [seconda], "eye": _bel_titolo(a.get("titolo"))[:44],
+                      "title": titolo2, "sub": generale})
+    # 3) una scheda per stanza, in ordine di visita
+    schede = 0
+    for c in ORDINE_TOUR:
+        if schede >= EDIT_MAX_SCHEDE or not gruppi.get(c):
+            continue
+        ph = gruppi[c][:3]
+        titolo = NOMI_STANZA.get(c, c.title())
+        if c == "camera" and a.get("camere"):
+            n = int(a["camere"]) if a["camere"].isdigit() else 0
+            titolo = "Una camera" if n == 1 else f"{NUMERI.get(n, a['camere'])} camere" if n else titolo
+        if c == "bagno" and a.get("bagni"):
+            n = int(a["bagni"]) if a["bagni"].isdigit() else 0
+            titolo = "Un bagno" if n == 1 else f"{NUMERI.get(n, a['bagni'])} bagni" if n else titolo
+        testo = frase(c)
+        if testo and len(testo) <= 26 and c not in ("camera", "bagno"):
+            titolo, testo = testo, NOMI_STANZA.get(c, "")[3:] if NOMI_STANZA.get(c, "").startswith(("Il ", "La ")) else ""
+        kind = "full" if (c == "soggiorno" and len(ph) == 1) else "card"
+        scene.append({"kind": kind, "photos": ph, "title": titolo, "sub": testo, "verde": schede % 3 == 2})
+        schede += 1
+    # 4) planimetrie
+    if gruppi.get("documento"):
+        scene.append({"kind": "card", "photos": gruppi["documento"][:4], "title": "Le planimetrie",
+                      "sub": f"{a['mq']} m²" if a.get("mq") else ""})
+    # 5) prezzo e punti forti
+    prezzo = base["price"] + (" al mese" if s["tipo"] == "affitto" else "")
+    punti = [f for f in cs.frasi_video(a) if "metri" not in f and not f.startswith("Zona")][:5]
+    scene.append({"kind": "card", "verde": True, "photos": [str(foto[0])],
+                  "eye": "Base d'asta" if s["tipo"] == "asta" else "Prezzo", "title": prezzo, "list": punti})
+    # 6) chiusura con i contatti del portale
+    agenzia = re.sub(r"\s+", " ", a.get("agenzia", "")).strip()
+    scene.append({"kind": "fine", "photos": [], "eye": "Prenota una visita", "title": agenzia.title() if agenzia.isupper() else agenzia,
+                  "price": f"Codice {s['id']}", "sub": "Tutte le foto e i contatti: link in bio"})
+    t = 0
+    for sc in scene:
+        lung = 4200 if sc["kind"] == "fine" else EDIT_SCENA_MS + (600 if sc.get("list") else 0)
+        sc["start"], sc["end"] = t, t + lung
+        t += lung
+    cs.log("  video editoriale: " + " | ".join(f"{sc['kind']}:{sc.get('title')}" for sc in scene))
+    return {"W": W, "H": H, "place": luogo, "scenes": scene, "total": t}
+
+
+def video_editoriale(browser, s, cartella, foto, W=1080, H=1920, nome="tiktok"):
+    """il video nello stile editoriale; solo musica"""
+    foto = foto_senza_filigrana(foto, cartella)
+    d = dati_editoriale(s, foto, cartella, W, H)
+    fotogrammi = cartella / f"fotogrammi-{nome}"
+    fotogrammi.mkdir()
+    pagina = browser.new_page(viewport={"width": W, "height": H})
+    pagina.add_init_script("window.POST = " + json.dumps(d) + ";")
+    pagina.goto("file://" + str(GRAFICA / "editoriale.html"))
+    pagina.evaluate("document.fonts.ready")
+    pagina.wait_for_timeout(600)
+    for i in range(d["total"] * FPS // 1000):
+        pagina.evaluate(f"window.seek({i * 1000 / FPS})")
+        pagina.screenshot(path=str(fotogrammi / f"{i:04d}.jpg"), type="jpeg", quality=90)
+    pagina.close()
+    muto = cartella / f"{nome}-muto.mp4"
+    cs.ff("-framerate", str(FPS), "-i", fotogrammi / "%04d.jpg", "-c:v", "libx264", "-preset", "veryfast",
+          "-crf", "19", "-pix_fmt", "yuv420p", muto)
+    shutil.rmtree(fotogrammi, ignore_errors=True)
+    out = cs.USCITA / f"{s['slot']}-{nome}.mp4"
+    audio = audio_post([], d["total"], cartella)
+    cs.ff("-i", muto, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-shortest",
+          "-movflags", "+faststart", out)
+    return out
+
+
 def foto_senza_filigrana(foto, cartella):
     """copie delle foto senza la filigrana dell'agenzia (solo per TikTok); se non riesce, le foto originali"""
     if os.environ.get("FILIGRANA_TIKTOK", "si") == "no":
@@ -828,9 +957,11 @@ def foto_senza_filigrana(foto, cartella):
 def video_tiktok(browser, s, cartella, foto):
     """video TikTok virale: solo musica (si guarda spesso senza audio), scritte grandi, prezzo alla fine,
     logo piccolo in alto a destra, chiusura animata Cercocasa"""
+    if os.environ.get("TIKTOK_STILE", "editoriale") == "editoriale":
+        return video_editoriale(browser, s, cartella, foto, 1080, 1920, "tiktok")
     foto = foto_senza_filigrana(foto, cartella)
     voci = []
-    if os.environ.get("TIKTOK_STILE", "tour") == "tour":      # come il video di riferimento: musica, logo, scritte
+    if os.environ.get("TIKTOK_STILE", "editoriale") == "tour":      # come il video di riferimento: musica, logo, scritte
         d = dati_tour(s, foto, cartella)
     else:
         d = dati_tiktok(s, foto, cartella)

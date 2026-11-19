@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Video editoriale Cercocasa</title>
+<style>
+@font-face{font-family:Serif;font-weight:500;src:url(fonts/cormorant-garamond-latin-500-normal.woff2)}
+@font-face{font-family:Serif;font-weight:600;src:url(fonts/cormorant-garamond-latin-600-normal.woff2)}
+@font-face{font-family:Sans;font-weight:500;src:url(fonts/inter-latin-500-normal.woff2)}
+@font-face{font-family:Sans;font-weight:600;src:url(fonts/inter-latin-600-normal.woff2)}
+@font-face{font-family:Sans;font-weight:700;src:url(fonts/inter-latin-700-normal.woff2)}
+:root{--verde:#1e2b27;--crema:#efe4d4;--oro:#c9a15a;--testo-scuro:#2a2622}
+*{box-sizing:border-box;margin:0}
+html,body{width:var(--W);height:var(--H);overflow:hidden;background:var(--verde)}
+#v{position:relative;width:var(--W);height:var(--H);overflow:hidden;font-family:Sans,sans-serif}
+.sc{position:absolute;inset:0;opacity:0;overflow:hidden}
+.ph{position:absolute;inset:0;background-size:cover;background-position:center;will-change:transform}
+/* scena a tutto schermo */
+.full .grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,26,23,.35) 0%,rgba(18,26,23,0) 22%,rgba(18,26,23,0) 48%,rgba(22,32,28,.88) 78%,rgba(22,32,28,.97) 100%)}
+.full .txt{position:absolute;left:var(--pad);right:var(--pad);bottom:var(--basso);color:#fff}
+/* scheda: foto incorniciate su fondo crema o verde */
+.card{background:var(--crema);color:var(--testo-scuro)}
+.card.verde{background:var(--verde);color:#fff}
+.card .box{position:absolute;left:var(--pad);right:var(--pad);top:var(--alto);bottom:var(--fotobasso);display:grid;gap:calc(var(--u)*1.6)}
+.card .box .f{position:relative;overflow:hidden;background:#ccc}
+.card .box .f .ph{inset:0}
+.card .txt{position:absolute;left:var(--pad);right:var(--pad);top:calc(var(--H) - var(--fotobasso) + var(--u)*3.2)}
+.riga{position:absolute;left:var(--pad);right:var(--pad);height:2px;background:currentColor;opacity:.22}
+.eye{font-weight:600;font-size:calc(var(--u)*2.15);letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-bottom:calc(var(--u)*1.2)}
+.tit{font-family:Serif;font-weight:500;font-size:calc(var(--u)*7.4);line-height:1.02;letter-spacing:-.005em}
+.full .tit{font-size:calc(var(--u)*8.6)}
+.sub{font-weight:600;font-size:calc(var(--u)*2.15);letter-spacing:.08em;text-transform:uppercase;margin-top:calc(var(--u)*2.6);line-height:1.45;opacity:.9}
+.card .sub{color:#6d5c45}.card.verde .sub{color:#d9c8a6}
+.lista{margin-top:calc(var(--u)*2.4);font-size:calc(var(--u)*2.7);line-height:1.55;font-weight:500}
+.lista div::before{content:"—  ";color:var(--oro)}
+.div{height:2px;background:currentColor;opacity:.25;margin-top:calc(var(--u)*2.4)}
+/* logo sempre sopra, al centro */
+.logo{position:absolute;top:var(--logotop);left:50%;width:var(--logo);height:var(--logo);margin-left:calc(var(--logo) / -2);border-radius:50%;
+  box-shadow:0 6px 24px rgba(0,0,0,.35);z-index:5}
+.pill{position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--logotop) + var(--logo) + var(--u)*1.6);z-index:5;
+  background:rgba(22,32,28,.92);color:#fff;font-weight:600;font-size:calc(var(--u)*1.85);letter-spacing:.16em;text-transform:uppercase;
+  padding:calc(var(--u)*.9) calc(var(--u)*2.2);border-radius:6px;white-space:nowrap}
+/* chiusura */
+.fine{background:var(--verde);color:#fff;text-align:center}
+.fine .in{position:absolute;left:var(--pad);right:var(--pad);top:var(--alto);bottom:var(--fotobasso);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.fine .lg{width:calc(var(--u)*30);height:calc(var(--u)*30);border-radius:50%;margin-bottom:calc(var(--u)*4)}
+.fine .eye{color:var(--oro)}
+.fine .tel{font-family:Serif;font-weight:600;font-size:calc(var(--u)*6.4);margin-top:calc(var(--u)*1)}
+.fine .web{font-weight:700;font-size:calc(var(--u)*3.2);margin-top:calc(var(--u)*2.4)}
+.fine .pic{font-size:calc(var(--u)*2.1);opacity:.75;margin-top:calc(var(--u)*1.6);letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div id="v"></div>
+<script>
+const P = window.POST || {};
+const W = P.W || 1080, H = P.H || 1920;
+const R = document.documentElement.style;
+const u = W / 100;                                  // unità: 1% della larghezza
+const alto = H >= 1800 ? 430 : H >= 1300 ? 300 : 250;   // spazio per logo e località
+R.setProperty('--W', W + 'px'); R.setProperty('--H', H + 'px'); R.setProperty('--u', u + 'px');
+R.setProperty('--pad', (u * 5.2) + 'px');
+R.setProperty('--logo', (H >= 1800 ? 210 : H >= 1300 ? 150 : 120) + 'px');
+R.setProperty('--logotop', (H >= 1800 ? 120 : 40) + 'px');
+R.setProperty('--alto', alto + 'px');
+R.setProperty('--fotobasso', (H >= 1800 ? 640 : H >= 1300 ? 400 : 330) + 'px');
+R.setProperty('--basso', (H >= 1800 ? 470 : H >= 1300 ? 150 : 110) + 'px');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const v = document.getElementById('v');
+
+function testo(sc) {
+  return `${sc.eye ? `<div class="eye a1">${esc(sc.eye)}</div>` : ''}
+          <div class="tit a2">${esc(sc.title || '')}</div>
+          ${sc.sub ? `<div class="sub a3">${esc(sc.sub)}</div>` : ''}
+          ${sc.list ? `<div class="div a3"></div><div class="lista a4">${sc.list.map(x => `<div>${esc(x)}</div>`).join('')}</div>` : ''}`;
+}
+const GRIGLIE = {1: ['1fr', '1fr', ['1/2', '1/2']], 2: ['1fr', '1fr 1fr'], 3: ['1fr 1fr', '1.15fr 1fr'], 4: ['1fr 1fr', '1fr 1fr']};
+const S = (P.scenes || []).map((sc, i) => {
+  const d = document.createElement('div');
+  d.className = 'sc ' + sc.kind + (sc.verde ? ' verde' : '');
+  if (sc.kind === 'full') {
+    d.innerHTML = `<div class="ph" style="background-image:url('${sc.photos[0]}')"></div><div class="grad"></div>
+                   <div class="txt">${testo(sc)}</div><div class="riga" style="bottom:calc(var(--basso) - var(--u)*5);color:#fff"></div>`;
+  } else if (sc.kind === 'card') {
+    const n = Math.min(4, sc.photos.length);
+    const g = GRIGLIE[n];
+    let celle = sc.photos.slice(0, n).map((p, k) => {
+      const span = (n === 3 && k === 0) ? 'grid-column:1/3;' : '';
+      return `<div class="f" style="${span}"><div class="ph" style="background-image:url('${p}')"></div></div>`;
+    }).join('');
+    d.innerHTML = `<div class="riga" style="top:calc(var(--alto) - var(--u)*2.2)"></div>
+                   <div class="box" style="grid-template-columns:${g[0]};grid-template-rows:${g[1]}">${celle}</div>
+                   <div class="txt">${testo(sc)}</div>
+                   ${sc.list ? '' : `<div class="riga" style="bottom:calc(var(--u)*${H >= 1800 ? 26 : 5})"></div>`}`;
+  } else if (sc.kind === 'fine') {
+    d.innerHTML = `<div class="in">
+        <img class="lg a1" src="logo-tondo.png" alt="">
+        <div class="eye a2">${esc(sc.eye || '')}</div>
+        <div class="tit a2">${esc(sc.title || '')}</div>
+        <div class="tel a3">${esc(sc.price || '')}</div>
+        <div class="web a4">www.cercocasaumbria.it</div>
+        <div class="pic a4">${esc(sc.sub || '')}</div></div>`;
+  }
+  v.appendChild(d);
+  return d;
+});
+const logo = document.createElement('img'); logo.className = 'logo'; logo.src = 'logo-tondo.png'; logo.alt = ''; v.appendChild(logo);
+const pill = document.createElement('div'); pill.className = 'pill'; pill.textContent = P.place || ''; v.appendChild(pill);
+if (!P.place) pill.style.display = 'none';
+
+const ease = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+const FADE = 550;
+window.seek = function (ms) {
+  (P.scenes || []).forEach((sc, i) => {
+    const el = S[i];
+    const on = ms >= sc.start && ms < sc.end + FADE;
+    el.style.opacity = on ? (i === 0 ? 1 : Math.min(1, (ms - sc.start) / FADE)) : 0;
+    el.style.zIndex = i + 1;
+    if (!on) return;
+    const k = Math.min(1, (ms - sc.start) / (sc.end + FADE - sc.start));
+    el.querySelectorAll('.ph').forEach((ph, j) => {
+      const z = (i + j) % 2 ? 1.09 - 0.07 * k : 1.02 + 0.07 * k;     // zoom lento avanti / indietro
+      ph.style.transform = `scale(${z})`;
+    });
+    // testi che entrano uno dopo l'altro
+    [['.a1', 250], ['.a2', 420], ['.a3', 700], ['.a4', 900]].forEach(([q, dl]) => {
+      el.querySelectorAll(q).forEach(t => {
+        const a = ease((ms - sc.start - dl) / 600);
+        t.style.opacity = Math.max(0, a); t.style.transform = `translateY(${(1 - a) * u * 2.2}px)`;
+      });
+    });
+  });
+  const fine = (P.scenes || []).find(sc => sc.kind === 'fine');
+  const inFine = fine && ms >= fine.start;
+  logo.style.opacity = pill.style.opacity = inFine ? Math.max(0, 1 - (ms - fine.start) / 400) : 1;
+};
+window.seek(0);
+</script>
+</body>
+</html>
