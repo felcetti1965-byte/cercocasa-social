@@ -426,7 +426,9 @@ def dati_tiktok(s, foto, cartella):
     # su TikTok niente pagina col logo (fa scorrere via): frase senza la sua foto = saltata
     coppie = [(fr, fp) for fr, fp in zip(frasi, abbinate) if Path(fp).name != "neutra.jpg"]
     usate = {str(fp) for _, fp in coppie} | {str(foto[0])}
-    generiche = [t for _, t in base.get("specs", []) if t not in [c for c, _ in coppie]]
+    numeri = lambda x: set(re.findall(r"\d+", x))
+    gia = set().union(*[numeri(c) for c, _ in coppie]) if coppie else set()
+    generiche = [t for _, t in base.get("specs", []) if not (numeri(t) & gia) and t not in [c for c, _ in coppie]]
     for f in foto[1:]:                        # le altre foto, con i dati generici (m², camere, zona...)
         if len(coppie) >= 5:
             break
