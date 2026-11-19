@@ -423,9 +423,19 @@ def dati_tiktok(s, foto, cartella):
     if len(frasi) < 3:
         frasi = (frasi + [t for _, t in base.get("specs", [])])[:5]
     abbinate = foto_stanze.abbina(frasi, foto, cartella, colore_del_giorno(s.get("slot"))[0], log=cs.log)
+    # su TikTok niente pagina col logo (fa scorrere via): frase senza la sua foto = saltata
+    coppie = [(fr, fp) for fr, fp in zip(frasi, abbinate) if Path(fp).name != "neutra.jpg"]
+    usate = {str(fp) for _, fp in coppie} | {str(foto[0])}
+    generiche = [t for _, t in base.get("specs", []) if t not in [c for c, _ in coppie]]
+    for f in foto[1:]:                        # le altre foto, con i dati generici (m², camere, zona...)
+        if len(coppie) >= 5:
+            break
+        if str(f) not in usate:
+            coppie.append((generiche.pop(0) if generiche else "", f))
+            usate.add(str(f))
     t, scene = 0, [{"photo": str(foto[0]), "start": 0, "end": 2300, "chip": ""}]
     t = 2300
-    for fr, fp in zip(frasi, abbinate):
+    for fr, fp in coppie[:5]:
         scene.append({"photo": str(fp), "start": t, "end": t + 1900, "chip": fr})
         t += 1900
     reveal = {"start": t, "end": t + 3200}
