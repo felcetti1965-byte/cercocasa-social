@@ -38,6 +38,7 @@ jobs:
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
           ZERNIO_KEY: ${{ secrets.ZERNIO_KEY }}
+          ELEVENLABS_KEY: ${{ secrets.ELEVENLABS_KEY }}
           UPLOADPOST_KEY: ${{ secrets.UPLOADPOST_KEY }}
           UPLOADPOST_USER: ${{ secrets.UPLOADPOST_USER }}
           TIKTOK_MODO: ${{ vars.TIKTOK_MODO || 'bozza' }}

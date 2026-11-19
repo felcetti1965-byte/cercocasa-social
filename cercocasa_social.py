@@ -466,10 +466,35 @@ def voce_finale(a):
     return " ".join(x for x in parti if x)
 
 
-def crea_voce(testo, destinazione, voce=None):
+def voce_elevenlabs(testo, destinazione):
+    """voce umana ElevenLabs (solo se c'è la chiave ELEVENLABS_KEY); None se non disponibile"""
+    chiave = os.environ.get("ELEVENLABS_KEY", "").strip()
+    if not chiave:
+        return None
+    voce = os.environ.get("ELEVENLABS_VOCE", "").strip() or "21m00Tcm4TlvDq8ikWAM"
+    r = HTTP.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voce}", timeout=120,
+                  headers={"xi-api-key": chiave, "accept": "audio/mpeg"},
+                  json={"text": testo, "model_id": "eleven_multilingual_v2",
+                        "voice_settings": {"stability": 0.45, "similarity_boost": 0.8, "style": 0.35}})
+    r.raise_for_status()
+    Path(destinazione).write_bytes(r.content)
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                          str(destinazione)], capture_output=True, text=True, check=True)
+    return float(out.stdout.strip())
+
+
+def crea_voce(testo, destinazione, voce=None, velocita=None):
     """voce neurale gratuita (edge-tts); se non funziona il video esce senza voce"""
     try:
-        subprocess.run([sys.executable, "-m", "edge_tts", "--voice", voce or VOCE, f"--rate={VOCE_VELOCITA}",
+        if voce == "umana":
+            try:
+                d = voce_elevenlabs(testo, destinazione)
+                if d:
+                    return d
+            except Exception as e:
+                log("  voce ElevenLabs non disponibile, uso quella gratuita:", e)
+            voce = os.environ.get("VOCE_TIKTOK", "it-IT-IsabellaNeural")
+        subprocess.run([sys.executable, "-m", "edge_tts", "--voice", voce or VOCE, f"--rate={velocita or VOCE_VELOCITA}",
                         f"--pitch={VOCE_TONO}", "--text", testo, "--write-media", str(destinazione)],
                        check=True, timeout=120, capture_output=True)
         out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",

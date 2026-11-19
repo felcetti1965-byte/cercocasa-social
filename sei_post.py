@@ -467,6 +467,22 @@ def dati_tiktok(s, foto, cartella):
         t += 1500
     reveal = {"start": t, "end": t + 3000}
     endcard = {"start": 10 ** 9}
+    # voce: gancio all'inizio, le caratteristiche durante il tour, il prezzo quando compare
+    prezzo_detto = base["price"].replace("€", "").strip() + " euro" + (" al mese" if s["tipo"] == "affitto" else "")
+    if s["tipo"] == "asta":
+        inizio = f"{tipo} all'asta a {dove}" + (f", {forte}" if forte else "") + "."
+        fine = f"La base d'asta parte da {prezzo_detto}. Perizia e contatti nel link in bio."
+    elif giorno % 2:
+        inizio = f"Entra con me in questa casa {forte} a {dove}." if forte else f"Entra con me in questa casa a {dove}."
+        fine = f"Il prezzo? {prezzo_detto}. Tutte le foto e i contatti nel link in bio."
+    else:
+        inizio = f"{tipo} {forte} a {dove}." if forte else f"{tipo} a {dove}."
+        fine = f"Prezzo: {prezzo_detto}. Tutte le foto e i contatti nel link in bio."
+    dati_voce = [c for c in [c for c, _ in [(sc["chip"], 0) for sc in scene[1:]]] if c and c not in STANZE_IT.values()][:3]
+    voci = [(inizio, 250)]
+    if dati_voce:
+        voci.append((", ".join(dati_voce) + ".", 2900))
+    voci.append((fine, t + 200))
     etichetta = {"vendita": "IN VENDITA", "affitto": "IN AFFITTO", "asta": "ALL'ASTA"}[s["tipo"]]
     prezzo = base["price"] + (" al mese" if s["tipo"] == "affitto" else "")
     accent, on = colore_del_giorno(s.get("slot"))
@@ -474,7 +490,7 @@ def dati_tiktok(s, foto, cartella):
             "price": ("da " if s["tipo"] == "asta" else "") + prezzo,
             "revealQ": "Base d'asta" if s["tipo"] == "asta" else ("Affitto" if s["tipo"] == "affitto" else "Prezzo"),
             "revealS": "Tutte le foto e i contatti: link in bio", "reveal": reveal, "endcard": endcard,
-            "code": str(s["id"]), "accent": accent, "onAccent": on, "total": t + 3000}
+            "code": str(s["id"]), "accent": accent, "onAccent": on, "total": t + 3000, "voci": voci}
 
 
 def foto_senza_filigrana(foto, cartella):
@@ -518,16 +534,22 @@ def video_tiktok(browser, s, cartella, foto):
     shutil.rmtree(fotogrammi, ignore_errors=True)
     chiusura = cs.SIGLE / "chiusura-tiktok.mp4"
     out = cs.USCITA / f"{s['slot']}-tiktok.mp4"
+    voci = []
+    if os.environ.get("VOCE_TIKTOK_ATTIVA", "si") != "no":
+        for k, (testo, ms) in enumerate(d.get("voci", [])):
+            mp3 = cartella / f"voce-tt{k}.mp3"
+            if cs.crea_voce(parlato(testo), mp3, voce="umana", velocita=os.environ.get("VOCE_TIKTOK_VELOCITA", "+2%")):
+                voci.append((mp3, ms))
     if chiusura.exists():
         coda = int(durata(chiusura) * 1000)
-        audio = audio_post([], d["total"] + coda, cartella)
+        audio = audio_post(voci, d["total"] + coda, cartella)
         cs.ff("-i", muto, "-i", chiusura, "-i", audio, "-filter_complex",
               f"[0:v]setsar=1,fps={FPS},format=yuv420p[a];[1:v]scale={W}:1920,setsar=1,fps={FPS},format=yuv420p[b];"
               "[a][b]concat=n=2:v=1:a=0[v]",
               "-map", "[v]", "-map", "2:a", "-c:v", "libx264", "-preset", "veryfast", "-crf", "19",
               "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", out)
     else:
-        audio = audio_post([], d["total"], cartella)
+        audio = audio_post(voci, d["total"], cartella)
         cs.ff("-i", muto, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-shortest",
               "-movflags", "+faststart", out)
     return out
