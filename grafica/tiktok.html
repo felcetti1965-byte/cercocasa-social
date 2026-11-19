@@ -58,7 +58,7 @@ const hook = document.createElement('div'); hook.className = 'hook';
 hook.innerHTML = (P.hook || []).map(r => r.hl ? `<span class="hl">${esc(r.t)}</span>` : esc(r.t)).join('<br>');
 v.appendChild(hook);
 { const lung = Math.max(...(P.hook || [{t: ''}]).map(r => String(r.t).length));
-  hook.style.fontSize = (lung <= 12 ? 108 : lung <= 16 ? 92 : lung <= 20 ? 80 : 68) + 'px'; }
+  hook.style.fontSize = Math.min(lung <= 12 ? 108 : lung <= 16 ? 92 : lung <= 20 ? 80 : 68, (P.hook || []).length >= 5 ? 76 : (P.hook || []).length >= 4 ? 88 : 999) + 'px'; }
 const logo = document.createElement('img'); logo.className = 'logo'; logo.src = 'logo-tondo.png'; logo.alt = ''; v.appendChild(logo);
 const chip = document.createElement('div'); chip.className = 'chip'; v.appendChild(chip);
 

@@ -610,7 +610,7 @@ def dati_tiktok(s, foto, cartella):
             else:
                 cur = (cur + " " + w).strip()
         righe.append(cur)
-        hook = [{"t": r} for r in righe[:4]]
+        hook = [{"t": r} for r in righe[:5]]
         hook[-1]["hl"] = True
     elif s["tipo"] == "asta":
         hook = [{"t": f"{tipo} all'asta"}, {"t": f"a {dove}"}, {"t": forte or "Tour completo", "hl": True}]
@@ -915,6 +915,9 @@ def produci_tiktok(nome, tipo, citta, schede):
     for scheda in schede[:30]:
         try:
             d = cs.leggi_annuncio(scheda["id"])
+            if tipo != "asta" and re.search(r"all.asta|\basta\b|dimorama|tribunale|esecuzion", 
+                                            d.get("titolo", "") + " " + d.get("agenzia", ""), re.I):
+                continue        # niente aste nei video di vendita e affitto
             n = len([u for u in d.get("foto", []) if not re.search(r"mappa|planimetr|piantin", u, re.I)])
             letti.append((n, scheda, d))
             if n >= TIKTOK_FOTO_TOP:
