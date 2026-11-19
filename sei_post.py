@@ -432,10 +432,19 @@ NON_LEGGERE = re.compile(r"www\.|@|https?:|\btel\b|telefon|cell\.?\s*\d|whatsapp
 VOCE_MAX_CARATTERI = int(os.environ.get("VOCE_TIKTOK_MAX", "2600"))   # circa 3 minuti di voce
 
 
+def s_agenzia(nome):
+    return bool(re.search(r"agenzia|immobiliar|studio|real estate|group|tecnocasa|tempocasa|gabetti|remax|re/max", nome, re.I))
+
+
 def frasi_annuncio(a):
     """titolo dell'annuncio + tutte le frasi della descrizione, come le legge la voce"""
     titolo = re.sub(r"\s+", " ", a.get("titolo", "")).strip(" .")
     pezzi = [(titolo.capitalize() if titolo.isupper() else titolo) + "."] if titolo else []
+    agenzia = re.sub(r"\s+", " ", a.get("agenzia", "")).strip(" .")
+    if agenzia:         # subito dopo il titolo: chi lo vende
+        if agenzia.isupper():
+            agenzia = agenzia.title()
+        pezzi.append(f"Lo propone {agenzia}." if s_agenzia(agenzia) else f"Lo propone l'agenzia {agenzia}.")
     for f in re.split(r"(?<=[.!?;])\s+|\s*\n+\s*|\s*•\s*", a.get("descrizione", "")):
         f = re.sub(r"\s+", " ", f).strip(" -–*•")
         f = re.sub(r"\b(mq|m2)\b\.?|m²", "metri quadri", f, flags=re.I)
@@ -591,7 +600,19 @@ def dati_tiktok(s, foto, cartella):
     if forte and (dove.lower() in forte or forte.split()[-1] in dove.lower()):
         dove = s["citta"].title()            # niente "nel centro storico a Centro Storico"
     giorno = datetime.now().timetuple().tm_yday + sum(map(ord, s.get("slot", "")))
-    if s["tipo"] == "asta":
+    titolo = re.sub(r"\s+", " ", a.get("titolo", "")).strip(" .").upper()
+    if titolo:          # all'inizio solo il titolo dell'annuncio (es. QUADRILOCALE VENDITA PERUGIA)
+        righe, cur = [], ""
+        for w in titolo.split():
+            if cur and len(cur) + 1 + len(w) > 15:
+                righe.append(cur)
+                cur = w
+            else:
+                cur = (cur + " " + w).strip()
+        righe.append(cur)
+        hook = [{"t": r} for r in righe[:4]]
+        hook[-1]["hl"] = True
+    elif s["tipo"] == "asta":
         hook = [{"t": f"{tipo} all'asta"}, {"t": f"a {dove}"}, {"t": forte or "Tour completo", "hl": True}]
     elif giorno % 2:
         hook = [{"t": "POV: entri nella"}, {"t": "tua nuova casa"}, {"t": f"{forte or ''} a {dove}".strip(), "hl": True}]
