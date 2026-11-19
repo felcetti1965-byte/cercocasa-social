@@ -78,6 +78,23 @@ INIZIO = time.time()
 HTTP = requests.Session()
 HTTP.headers["User-Agent"] = "CercocasaUmbria-Social/1.0 (+https://www.cercocasaumbria.it)"
 
+# piano col sito: almeno 0,7 s tra una richiesta e l'altra, così la protezione anti-bot (fail2ban) non ci blocca
+_ultima = [0.0]
+_richiesta = HTTP.request
+
+
+def _richiesta_lenta(*a, **k):
+    attesa = 0.7 - (time.monotonic() - _ultima[0])
+    if attesa > 0:
+        time.sleep(attesa)
+    try:
+        return _richiesta(*a, **k)
+    finally:
+        _ultima[0] = time.monotonic()
+
+
+HTTP.request = _richiesta_lenta
+
 
 def log(*a):
     print(datetime.now().strftime("%H:%M:%S"), *a, flush=True)
