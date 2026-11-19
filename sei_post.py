@@ -456,13 +456,19 @@ def dati_tiktok(s, foto, cartella):
             chip_di[str(fp)] = fr
     dati_generici = [t for _, t in base.get("specs", [])]
     t, scene = 2600, [{"photo": str(foto[0]), "start": 0, "end": 2600, "chip": ""}]
+    _numero = lambda c: (re.search(r"\d[\d.,]*", c or "") or [None])[0]
+    visti = {_numero(c) for c in chip_di.values() if _numero(c)}
     for f in foto[1:TIKTOK_MAX_FOTO]:
         cat = info.get(str(f), ("",))[0]
         if cat == "documento":
             continue
         chip = chip_di.get(str(f)) or STANZE_IT.get(cat, "")
-        if not chip and dati_generici:
+        while not chip and dati_generici:
             chip = dati_generici.pop(0)
+            if _numero(chip) and _numero(chip) in visti:      # niente "139 m²" ripetuto due volte
+                chip = ""
+        if _numero(chip):
+            visti.add(_numero(chip))
         scene.append({"photo": str(f), "start": t, "end": t + 1500, "chip": chip})
         t += 1500
     reveal = {"start": t, "end": t + 3000}
