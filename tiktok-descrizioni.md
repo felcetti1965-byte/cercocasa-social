@@ -1,13 +1,13 @@
-# TikTok del 19/11/2026
+# TikTok del 20/11/2026
 
-## Vendita Perugia
+## Affitto Perugia
 
 ```
-🏠 Appartamento in vendita centro storico Perugia
-👀 Casa a Perugia sotto i 100.000 €: € 45.000
-3 locali · 1 bagno · 110 m²
-Annuncio di SINERGIE IMMOBILIARE
+🏠 Ponte San Giovanni, Bilocale ARREDATO
+🏠 Nuova in vendita a Perugia: 
+2 locali · 1 bagno · 50 m²
+Annuncio di IMMOBILIARE TREBBI
 💬 Quanto avresti detto? Scrivilo nei commenti
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5656) · link in bio
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5635) · link in bio
 #perugia #umbria #casainvendita #case #immobiliare
 ```
