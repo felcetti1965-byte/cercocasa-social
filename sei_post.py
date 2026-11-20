@@ -961,8 +961,14 @@ def video_tiktok(browser, s, cartella, foto):
     stile = os.environ.get("TIKTOK_STILE", "gabbia")
     if stile == "gabbia":       # stessa gabbia dei post Facebook/Instagram, in verticale
         foto = foto_senza_filigrana(foto, cartella)
-        _, reel, audio, _, _ = video_post(browser, s, cartella, foto, con_facebook=False)
-        return monta(reel, audio, s, cs.USCITA / f"{s['slot']}-tiktok.mp4", verticale=True)
+        _, reel, audio, _, cop_reel = video_post(browser, s, cartella, foto, con_facebook=False)
+        out = monta(reel, audio, s, cs.USCITA / f"{s['slot']}-tiktok.mp4", verticale=True)
+        if cop_reel and Path(cop_reel).exists():     # copertina = foto dell'immobile con titolo e prezzo, non la sigla
+            try:
+                shutil.move(str(con_copertina_iniziale(out, cop_reel)), str(out))
+            except Exception as e:
+                cs.log("  TikTok: copertina dell'annuncio non aggiunta:", e)
+        return out
     if stile == "editoriale":
         return video_editoriale(browser, s, cartella, foto, 1080, 1920, "tiktok")
     foto = foto_senza_filigrana(foto, cartella)
@@ -1110,6 +1116,11 @@ def testo(s, social):
 
 
 # ---------------------------------------------------------------- pubblicazione
+def copertina_tiktok_ms():
+    """stile gabbia: la copertina dell'annuncio è nel primo mezzo secondo; altri stili: foto con il gancio"""
+    return "200" if os.environ.get("TIKTOK_STILE", "gabbia") == "gabbia" else "700"
+
+
 def tempo_copertina():
     """millisecondo del video in cui c'è la copertina dell'annuncio (dopo la sigla iniziale)"""
     return int((durata(apertura_breve()) * 1000) + COPERTINA_MS + 400)
@@ -1279,7 +1290,7 @@ def main_tiktok(args):
         if k:
             time.sleep(60 * float(os.environ.get("PAUSA_MINUTI", "3") or 3))
         try:
-            os.environ["TIKTOK_COPERTINA_MS"] = "700"
+            os.environ["TIKTOK_COPERTINA_MS"] = copertina_tiktok_ms()
             ris = cs.PUBBLICA["tiktok"](video, testo)
         except Exception as e:
             cs.log("tiktok: ERRORE", s["slot"], e)
@@ -1371,7 +1382,7 @@ def main():
                     virale = cs.USCITA / f"{s['slot']}-tiktok.mp4"
                     if virale.exists():
                         vt = virale
-                        os.environ["TIKTOK_COPERTINA_MS"] = "700"     # copertina = foto con il gancio scritto
+                        os.environ["TIKTOK_COPERTINA_MS"] = copertina_tiktok_ms()     # copertina = foto con il gancio scritto
                     cop_reel = v916.with_suffix(".jpg")
                     if vt == v916 and cop_reel.exists() and not (os.environ.get("UPLOADPOST_KEY") or os.environ.get("ZERNIO_KEY")):   # con Upload-Post la copertina la sceglie cover_timestamp
                         try:
