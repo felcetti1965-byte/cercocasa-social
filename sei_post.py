@@ -1246,25 +1246,29 @@ def main_tiktok(args):
     if quanti <= 6:
         lista = [x for x in lista if not x[0].endswith("-2")]
         g = date.today().toordinal() % max(1, len(lista))      # ogni giorno un tipo diverso (vendita, affitto, asta...)
-        lista = (lista[g:] + lista[:g])[:quanti]
-    else:
-        lista = lista[:quanti]
+        lista = lista[g:] + lista[:g]       # tutta la rotazione: se il tipo del giorno non ha annunci adatti si passa al successivo
     if args.slot:
         lista = [x for x in candidati(stato, usati=gia_tiktok) if x[0] == args.slot and x[3]][:1]
-    if not lista:
+        quanti = 1
+    if not lista or quanti <= 0:
         cs.log("TikTok: niente da fare oggi.")
         return
     from concurrent.futures import ProcessPoolExecutor
     pronti = []
+    resto = list(lista)
     with ProcessPoolExecutor(max_workers=int(os.environ.get("VIDEO_IN_PARALLELO", "3") or 3)) as pool:
-        lavori = [pool.submit(produci_tiktok, n, t, c, sc) for n, t, c, sc in lista]
-        for lavoro in lavori:
-            try:
-                r = lavoro.result()
-                if r:
-                    pronti.append(r)
-            except Exception as e:
-                cs.log("  TikTok: video non creato:", e)
+        while resto and len(pronti) < quanti:
+            giro, resto = resto[:quanti - len(pronti)], resto[quanti - len(pronti):]
+            lavori = [pool.submit(produci_tiktok, n, t, c, sc) for n, t, c, sc in giro]
+            for lavoro in lavori:
+                try:
+                    r = lavoro.result()
+                    if r:
+                        pronti.append(r)
+                except Exception as e:
+                    cs.log("  TikTok: video non creato:", e)
+            if len(pronti) < quanti and resto:
+                cs.log(f"TikTok: provo con il tipo successivo ({resto[0][0]})")
     descr = []
     for k, (s, video) in enumerate(pronti):
         a = s["dettaglio"]
