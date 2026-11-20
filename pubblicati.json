@@ -2907,6 +2907,102 @@
    "prezzo": "€ 45.000",
    "comune": "Perugia",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5656"
+  },
+  {
+   "id": 5689,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-20T05:59",
+   "titolo": "Appartamento in Vendita - Via XX Settembre",
+   "prezzo": "€ 90.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5689/copertina-2fa2d0ed72.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5689",
+   "facebook_id": "1405602381379907",
+   "instagram_id": "17919920148265262"
+  },
+  {
+   "id": 5691,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-20T06:04",
+   "titolo": "VENDITA APPARTAMENTO CON GIARDINO MONTELAGUARDIA",
+   "prezzo": "€ 260.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5691/copertina-6d1688db5c.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5691",
+   "facebook_id": "1083230777389275",
+   "instagram_id": "17878596036585363"
+  },
+  {
+   "id": 5693,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-20T06:09",
+   "titolo": "APPARTAMENTO AFFITTO CENTRALE PERUGIA",
+   "prezzo": "€ 1.000/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5693/copertina-3222888a47.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5693",
+   "facebook_id": "1016082194152059",
+   "instagram_id": "18143921098627353"
+  },
+  {
+   "id": 4659,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-20T06:14",
+   "titolo": "Appartamento all’asta a Terni, Via degli Arroni – piano 1",
+   "prezzo": "€ 41.625",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4659/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4659",
+   "facebook_id": "1852668022850111",
+   "instagram_id": "18171362383474334"
+  },
+  {
+   "id": 5643,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-20T06:19",
+   "titolo": "Appartamento all’asta a Foligno, Via Antonio Gramsci – piano 3, 2 locali",
+   "prezzo": "€ 68.014",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5643/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5643",
+   "facebook_id": "1151076210897676",
+   "instagram_id": "17977039800150496"
+  },
+  {
+   "id": 5686,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-20T06:23",
+   "titolo": "VENDITA APPARTAMENTO ZONA COSPEA TERNI",
+   "prezzo": "€ 90.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5686/copertina-b5533a8f21.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5686",
+   "facebook_id": "991856923481680",
+   "instagram_id": "18118941959020553"
   }
  ],
  "versione": 7
