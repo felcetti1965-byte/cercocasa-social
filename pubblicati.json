@@ -3016,6 +3016,115 @@
    "prezzo": "",
    "comune": "Perugia",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5635"
+  },
+  {
+   "id": 5685,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-21T06:00",
+   "titolo": "VENDITA APPARTAMENTO BORGO BOVIO",
+   "prezzo": "€ 125.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5685/copertina-19879cf8b9.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5685",
+   "facebook_id": "1783347069630994",
+   "instagram_id": "18080160218760089"
+  },
+  {
+   "id": 5677,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-21T06:06",
+   "titolo": "VENDITA APPARTAMENTO COLOMBELLA",
+   "prezzo": "€ 129.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5677/copertina-cf2ca21321.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5677",
+   "facebook_id": "1190404600338214",
+   "instagram_id": "18111172103458161"
+  },
+  {
+   "id": 5703,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-21T06:11",
+   "titolo": "Appartamento ristrutturato 3 camere",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5703/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5703",
+   "facebook_id": "1320487413539227",
+   "instagram_id": "18046076723837092"
+  },
+  {
+   "id": 4660,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-21T06:16",
+   "titolo": "Appartamento all’asta a Terni, Via Angelo Finetti, 18 – piano terra",
+   "prezzo": "€ 19.924",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4660/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4660",
+   "facebook_id": "1900335158004526",
+   "instagram_id": "18116878184177781"
+  },
+  {
+   "id": 5644,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-21T06:21",
+   "titolo": "Appartamento all’asta a Foligno, Via del Lavoro – piano 2, 3 locali",
+   "prezzo": "€ 53.410",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5644/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5644",
+   "facebook_id": "29041783685515665",
+   "instagram_id": "18136434331788037"
+  },
+  {
+   "id": 5682,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-21T06:26",
+   "titolo": "APPARTAMENTO VENDITA COSPEA TERNI",
+   "prezzo": "€ 100.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5682/copertina-363fbe4e65.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5682",
+   "facebook_id": "1815482173074893",
+   "instagram_id": "18072869759789114"
+  },
+  {
+   "id": 5703,
+   "tt": "affitto-perugia",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b013b2dc3684297b10e7fcd",
+   "data": "2026-11-21T06:33:31",
+   "titolo": "Appartamento ristrutturato 3 camere",
+   "prezzo": "",
+   "comune": "Perugia",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5703"
   }
  ],
  "versione": 7
