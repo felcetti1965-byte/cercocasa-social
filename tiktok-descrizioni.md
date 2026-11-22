@@ -1,13 +1,13 @@
-# TikTok del 21/11/2026
+# TikTok del 22/11/2026
 
-## Affitto Perugia
+## Asta Perugia
 
 ```
-🏠 Appartamento ristrutturato 3 camere
-🏠 Nuova in vendita a Perugia: 
-4 locali · 1 bagno · 101 m²
-Annuncio di IMMOBILIARE TREBBI
+🏠 Appartamento all’asta a Trevi, Frazione Matigge, Via Narni – 4 locali
+⚖️ All'asta a Trevi: si parte € 82.500!
+4 locali · 116 m²
+Annuncio di AFFARI IN ASTA TERNI
 💬 Quanto avresti detto? Scrivilo nei commenti
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5703) · link in bio
-#perugia #umbria #casainvendita #case #immobiliare
+👉 Foto e contatti su www.cercocasaumbria.it (codice 5621) · link in bio
+#trevi #umbria #asteimmobiliari #perugia #case
 ```

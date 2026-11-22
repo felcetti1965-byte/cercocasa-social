@@ -3125,6 +3125,115 @@
    "prezzo": "",
    "comune": "Perugia",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5703"
+  },
+  {
+   "id": 5681,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-22T05:51",
+   "titolo": "VENDITA APPARTAMENTO VICINO AL TRIBUNALE TERNI",
+   "prezzo": "€ 59.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5681/copertina-4651eab187.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5681",
+   "facebook_id": "2754957591626262",
+   "instagram_id": "17923899573461166"
+  },
+  {
+   "id": 5675,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-22T05:56",
+   "titolo": "VENDITA APPARTAMENTO VIA CHIUSI PERUGIA",
+   "prezzo": "€ 110.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5675/copertina-28db3de3f9.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5675",
+   "facebook_id": "2605268389950875",
+   "instagram_id": "18117774608110030"
+  },
+  {
+   "id": 5690,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-22T06:01",
+   "titolo": "AFFITTO VIA ALESSI CENTRO STORICO PERUGIA",
+   "prezzo": "€ 1.450/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5690/copertina-48d556ae6b.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5690",
+   "facebook_id": "1694978102338902",
+   "instagram_id": "18126052480946891"
+  },
+  {
+   "id": 4667,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-22T06:05",
+   "titolo": "Appartamento all’asta a Terni, Viale Filippo Turati – piano 2",
+   "prezzo": "€ 57.094",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4667/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4667",
+   "facebook_id": "1115820704599846",
+   "instagram_id": "17966528025226903"
+  },
+  {
+   "id": 5645,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-22T06:10",
+   "titolo": "Appartamento all’asta a Foligno, Via Antonio Gramsci – piano terra, 3 locali",
+   "prezzo": "€ 145.684",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5645/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5645",
+   "facebook_id": "2603655423473753",
+   "instagram_id": "18174788455463717"
+  },
+  {
+   "id": 5680,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-22T06:14",
+   "titolo": "VENDITA APPARTAMENTO BORGO BOVIO TERNI",
+   "prezzo": "€ 125.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5680/copertina-57a19c859d.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5680",
+   "facebook_id": "1660413622222531",
+   "instagram_id": "18039856265889624"
+  },
+  {
+   "id": 5621,
+   "tt": "asta-perugia",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b0289c4234c383fd1437566",
+   "data": "2026-11-22T06:21:08",
+   "titolo": "Appartamento all’asta a Trevi, Frazione Matigge, Via Narni – 4 locali",
+   "prezzo": "€ 82.500",
+   "comune": "Trevi",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5621"
   }
  ],
  "versione": 7
