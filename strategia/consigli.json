@@ -1,0 +1,113 @@
+{
+  "nota": "Consigli del mercoledì: uno a settimana, a turno. 'titolo' è il gancio dei primi due secondi (in maiuscolo nel video), 'punti' sono le schede: 'titolo' breve (max 22 lettere), 'testo' è la frase detta dalla voce e mostrata nei sottotitoli. Per aggiungerne uno copia un blocco e cambia i testi.",
+  "consigli": [
+    {
+      "titolo": "Quanto vale la tua casa?",
+      "gancio": "Quanto vale davvero la tua casa? Tre cose da guardare prima di decidere il prezzo.",
+      "punti": [
+        {"titolo": "Le case vicine", "testo": "Guarda a quanto sono in vendita le case simili nella tua stessa zona."},
+        {"titolo": "Lo stato", "testo": "Impianti, infissi e bagni rifatti alzano il valore più di ogni altra cosa."},
+        {"titolo": "Una valutazione", "testo": "Chiedi una valutazione a un'agenzia della zona, prima di pubblicare l'annuncio."}
+      ]
+    },
+    {
+      "titolo": "Vendi casa? Parti dalle foto",
+      "gancio": "Vendi casa? Le foto decidono se chi cerca apre il tuo annuncio oppure no.",
+      "punti": [
+        {"titolo": "Luce naturale", "testo": "Scatta di giorno, con le tapparelle alzate e le luci accese."},
+        {"titolo": "Ordine", "testo": "Togli oggetti personali e libera i piani della cucina e del bagno."},
+        {"titolo": "Tutte le stanze", "testo": "Mostra ogni stanza e anche l'esterno: chi cerca vuole vedere tutto."}
+      ]
+    },
+    {
+      "titolo": "I documenti per vendere casa",
+      "gancio": "Vuoi vendere casa? Prepara subito questi documenti, così non perdi tempo dopo.",
+      "punti": [
+        {"titolo": "Atto di provenienza", "testo": "Serve l'atto con cui hai acquistato o ereditato la casa."},
+        {"titolo": "Planimetria", "testo": "La planimetria catastale deve corrispondere allo stato reale della casa."},
+        {"titolo": "Attestato energetico", "testo": "L'attestato di prestazione energetica va indicato già nell'annuncio."}
+      ]
+    },
+    {
+      "titolo": "Prima casa: da dove iniziare",
+      "gancio": "Stai per comprare la prima casa? Ecco da dove iniziare.",
+      "punti": [
+        {"titolo": "Il tuo budget", "testo": "Calcola quanto puoi spendere contando anche notaio, imposte e agenzia."},
+        {"titolo": "Il mutuo", "testo": "Chiedi alla banca quanto può finanziarti, prima di iniziare le visite."},
+        {"titolo": "La zona", "testo": "Scegli la zona pensando a lavoro, scuole e servizi di ogni giorno."}
+      ]
+    },
+    {
+      "titolo": "Cosa guardare durante una visita",
+      "gancio": "Vai a vedere una casa? Queste sono le cose da controllare durante la visita.",
+      "punti": [
+        {"titolo": "Muri e soffitti", "testo": "Cerca macchie di umidità su muri e soffitti, soprattutto negli angoli."},
+        {"titolo": "Gli impianti", "testo": "Chiedi quando sono stati rifatti l'impianto elettrico e la caldaia."},
+        {"titolo": "Le spese", "testo": "Chiedi le spese di condominio e se sono previsti lavori straordinari."}
+      ]
+    },
+    {
+      "titolo": "Affittare casa senza sorprese",
+      "gancio": "Metti in affitto la tua casa? Tre attenzioni per evitare sorprese.",
+      "punti": [
+        {"titolo": "Il contratto", "testo": "Fai sempre un contratto scritto e registrato."},
+        {"titolo": "Lo stato della casa", "testo": "Fotografa la casa e scrivi un verbale di consegna firmato da entrambi."},
+        {"titolo": "Il canone giusto", "testo": "Confronta il canone con gli affitti delle case simili nella tua zona."}
+      ]
+    },
+    {
+      "titolo": "Comprare casa all'asta",
+      "gancio": "Vuoi comprare casa all'asta? Prima di fare un'offerta leggi questi documenti.",
+      "punti": [
+        {"titolo": "La perizia", "testo": "La perizia descrive lo stato dell'immobile e gli eventuali problemi."},
+        {"titolo": "L'avviso di vendita", "testo": "Nell'avviso di vendita trovi offerta minima, cauzione e scadenze."},
+        {"titolo": "La visita", "testo": "Puoi chiedere di visitare l'immobile al custode indicato nell'avviso."}
+      ]
+    },
+    {
+      "titolo": "Il prezzo giusto fa vendere prima",
+      "gancio": "Un prezzo troppo alto tiene la casa ferma sul mercato. Ecco come evitarlo.",
+      "punti": [
+        {"titolo": "Parti dal mercato", "testo": "Il prezzo si decide guardando il mercato, non quanto hai speso tu."},
+        {"titolo": "Le prime settimane", "testo": "Le prime settimane sono quelle in cui l'annuncio riceve più attenzione."},
+        {"titolo": "Ascolta le visite", "testo": "Se arrivano visite ma nessuna offerta, il prezzo va rivisto."}
+      ]
+    },
+    {
+      "titolo": "Casa da ristrutturare: conviene?",
+      "gancio": "Una casa da ristrutturare costa meno. Ma conviene davvero?",
+      "punti": [
+        {"titolo": "Un preventivo", "testo": "Fai fare un preventivo dei lavori prima di fare un'offerta."},
+        {"titolo": "La struttura", "testo": "Tetto, solai e impianti sono le voci che pesano di più sul conto."},
+        {"titolo": "I tempi", "testo": "Metti in conto i mesi di lavori in cui non potrai abitare la casa."}
+      ]
+    },
+    {
+      "titolo": "La proposta d'acquisto",
+      "gancio": "Hai trovato la casa giusta? Prima di firmare la proposta d'acquisto controlla questo.",
+      "punti": [
+        {"titolo": "È un impegno", "testo": "La proposta firmata ti impegna: leggila tutta, con calma."},
+        {"titolo": "Il mutuo", "testo": "Se ti serve un mutuo, fallo scrivere nella proposta come condizione."},
+        {"titolo": "Le date", "testo": "Controlla le date del preliminare e dell'atto dal notaio."}
+      ]
+    },
+    {
+      "titolo": "Piccoli lavori che aiutano a vendere",
+      "gancio": "Con piccoli lavori la tua casa si presenta molto meglio. Ecco quali.",
+      "punti": [
+        {"titolo": "Una mano di bianco", "testo": "Pareti chiare e pulite fanno sembrare le stanze più grandi e luminose."},
+        {"titolo": "Le riparazioni", "testo": "Sistema maniglie, rubinetti che perdono e prese rotte."},
+        {"titolo": "Il giardino", "testo": "Giardino e balconi curati sono la prima cosa che si vede."}
+      ]
+    },
+    {
+      "titolo": "Comprare per affittare",
+      "gancio": "Vuoi comprare una casa da mettere in affitto? Parti da questi conti.",
+      "punti": [
+        {"titolo": "La richiesta", "testo": "Scegli zone dove c'è richiesta: università, ospedale, stazione."},
+        {"titolo": "Le spese", "testo": "Dal canone togli tasse, condominio e manutenzione."},
+        {"titolo": "Il taglio", "testo": "Bilocali e trilocali sono i tagli più richiesti in affitto."}
+      ]
+    }
+  ]
+}

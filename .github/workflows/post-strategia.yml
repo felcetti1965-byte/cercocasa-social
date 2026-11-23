@@ -1,0 +1,91 @@
+name: Post del pomeriggio (strategia Instagram)
+
+# Un Reel in più al giorno, solo Instagram, con un tema per ogni giorno della settimana:
+# lunedì mercato, martedì un immobile, mercoledì consigli, giovedì un'agenzia,
+# venerdì le 5 proposte, sabato prestigio, domenica borghi umbri.
+# I post della mattina (video-giornaliero.yml) non cambiano.
+
+on:
+  # Per farlo partire da solo ogni giorno alle 18:30 italiane (ora solare) togli il # dalle due righe qui sotto.
+  # schedule:
+  #   - cron: "30 17 * * *"
+  workflow_dispatch:
+    inputs:
+      prova:
+        description: "Solo prova (crea il video ma non pubblica)"
+        type: boolean
+        default: true
+      tema:
+        description: "Tema (vuoto = quello del giorno): mercato, immobile, consigli, agenzia, top5, prestigio, borghi"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: post-strategia
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/huggingface
+            ~/.cache/torch
+          key: clip-lama-v1
+
+      - name: Installa programmi
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q -r requirements.txt
+          # riconoscimento delle foto (bagno, cucina, camera...) per il Reel del martedì
+          pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -q open_clip_torch
+          python -m playwright install --with-deps chromium > /dev/null
+
+      - name: Crea e pubblica il Reel
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          ELEVENLABS_KEY: ${{ secrets.ELEVENLABS_KEY }}
+        run: |
+          ARG=""
+          # a orario pubblica; a mano pubblica solo se togli la spunta "Solo prova"
+          [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.prova }}" != "false" ] && ARG="--prova"
+          [ -n "${{ inputs.tema }}" ] && ARG="$ARG --tema ${{ inputs.tema }}"
+          python post_strategia.py $ARG
+
+      - name: Video di prova su un ramo (solo in prova)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.prova != false }}
+        run: |
+          ls video/strategia-*.mp4 >/dev/null 2>&1 || exit 0
+          git config user.name "cercocasa-bot"; git config user.email "bot@cercocasaumbria.it"
+          mkdir -p /tmp/ps && cp video/strategia-* /tmp/ps/
+          git checkout -q --orphan prova-strategia && git rm -rqf . && cp /tmp/ps/* .
+          git add -f strategia-* && git commit -qm "prova post del pomeriggio" && git push -qf origin prova-strategia
+
+      - name: Salva il video
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: strategia-${{ github.run_number }}
+          path: video/
+          retention-days: 14
+
+      - name: Ricorda i post del pomeriggio già usciti
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.prova != false) }}
+        run: |
+          git config user.name "cercocasa-bot"
+          git config user.email "bot@cercocasaumbria.it"
+          [ -f strategia.json ] || exit 0
+          git add strategia.json
+          git diff --cached --quiet || git commit -m "Post del pomeriggio del $(date +%F)"
+          git pull -q --rebase && git push

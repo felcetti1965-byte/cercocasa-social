@@ -1,0 +1,101 @@
+{
+  "nota": "Curiosità sui borghi umbri della domenica: un borgo a settimana, a turno. 'punti': 'titolo' breve (max 22 lettere), 'testo' è la frase detta dalla voce. 'foto' (facoltativo): nomi di file dentro strategia/foto/ con foto tue o con licenza libera; senza foto il video usa le schede grafiche.",
+  "borghi": [
+    {
+      "nome": "Spello", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "Le Infiorate", "testo": "Ogni anno, per il Corpus Domini, le vie di Spello si coprono di tappeti di fiori."},
+        {"titolo": "Il Pinturicchio", "testo": "Nella chiesa di Santa Maria Maggiore c'è la Cappella Baglioni, affrescata dal Pinturicchio."},
+        {"titolo": "Le porte romane", "testo": "Spello conserva ancora le sue porte di epoca romana, come Porta Venere."}
+      ]
+    },
+    {
+      "nome": "Gubbio", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "La Corsa dei Ceri", "testo": "Ogni 15 maggio a Gubbio si corre la Corsa dei Ceri, fino in cima al monte Ingino."},
+        {"titolo": "Palazzo dei Consoli", "testo": "Il Palazzo dei Consoli domina la piazza sospesa sulla città."},
+        {"titolo": "L'albero di Natale", "testo": "Sul monte Ingino, a dicembre, si accende un enorme albero di Natale fatto di luci."}
+      ]
+    },
+    {
+      "nome": "Montefalco", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "La ringhiera", "testo": "Montefalco è chiamata la ringhiera dell'Umbria, per il panorama sulla valle."},
+        {"titolo": "Il Sagrantino", "testo": "Qui nasce il Sagrantino, uno dei vini rossi più famosi dell'Umbria."},
+        {"titolo": "Benozzo Gozzoli", "testo": "Nella chiesa museo di San Francesco ci sono gli affreschi di Benozzo Gozzoli."}
+      ]
+    },
+    {
+      "nome": "Bevagna", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "Le Gaite", "testo": "A giugno Bevagna torna nel Medioevo con il Mercato delle Gaite."},
+        {"titolo": "Piazza Silvestri", "testo": "Piazza Silvestri è una delle piazze medievali più belle dell'Umbria."},
+        {"titolo": "I mosaici romani", "testo": "Nel centro si possono vedere i mosaici delle antiche terme romane."}
+      ]
+    },
+    {
+      "nome": "Orvieto", "provincia": "Terni",
+      "punti": [
+        {"titolo": "La rupe di tufo", "testo": "Orvieto sorge in cima a una grande rupe di tufo."},
+        {"titolo": "Il Duomo", "testo": "Il Duomo di Orvieto è uno dei capolavori del gotico italiano."},
+        {"titolo": "Il Pozzo", "testo": "Il Pozzo di San Patrizio ha due scale a spirale che non si incontrano mai."}
+      ]
+    },
+    {
+      "nome": "Assisi", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "San Francesco", "testo": "Assisi è la città di San Francesco e di Santa Chiara."},
+        {"titolo": "Patrimonio Unesco", "testo": "Dal 2000 Assisi è patrimonio mondiale dell'Unesco."},
+        {"titolo": "La Rocca", "testo": "Dalla Rocca Maggiore si vede tutta la valle umbra."}
+      ]
+    },
+    {
+      "nome": "Todi", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "Piazza del Popolo", "testo": "Piazza del Popolo, con i suoi palazzi medievali, è il cuore di Todi."},
+        {"titolo": "La Consolazione", "testo": "Ai piedi della città c'è il Tempio della Consolazione, gioiello del Rinascimento."},
+        {"titolo": "Jacopone", "testo": "A Todi nacque Jacopone, uno dei primi poeti della lingua italiana."}
+      ]
+    },
+    {
+      "nome": "Spoleto", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "Il Ponte delle Torri", "testo": "Il Ponte delle Torri unisce la città al Monteluco, sopra una gola profonda."},
+        {"titolo": "Il Festival", "testo": "Dal 1958 Spoleto ospita il Festival dei Due Mondi."},
+        {"titolo": "La Rocca", "testo": "La Rocca Albornoziana domina la città dall'alto."}
+      ]
+    },
+    {
+      "nome": "Narni", "provincia": "Terni",
+      "punti": [
+        {"titolo": "Narnia", "testo": "In epoca romana Narni si chiamava Narnia."},
+        {"titolo": "Narni sotterranea", "testo": "Sotto il centro si visitano ambienti sotterranei riscoperti nel Novecento."},
+        {"titolo": "La Rocca", "testo": "La Rocca Albornoz guarda la città e la valle del Nera."}
+      ]
+    },
+    {
+      "nome": "Città della Pieve", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "Il Perugino", "testo": "A Città della Pieve nacque il Perugino, maestro di Raffaello."},
+        {"titolo": "Lo zafferano", "testo": "Qui si coltiva da secoli lo zafferano."},
+        {"titolo": "Vicolo Baciadonne", "testo": "Vicolo Baciadonne è considerato uno dei vicoli più stretti d'Italia."}
+      ]
+    },
+    {
+      "nome": "Norcia", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "San Benedetto", "testo": "A Norcia nacque San Benedetto, patrono d'Europa."},
+        {"titolo": "La norcineria", "testo": "Da Norcia prende il nome la norcineria, l'arte di lavorare i salumi."},
+        {"titolo": "Il tartufo nero", "testo": "Il tartufo nero di Norcia è famoso in tutta Italia."}
+      ]
+    },
+    {
+      "nome": "Castiglione del Lago", "provincia": "Perugia",
+      "punti": [
+        {"titolo": "Sul Trasimeno", "testo": "Castiglione del Lago si affaccia sul lago Trasimeno da un promontorio."},
+        {"titolo": "Rocca del Leone", "testo": "La Rocca del Leone è una fortezza medievale con vista sul lago."},
+        {"titolo": "Le isole", "testo": "Dal lungolago partono i traghetti per le isole del Trasimeno."}
+      ]
+    }
+  ]
+}
