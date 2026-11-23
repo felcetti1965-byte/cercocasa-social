@@ -387,13 +387,13 @@ def tema_agenzia(stato, cartella):
         tipo = maiuscola(cs.tipo_parola(a))
         operazione = "in affitto" if "AFFIT" in (a.get("operazione") or "").upper() else "in vendita"
         prezzo = cs.prezzo_numero(a)
-        scene.append({"kind": "foto", "photo": u(f), "eye": f"{tipo} {operazione} · {comune}",
+        scene.append({"kind": "foto", "photo": u(f), "corner": u(logo), "eye": f"{tipo} {operazione} · {comune}",
                       "title": euro(prezzo) + (" al mese" if operazione == "in affitto" else ""),
                       "sub": " · ".join(v for v in (f"{a['mq']} m²" if a.get("mq") else "",
                                                      f"{a['camere']} camere" if a.get("camere") else "") if v),
                       "voce": f"{tipo} {operazione} a {comune}: {euro_voce(prezzo)}" +
                               (" al mese." if operazione == "in affitto" else ".")})
-    scene.append({"kind": "fine", "logo": u(logo), "sub": f"Tutti gli annunci di {nome} dal link in bio",
+    scene.append({"kind": "fine", "sub": f"Tutti gli annunci di {nome} dal link in bio",
                   "voce": f"Trovi tutti gli annunci di {nome} su Cercocasa Umbria. Seguici."})
     profilo = (ag.get("instagram") or "").strip().lstrip("@")
     testo = (f"L'agenzia della settimana: {nome}" + (f" (@{profilo})" if profilo else "") + f", {zona}.\n\n" +

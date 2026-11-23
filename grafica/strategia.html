@@ -42,8 +42,8 @@ body { font-family: "Montserrat", sans-serif; color: #fff; --accent: #DB9C12; --
 .logo-ag { display: inline-block; background: #fff; border-radius: 14px; padding: 22px 28px; margin-bottom: 34px;
   box-shadow: 0 8px 30px rgba(0,0,0,.4); line-height: 0; }
 .logo-ag img { max-width: 420px; max-height: 230px; width: auto; height: auto; object-fit: contain; }
-.fine .logo-ag { position: absolute; left: 50%; transform: translateX(-50%); top: 1310px; margin: 0; padding: 16px 22px; }
-.fine .logo-ag img { max-width: 300px; max-height: 150px; }
+.logo-ag.angolo { position: absolute; right: 60px; top: 150px; margin: 0; padding: 14px 18px; border-radius: 10px; }
+.logo-ag.angolo img { max-width: 250px; max-height: 120px; }
 .numero { position: absolute; right: 84px; top: 300px; font-family: "Oswald", sans-serif; font-weight: 700;
   font-size: 230px; line-height: 1; color: var(--accent); text-shadow: 0 6px 30px rgba(0,0,0,.5); }
 .fonte { position: absolute; left: 140px; right: 84px; top: 1240px; font-weight: 500; font-size: 30px; color: #a9a6a0; }
@@ -87,14 +87,14 @@ const nodi = P.scenes.map((s, i) => {
     d.innerHTML = `<div class="fondo"></div><img class="logo" src="logo-tondo.png" alt="">
       <div class="segui">Segui <b>Cercocasa Umbria</b></div>
       <div class="perche">${esc(s.sub || "Ogni giorno nuove case in vendita, in affitto e all'asta in Umbria")}</div>
-      <div class="profilo"><span>${esc(P.handle || "@cercocasadovecome")}</span></div>`
-      + (s.logo ? `<div class="logo-ag"><img src="${s.logo}" alt=""></div>` : "");
+      <div class="profilo"><span>${esc(P.handle || "@cercocasadovecome")}</span></div>`;
   } else {
     const foto = !!s.photo;
     d.className = "scena " + (s.kind === "gancio" ? "gancio" + (foto ? "" : " senza") : foto ? "foto-scena" : "scheda");
     d.innerHTML = (foto ? `<img class="foto" src="${s.photo}" alt=""><div class="velo"></div>`
                         : `<div class="fondo"></div>` + (s.kind === "gancio" ? "" : `<div class="riga"></div>`))
       + (s.num ? `<div class="numero">${esc(s.num)}</div>` : "")
+      + (s.corner ? `<div class="logo-ag angolo"><img src="${s.corner}" alt=""></div>` : "")
       + `<div class="blocco">${s.logo ? `<div class="logo-ag"><img src="${s.logo}" alt=""></div><br>` : ""}${s.eye ? `<div class="occhio">${esc(s.eye)}</div><br>` : ""}
            <div class="titolo">${esc(s.title)}</div>${s.sub ? `<div class="sotto">${esc(s.sub)}</div>` : ""}</div>`
       + (s.source ? `<div class="fonte">${esc(s.source)}</div>` : "");
