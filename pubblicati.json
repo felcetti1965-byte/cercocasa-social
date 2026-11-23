@@ -3234,6 +3234,115 @@
    "prezzo": "€ 82.500",
    "comune": "Trevi",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5621"
+  },
+  {
+   "id": 5596,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-23T05:52",
+   "titolo": "APPARTAMENTO VENDITA CITTA' GIARDINO TERNI",
+   "prezzo": "€ 125.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5596/copertina-8b704444cf.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5596",
+   "facebook_id": "1157081753879776",
+   "instagram_id": "18251859133313574"
+  },
+  {
+   "id": 5674,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-23T05:57",
+   "titolo": "VENDITA CASA INDIPENDENTE SAN SISTO PARTE ALTA",
+   "prezzo": "€ 500.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5674/copertina-eb5990fb6f.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5674",
+   "facebook_id": "1846883583319022",
+   "instagram_id": "18316956460304201"
+  },
+  {
+   "id": 5684,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-23T06:02",
+   "titolo": "APPARTAMENTO AFFITTO ZONA MONTELUCE PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5684/copertina-a3ea660928.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5684",
+   "facebook_id": "1934241684401302",
+   "instagram_id": "18115722668128196"
+  },
+  {
+   "id": 4674,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-23T06:06",
+   "titolo": "Appartamento all’asta a Terni, Strada del Mulino, 4 – piano 1",
+   "prezzo": "€ 82.500",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4674/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4674",
+   "facebook_id": "1150814517819589",
+   "instagram_id": "18060788060568613"
+  },
+  {
+   "id": 5646,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-23T06:11",
+   "titolo": "Appartamento all’asta a Foligno, Via Antonio Gramsci – piano 1, 2 locali",
+   "prezzo": "€ 73.052",
+   "comune": "Foligno",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5646/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5646",
+   "facebook_id": "2597847644024325",
+   "instagram_id": "17926006956221287"
+  },
+  {
+   "id": 5604,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-23T06:15",
+   "titolo": "VENDITA APPARTAMENTO TUILLO TERNI",
+   "prezzo": "€ 75.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5604/copertina-892c14abb5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5604",
+   "facebook_id": "2286273738617745",
+   "instagram_id": "18059445599809694"
+  },
+  {
+   "id": 5584,
+   "tt": "asta-perugia",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b03db7414d3613ca8f71d83",
+   "data": "2026-11-23T06:21:54",
+   "titolo": "Appartamento all’asta a Marsciano, Frazione Migliano, Vocabolo Collebrano – piano terra, 4 locali",
+   "prezzo": "€ 48.000",
+   "comune": "Marsciano",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5584"
   }
  ],
  "versione": 7
