@@ -512,6 +512,9 @@ def main():
             video, totale = crea_video(browser, post, cartella, f"strategia-{tema}")
         finally:
             browser.close()
+    righe = post["testo"].split("\n")            # niente hashtag ripetuti (es. #perugia due volte)
+    righe[-1] = " ".join(dict.fromkeys(righe[-1].split()))
+    post["testo"] = "\n".join(righe)
     (cs.USCITA / f"strategia-{tema}.txt").write_text(post["testo"], encoding="utf-8")
     cs.log("  testo del post:\n" + post["testo"])
     if args.prova:

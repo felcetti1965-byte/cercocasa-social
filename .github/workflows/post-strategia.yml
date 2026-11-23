@@ -6,9 +6,10 @@ name: Post del pomeriggio (strategia Instagram)
 # I post della mattina (video-giornaliero.yml) non cambiano.
 
 on:
-  # Per farlo partire da solo ogni giorno alle 18:30 italiane (ora solare) togli il # dalle due righe qui sotto.
-  # schedule:
-  #   - cron: "30 17 * * *"
+  # Ogni giorno alle 18:30 italiane con l'ora solare (19:30 con l'ora legale: in quel periodo metti "30 16 * * *").
+  # Per fermarlo metti un # davanti alle due righe qui sotto.
+  schedule:
+    - cron: "30 17 * * *"
   workflow_dispatch:
     inputs:
       prova:

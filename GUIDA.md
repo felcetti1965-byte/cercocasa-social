@@ -112,3 +112,11 @@ Pubblica ogni mattina verso le 8 (ora italiana). Per cambiarlo, modifica la riga
 - TikTok: 1 video al giorno, ogni giorno un tipo diverso (rotazione sui 6 slot). Grafica = la stessa gabbia dei post (TIKTOK_STILE=gabbia), in verticale, con sigla, sottotitoli abbinati alle foto, QR e chiusura.
 - Altri stili TikTok rimasti nel codice: TIKTOK_STILE=editoriale (stile Trebbi), tour, voce.
 - Le richieste al sito sono rallentate (0,7 s) per non far scattare fail2ban sui server di GitHub.
+
+## Post del pomeriggio (dal 23/11/2026)
+- Un Reel in più al giorno, solo Instagram, alle 18:30: workflow `post-strategia.yml`, programma `post_strategia.py`, grafica `grafica/strategia.html`. I post della mattina non cambiano.
+- Tema del giorno: lunedì mercato (prezzi degli annunci sul portale), martedì un immobile, mercoledì consigli, giovedì un'agenzia, venerdì 5 proposte, sabato prestigio, domenica borghi umbri.
+- Video 1080x1920, 20-35 secondi, titolo nel primo fotogramma (senza sigla), sottotitoli sincronizzati con la voce, logo sempre visibile, chiusura "Segui Cercocasa Umbria".
+- Consigli e borghi si modificano nei file `strategia/consigli.json` e `strategia/borghi.json`. Foto dei borghi: metterle in `strategia/foto/` e scriverne i nomi nel campo `foto`.
+- Reel in collaborazione: in `agenzie_rivista.json` aggiungi all'agenzia `"instagram": "nomeprofilo"`; il giovedì viene invitata come collaboratore (deve accettare).
+- Memoria dei post usciti: `strategia.json`. Prova senza pubblicare: Actions → Post del pomeriggio → Run workflow con "Solo prova"; il video finisce nel ramo `prova-strategia`.
