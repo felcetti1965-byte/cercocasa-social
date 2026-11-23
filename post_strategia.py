@@ -344,14 +344,15 @@ def tema_agenzia(stato, cartella):
     nome = sp.nome_agenzia(ag["nome"])
     zona = ag.get("rivista", "Umbria")
     scene = [{"kind": "gancio", "photo": u(scelti[0][1]), "eye": "L'agenzia della settimana", "title": nome,
-              "sub": f"{zona} · {len(ids)} annunci su Cercocasa Umbria",
+              "sub": f"{zona} · i suoi annunci su Cercocasa Umbria",
               "voce": f"L'agenzia della settimana: {nome}, a {zona}. Ecco alcune delle sue proposte."}]
     for a, f in scelti:
         comune = (a.get("comune") or "").split("·")[0].strip() or zona
         tipo = maiuscola(cs.tipo_parola(a))
         operazione = "in affitto" if "AFFIT" in (a.get("operazione") or "").upper() else "in vendita"
         prezzo = cs.prezzo_numero(a)
-        scene.append({"kind": "foto", "photo": u(f), "eye": f"{tipo} {operazione} · {comune}", "title": euro(prezzo),
+        scene.append({"kind": "foto", "photo": u(f), "eye": f"{tipo} {operazione} · {comune}",
+                      "title": euro(prezzo) + (" al mese" if operazione == "in affitto" else ""),
                       "sub": " · ".join(v for v in (f"{a['mq']} m²" if a.get("mq") else "",
                                                      f"{a['camere']} camere" if a.get("camere") else "") if v),
                       "voce": f"{tipo} {operazione} a {comune}: {euro_voce(prezzo)}" +
