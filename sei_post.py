@@ -152,6 +152,39 @@ def scheda_valida(tipo, s, usati):
     return True
 
 
+GIORNI_STESSO_PALAZZO = 14
+
+
+def chiave_via(titolo):
+    """'Appartamento all'asta a Foligno, Via Antonio Gramsci – piano 1, 2 locali' -> 'foligno, via antonio gramsci'"""
+    t = re.sub(r"^.*?all.asta a\s+", "", titolo or "", flags=re.I)
+    t = re.split(r"\s[–—-]\s", t)[0]
+    return re.sub(r"\s+", " ", t).strip().lower()
+
+
+def senza_stesso_palazzo(ordine, stato):
+    """Aste: più lotti dello stesso palazzo hanno la stessa foto e sul profilo sembrano doppioni.
+    Chi ha la stessa via di un'asta uscita negli ultimi giorni (o di una scheda già in lista)
+    va in fondo: esce solo se non c'è altro, così i post non mancano mai."""
+    limite = (date.today() - timedelta(days=GIORNI_STESSO_PALAZZO)).isoformat()
+    recenti = {}
+    for p in stato.get("pubblicati", []):
+        if "asta" in str(p.get("sei") or p.get("tt") or "") and str(p.get("data", ""))[:10] >= limite:
+            k = chiave_via(p.get("titolo", ""))
+            if k:
+                recenti.setdefault(k, set()).add(p.get("id"))
+    prima, dopo, viste = [], [], set()
+    for x in ordine:
+        k = chiave_via(x.get("titolo", ""))
+        if k and (recenti.get(k, set()) - {x["id"]} or k in viste):
+            dopo.append(x)
+        else:
+            prima.append(x)
+        if k:
+            viste.add(k)
+    return prima + dopo
+
+
 def candidati(stato, solo=None, usati=None):
     """per ogni tipo e città: (nome, tipo, città, schede in ordine di preferenza, prima le case).
     solo = {slot: id}: ripropone proprio quegli annunci (già pubblicati oggi, per un altro social)"""
@@ -180,6 +213,8 @@ def candidati(stato, solo=None, usati=None):
             if x["id"] not in visti:
                 visti.add(x["id"])
                 ordine.append(x)
+        if tipo == "asta":
+            ordine = senza_stesso_palazzo(ordine, stato)
         gruppo = stessa[pagina]
         if solo is None and len(gruppo) > 1:
             ordine = ordine[gruppo.index(nome)::len(gruppo)]
