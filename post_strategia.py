@@ -309,6 +309,41 @@ def tema_immobile(stato, cartella):
     return dict(scene=scene, testo=testo, chiave=str(x["id"]), ids=[x["id"]])
 
 
+def logo_agenzia(pagina, nome, cartella):
+    """il logo dell'agenzia dalla sua pagina sul portale (non il logo di Cercocasa, non le foto degli annunci)"""
+    from bs4 import BeautifulSoup
+    from urllib.parse import urljoin
+    zuppa = BeautifulSoup(pagina, "html.parser")
+    parole = [w for w in re.findall(r"[a-zà-ù]{4,}", nome.lower()) if w not in ("immobiliare", "agenzia", "affiliato", "studio")]
+    scelti = []
+    for k, img in enumerate(zuppa.find_all("img")):
+        src = img.get("src") or img.get("data-src") or ""
+        attorno = " ".join([src, img.get("alt", ""), " ".join(img.get("class", []))] +
+                           [" ".join(g.get("class", [])) for g in list(img.parents)[:3]]).lower()
+        if not src or src.startswith("data:") or re.search(r"uploads/properties|/assets/|logo-v\d|cercocasa|mappa|placeholder", src, re.I):
+            continue
+        punti = (3 if re.search(r"agenc|agenz|agency", attorno) else 0) + (2 if "logo" in attorno else 0) + \
+                (2 if any(w in attorno for w in parole) else 0)
+        if punti:
+            scelti.append((-punti, k, urljoin(cs.SITO + "/", src)))
+    cs.log("  logo agenzia, candidati: " + (", ".join(f"{u_} ({-p_})" for p_, _k, u_ in sorted(scelti)[:4]) or "nessuno"))
+    for _p, _k, url in sorted(scelti)[:3]:
+        try:
+            r = cs.HTTP.get(url, timeout=60)
+            r.raise_for_status()
+            est = Path(url.split("?")[0]).suffix.lower() or ".png"
+            grezzo = cartella / f"logo-agenzia-orig{est}"
+            grezzo.write_bytes(r.content)
+            if est == ".svg":
+                return grezzo
+            png = cartella / "logo-agenzia.png"
+            cs.ff("-i", grezzo, "-vf", "scale='min(700,iw)':-2", png)
+            return png
+        except Exception as e:
+            cs.log("  logo agenzia non scaricato", url, e)
+    return None
+
+
 def tema_agenzia(stato, cartella):
     """Giovedì: un'agenzia della rivista con tre dei suoi annunci. Se nel file agenzie_rivista.json l'agenzia ha
     il campo "instagram" (es. "nomeprofilo"), il Reel viene proposto in collaborazione con il suo profilo."""
@@ -343,7 +378,8 @@ def tema_agenzia(stato, cartella):
         raise RuntimeError("agenzia: nessuna agenzia con almeno due annunci adatti")
     nome = sp.nome_agenzia(ag["nome"])
     zona = ag.get("rivista", "Umbria")
-    scene = [{"kind": "gancio", "photo": u(scelti[0][1]), "eye": "L'agenzia della settimana", "title": nome,
+    logo = logo_agenzia(pagina, ag["nome"], cartella)
+    scene = [{"kind": "gancio", "photo": u(scelti[0][1]), "eye": "L'agenzia della settimana", "title": nome, "logo": u(logo),
               "sub": f"{zona} · i suoi annunci su Cercocasa Umbria",
               "voce": f"L'agenzia della settimana: {nome}, a {zona}. Ecco alcune delle sue proposte."}]
     for a, f in scelti:
@@ -357,7 +393,7 @@ def tema_agenzia(stato, cartella):
                                                      f"{a['camere']} camere" if a.get("camere") else "") if v),
                       "voce": f"{tipo} {operazione} a {comune}: {euro_voce(prezzo)}" +
                               (" al mese." if operazione == "in affitto" else ".")})
-    scene.append({"kind": "fine", "sub": f"Tutti gli annunci di {nome} dal link in bio",
+    scene.append({"kind": "fine", "logo": u(logo), "sub": f"Tutti gli annunci di {nome} dal link in bio",
                   "voce": f"Trovi tutti gli annunci di {nome} su Cercocasa Umbria. Seguici."})
     profilo = (ag.get("instagram") or "").strip().lstrip("@")
     testo = (f"L'agenzia della settimana: {nome}" + (f" (@{profilo})" if profilo else "") + f", {zona}.\n\n" +
