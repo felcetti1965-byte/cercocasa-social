@@ -3343,6 +3343,115 @@
    "prezzo": "€ 48.000",
    "comune": "Marsciano",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5584"
+  },
+  {
+   "id": 5717,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-24T05:57",
+   "titolo": "Porzione di bifamiliare in vendita a Valenza",
+   "prezzo": "€ 330.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5717/copertina-a5a83b6133.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5717",
+   "facebook_id": "1695395155646968",
+   "instagram_id": "18658285258061077"
+  },
+  {
+   "id": 5719,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-24T06:02",
+   "titolo": "PERUGIA - FERRO DI CAVALLO - APPARTAMENTO RISTRUTTURATO CON GIARDINO",
+   "prezzo": "€ 150.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5719/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5719",
+   "facebook_id": "4120239958278468",
+   "instagram_id": "18082359953481811"
+  },
+  {
+   "id": 5715,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-24T06:07",
+   "titolo": "AFFITTO APPARTAMENTO VIA DEGLI OLEANDRI TERNI",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5715/copertina-fe2018a372.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5715",
+   "facebook_id": "1755760292190855",
+   "instagram_id": "18651022666039045"
+  },
+  {
+   "id": 5714,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-24T06:12",
+   "titolo": "APPARTAMENTO AFFITTO ZONA ELCE PERUGIA",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5714/copertina-2d99325ebd.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5714",
+   "facebook_id": "1654000059515492",
+   "instagram_id": "18074445167502634"
+  },
+  {
+   "id": 4676,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-24T06:17",
+   "titolo": "Appartamento all’asta a Terni, Via dei Pressio Colonnese – piano 1",
+   "prezzo": "€ 29.400",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4676/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4676",
+   "facebook_id": "29239846912343017",
+   "instagram_id": "18108482507148154"
+  },
+  {
+   "id": 5212,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-24T06:21",
+   "titolo": "Appartamento all’asta a Spoleto, Loc. San Giacomo, Via Albania – 5 locali",
+   "prezzo": "€ 87.000",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5212/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5212",
+   "facebook_id": "2028726214472596",
+   "instagram_id": "18067297802796284"
+  },
+  {
+   "id": 5689,
+   "tt": "vendita-terni",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b053163cef40854250d7e6b",
+   "data": "2026-11-24T06:40:50",
+   "titolo": "Appartamento in Vendita - Via XX Settembre",
+   "prezzo": "€ 90.000",
+   "comune": "Terni",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5689"
   }
  ],
  "versione": 7
