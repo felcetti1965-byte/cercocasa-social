@@ -3452,6 +3452,115 @@
    "prezzo": "€ 90.000",
    "comune": "Terni",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5689"
+  },
+  {
+   "id": 5734,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-25T05:49",
+   "titolo": "APPARTAMENTO VENDITA ZONA OSPEDALE TERNI",
+   "prezzo": "€ 59.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5734/copertina-f05762ef4e.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5734",
+   "facebook_id": "2514631359059942",
+   "instagram_id": "18137508358762938"
+  },
+  {
+   "id": 6249,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-25T05:53",
+   "titolo": "Appartamento all’asta a Perugia, Località Mugnano, Via della Cooperativa – 6 locali",
+   "prezzo": "€ 66.375",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6249/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6249",
+   "facebook_id": "1465410365797172",
+   "instagram_id": "18144296146622876"
+  },
+  {
+   "id": 5730,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-25T05:58",
+   "titolo": "AFFITTO PERUGIA SEMICENTRO",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5730/copertina-85245672a6.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5730",
+   "facebook_id": "2343357776421091",
+   "instagram_id": "17994260642865727"
+  },
+  {
+   "id": 4675,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-25T06:03",
+   "titolo": "Appartamento all’asta a Terni, frazione Battiferro, strada di Battiferro, 42 – piano 1, 7 locali",
+   "prezzo": "€ 22.466",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4675/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4675",
+   "facebook_id": "2274041733138116",
+   "instagram_id": "18349672033286414"
+  },
+  {
+   "id": 5213,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-25T06:07",
+   "titolo": "Appartamento all’asta a Spoleto, Frazione Cese – 5 locali",
+   "prezzo": "€ 9.600",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5213/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5213",
+   "facebook_id": "1128499543147196",
+   "instagram_id": "17998046117977747"
+  },
+  {
+   "id": 5732,
+   "sei": "vendita-terni-2",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-25T06:12",
+   "titolo": "APPARTAMENTO VENDITA DI AMPIA METRATURA TERNI",
+   "prezzo": "€ 129.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5732/copertina-05e9b418c5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5732",
+   "facebook_id": "1138907982326383",
+   "instagram_id": "18132791809698554"
+  },
+  {
+   "id": 5697,
+   "tt": "vendita-perugia",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b067dad05fc0d88aacf827f",
+   "data": "2026-11-25T06:18:26",
+   "titolo": "Appartamento con garage e cantina",
+   "prezzo": "€ 125.000",
+   "comune": "Perugia",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5697"
   }
  ],
  "versione": 7
