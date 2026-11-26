@@ -1,13 +1,13 @@
-# TikTok del 25/11/2026
+# TikTok del 26/11/2026
 
-## Vendita Perugia
+## Affitto Perugia
 
 ```
-🏠 Appartamento con garage e cantina
-🏠 Nuova in vendita a Perugia: € 125.000
-3 locali · 1 bagno · 97 m²
-Annuncio di SINERGIE IMMOBILIARE
+🏠 Affitto Corso Garibaldi Perugia
+🔑 In affitto a Perugia: € 1.300/mese
+1 bagno
+Annuncio di QUALITY LIVING IMMOBILIARE
 💬 Quanto avresti detto? Scrivilo nei commenti
-👉 Foto e contatti su www.cercocasaumbria.it (codice 5697) · link in bio
-#perugia #umbria #casainvendita #case #immobiliare
+👉 Foto e contatti su www.cercocasaumbria.it (codice 6272) · link in bio
+#perugia #umbria #casainaffitto #case #immobiliare
 ```

@@ -3561,6 +3561,115 @@
    "prezzo": "€ 125.000",
    "comune": "Perugia",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5697"
+  },
+  {
+   "id": 6278,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-26T05:48",
+   "titolo": "Attico in Via Marzabotto Terni",
+   "prezzo": "€ 115.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6278/copertina-5b0cd9e3d6.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6278",
+   "facebook_id": "1123936180242993",
+   "instagram_id": "17931842865429546"
+  },
+  {
+   "id": 6270,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-26T05:53",
+   "titolo": "Appartamento Via Pascoli Perugia",
+   "prezzo": "€ 75.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6270/copertina-3a29807e24.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6270",
+   "facebook_id": "2306580473456473",
+   "instagram_id": "17914029018577473"
+  },
+  {
+   "id": 6273,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-26T05:57",
+   "titolo": "Affitto Locale Commerciale Centro Storico Terni",
+   "prezzo": "€ 2.000/mese",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6273/copertina-796117c7bc.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6273",
+   "facebook_id": "4709051526033675",
+   "instagram_id": "18652753459050865"
+  },
+  {
+   "id": 6272,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-26T06:02",
+   "titolo": "Affitto Corso Garibaldi Perugia",
+   "prezzo": "€ 1.300/mese",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6272/copertina-819086ab21.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6272",
+   "facebook_id": "1172053962433010",
+   "instagram_id": "18660522043013351"
+  },
+  {
+   "id": 4663,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-26T06:07",
+   "titolo": "Fabbricato all’asta a Otricoli, Via Roma - via siillani",
+   "prezzo": "€ 754.106",
+   "comune": "Otricoli",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4663/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4663",
+   "facebook_id": "5544851439072773",
+   "instagram_id": "17916026973473978"
+  },
+  {
+   "id": 6256,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-26T06:11",
+   "titolo": "Appartamento all’asta a Gualdo Cattaneo, Via San Silvestro – 4 locali",
+   "prezzo": "€ 34.798",
+   "comune": "Gualdo Cattaneo",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6256/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6256",
+   "facebook_id": "1125893960206211",
+   "instagram_id": "17979745095168987"
+  },
+  {
+   "id": 6272,
+   "tt": "affitto-perugia",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b07cf85e2717c65778fb164",
+   "data": "2026-11-26T06:19:53",
+   "titolo": "Affitto Corso Garibaldi Perugia",
+   "prezzo": "€ 1.300/mese",
+   "comune": "Perugia",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6272"
   }
  ],
  "versione": 7
