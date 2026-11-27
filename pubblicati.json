@@ -3670,6 +3670,115 @@
    "prezzo": "€ 1.300/mese",
    "comune": "Perugia",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=6272"
+  },
+  {
+   "id": 6299,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-27T05:52",
+   "titolo": "Appartamento Viale Turati Terni",
+   "prezzo": "€ 160.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6299/copertina-637bf4be78.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6299",
+   "facebook_id": "2086872452467032",
+   "instagram_id": "18118080506025615"
+  },
+  {
+   "id": 6295,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-27T05:57",
+   "titolo": "Appartamento Vendita Via Cortonese",
+   "prezzo": "€ 125.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6295/copertina-9e56205c10.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6295",
+   "facebook_id": "1129761883028934",
+   "instagram_id": "17889563079690614"
+  },
+  {
+   "id": 5587,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-27T06:03",
+   "titolo": "Bilocale Affitto a Cospea",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/5587/copertina-18e3972200.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5587",
+   "facebook_id": "2327114724735544",
+   "instagram_id": "18361759471221146"
+  },
+  {
+   "id": 6266,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-27T06:07",
+   "titolo": "Affitto Appartamento Ponte della Pietra Perugia",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6266/copertina-8c6885f314.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6266",
+   "facebook_id": "1005053332097566",
+   "instagram_id": "18374732254300959"
+  },
+  {
+   "id": 4657,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-27T06:13",
+   "titolo": "Immobile all’asta a San Venanzo, Località/Frazione Po’ Fortunato, Strada Provinciale n. 373",
+   "prezzo": "€ 229.219",
+   "comune": "San venanzo",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4657/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4657",
+   "facebook_id": "4689197001347042",
+   "instagram_id": "18086516054687747"
+  },
+  {
+   "id": 6257,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-27T06:17",
+   "titolo": "Appartamento all’asta a Spoleto, Valle San Martino – 3 locali",
+   "prezzo": "€ 33.750",
+   "comune": "Spoleto",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6257/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6257",
+   "facebook_id": "964617873192474",
+   "instagram_id": "18103879181391618"
+  },
+  {
+   "id": 5696,
+   "tt": "affitto-perugia",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b09217dd51d9bfb050fca88",
+   "data": "2026-11-27T06:21:53",
+   "titolo": "Locale commerciale 140 mq Viale San Sisto Perugia",
+   "prezzo": "€ 1.300/mese",
+   "comune": "Perugia",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=5696"
   }
  ],
  "versione": 7
