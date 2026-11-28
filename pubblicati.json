@@ -3779,6 +3779,115 @@
    "prezzo": "€ 1.300/mese",
    "comune": "Perugia",
    "url": "https://www.cercocasaumbria.it/immobile.php?id=5696"
+  },
+  {
+   "id": 6298,
+   "sei": "vendita-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-28T05:51",
+   "titolo": "Vendita Appartamento Zona Ospedale",
+   "prezzo": "€ 110.000",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6298/copertina-6a0e3d490f.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6298",
+   "facebook_id": "1144231651860912",
+   "instagram_id": "18122551250045568"
+  },
+  {
+   "id": 6311,
+   "sei": "vendita-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-28T05:56",
+   "titolo": "Appartamento in Vendita Ponte Felcino Perugia",
+   "prezzo": "€ 109.000",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6311/copertina-82c72b6610.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6311",
+   "facebook_id": "1843042783681230",
+   "instagram_id": "18119608295016037"
+  },
+  {
+   "id": 6308,
+   "sei": "affitto-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-28T06:01",
+   "titolo": "Bilocale Affitto Borgo Rivo Terni",
+   "prezzo": "",
+   "comune": "Terni",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6308/copertina-dedc551816.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6308",
+   "facebook_id": "2621470474987072",
+   "instagram_id": "18224518810352220"
+  },
+  {
+   "id": 6264,
+   "sei": "affitto-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-28T06:05",
+   "titolo": "Appartamento Affitto Zona XX Settembre Perugia",
+   "prezzo": "",
+   "comune": "Perugia",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6264/copertina-5ceeb7a9b5.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6264",
+   "facebook_id": "1941250680186747",
+   "instagram_id": "17932236327181060"
+  },
+  {
+   "id": 4673,
+   "sei": "asta-terni",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-28T06:10",
+   "titolo": "Appartamento all’asta ad Acquasparta, Frazione Casigliano Campagna, Frazione Casigliano Campagna – piano 2, 10 locali",
+   "prezzo": "€ 94.950",
+   "comune": "Acquasparta",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/4673/asta-1.webp",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=4673",
+   "facebook_id": "1138056072356666",
+   "instagram_id": "17879053284584126"
+  },
+  {
+   "id": 6305,
+   "sei": "asta-perugia",
+   "social": [
+    "facebook",
+    "instagram"
+   ],
+   "data": "2026-11-28T06:15",
+   "titolo": "Appartamento all’asta a Todi, Località Ponterio 124 – 7 locali",
+   "prezzo": "€ 67.158",
+   "comune": "Todi",
+   "foto": "https://www.cercocasaumbria.it/uploads/properties/6305/miogest-1.jpg",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6305",
+   "facebook_id": "4684074175160003",
+   "instagram_id": "18123689653963092"
+  },
+  {
+   "id": 6305,
+   "tt": "asta-perugia",
+   "social": [
+    "tiktok"
+   ],
+   "tiktok_id": "6b0a72c1e848582a91584060",
+   "data": "2026-11-28T06:20:53",
+   "titolo": "Appartamento all’asta a Todi, Località Ponterio 124 – 7 locali",
+   "prezzo": "€ 67.158",
+   "comune": "Todi",
+   "url": "https://www.cercocasaumbria.it/immobile.php?id=6305"
   }
  ],
  "versione": 7
